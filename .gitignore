@@ -1,0 +1,4 @@
+# Ignore environment variable files (ANY file named .env in any directory)
+
+.env
+**/.env
