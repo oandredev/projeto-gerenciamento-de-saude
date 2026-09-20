@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>edu.senacsp</groupId>
-	<artifactId>gerenciamentodesaude</artifactId>
+	<artifactId>health-management</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>
