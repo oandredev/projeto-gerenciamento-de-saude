@@ -20,7 +20,7 @@ public class User {
     @Column(nullable = false,unique = true)
     private String email;
 
-    @Column(nullable = false)  // TODO - Add encryption
+    @Column(nullable = false)
     private String password;
 
     // -----------------------------------------------------> TODO Add auto update of create and modify
