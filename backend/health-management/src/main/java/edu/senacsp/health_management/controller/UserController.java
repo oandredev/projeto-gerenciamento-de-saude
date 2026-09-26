@@ -1,10 +1,11 @@
 package edu.senacsp.health_management.controller;
 
-import edu.senacsp.health_management.dto.request.LoginRequest;
-import edu.senacsp.health_management.dto.request.SignupRequest;
-import edu.senacsp.health_management.dto.response.LoginResponse;
-import edu.senacsp.health_management.dto.response.SignupResponse;
+import edu.senacsp.health_management.dto.request.user.LoginRequest;
+import edu.senacsp.health_management.dto.request.user.SignupRequest;
+import edu.senacsp.health_management.dto.response.user.LoginResponse;
+import edu.senacsp.health_management.dto.response.user.SignupResponse;
 import edu.senacsp.health_management.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +23,14 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<SignupResponse> signup (@RequestBody SignupRequest req)
     {
-        return service.signup(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.signup(req)); // 201 | Successfully created
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login (@RequestBody LoginRequest req)
     {
-        return service.login(req);
+        return ResponseEntity.ok(service.login(req));
     }
+
+    // Maybe add the section for editing the account, changing the name, etc.
 }

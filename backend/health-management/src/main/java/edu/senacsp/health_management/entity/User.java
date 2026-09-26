@@ -23,7 +23,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    // -----------------------------------------------------> TODO Add auto update of create and modify
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
+
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime modifiedAt;
@@ -31,9 +33,8 @@ public class User {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
-    //-------------------------------------------------------------
 
-    protected User() {}
+    protected User() {} // Hibernate
 
     public User(String name, String email, String password)
     {
@@ -74,6 +75,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public LocalDateTime getModifiedAt() {
