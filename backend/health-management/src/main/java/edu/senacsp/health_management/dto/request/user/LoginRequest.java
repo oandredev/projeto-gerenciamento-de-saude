@@ -1,4 +1,4 @@
-package edu.senacsp.health_management.dto.request;
+package edu.senacsp.health_management.dto.request.user;
 
 public record LoginRequest (
         String email,

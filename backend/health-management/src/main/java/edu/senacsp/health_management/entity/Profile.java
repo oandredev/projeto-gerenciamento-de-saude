@@ -7,9 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users") // Conflict with H2 when use "user"
-public class User {
-
+public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,14 +15,15 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false,unique = true)
-    private String email;
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
 
     @Column(nullable = false)
-    private String password;
+    private boolean active;
 
-    @Column(nullable = false, columnDefinition = "boolean default true")
-    private boolean active = true;
+    @Column(nullable = false)
+    private int avatarId;
 
     @UpdateTimestamp
     @Column(nullable = false)
@@ -34,16 +33,7 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    protected User() {} // Hibernate
-
-    public User(String name, String email, String password)
-    {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
-
-    //-------------------------------------------------------------
+    protected Profile() {} // Hibernate
 
     public Long getId() {
         return id;
@@ -61,20 +51,12 @@ public class User {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public User getUser() {
+        return user;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public boolean isActive() {
@@ -83,6 +65,14 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public int getAvatarId() {
+        return avatarId;
+    }
+
+    public void setAvatarId(int avatarId) {
+        this.avatarId = avatarId;
     }
 
     public LocalDateTime getModifiedAt() {
