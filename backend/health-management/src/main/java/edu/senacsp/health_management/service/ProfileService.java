@@ -35,7 +35,7 @@
 
             // Verify if user exists
             User user = userRepo.findById(req.userId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")); // TODO Change the message later to avoid leaking information.
 
             // Verify if the user already has a profile with the same name
             if(repo.existsByNameAndUser(req.name(), user))
@@ -55,13 +55,13 @@
          * @return a {@link ListProfileResponse} containing the user's {@link ProfileItem} list
          * @throws ResponseStatusException if the user is not found (404)
          */
-        public ListProfileResponse findAll(Long userId)
+        public ListProfileResponse findAllByUser(Long userId)
         {
             // Verify if user exists
             User user = userRepo.findById(userId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")); // TODO Change the message later to avoid leaking information.
 
-            List<ProfileItem> profileItemsList = repo.findByUser(user);
+            List<ProfileItem> profileItemsList = repo.findAllByUser(user);
 
             return new ListProfileResponse(profileItemsList);
         }
@@ -75,11 +75,11 @@
         public UpdateProfileResponse update(ProfileItem profileItem)
         {
             Profile profile = repo.findById(profileItem.id())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found")); // TODO Change the message later to avoid leaking information.
 
             if (!profile.getUser().getId().equals(profileItem.userId()))
             {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This profile does not belong to the informed user");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This profile does not belong to the informed user"); // TODO Change the message later to avoid leaking information.
             }
 
             profile.setName(profileItem.name());

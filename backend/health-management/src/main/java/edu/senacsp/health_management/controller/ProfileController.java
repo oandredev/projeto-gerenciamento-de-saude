@@ -31,9 +31,9 @@ public class ProfileController {
 
     @GetMapping("/user/{userId}")
     @ApiMessage("Profile(s) successfully loaded")
-    public ResponseEntity<ListProfileResponse> findAll(@PathVariable Long userId)
+    public ResponseEntity<ListProfileResponse> findAllByUser(@PathVariable Long userId)
     {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAllByUser(userId));
     }
 
     @PutMapping()
