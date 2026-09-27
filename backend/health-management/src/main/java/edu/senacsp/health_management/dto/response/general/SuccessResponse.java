@@ -1,5 +1,6 @@
 package edu.senacsp.health_management.dto.response.general;
 
-public record ErrorResponse(
+public record SuccessResponse<T>(
+        T data,
         String message
 ) {}

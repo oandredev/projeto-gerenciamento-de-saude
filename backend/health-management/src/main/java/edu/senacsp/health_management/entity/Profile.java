@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "user_id"}))
 public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,14 +17,14 @@ public class Profile {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private boolean active;
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
 
     @Column(nullable = false)
-    private int avatarId;
+    private Long avatarId;
 
     @UpdateTimestamp
     @Column(nullable = false)
@@ -34,6 +35,12 @@ public class Profile {
     private LocalDateTime createdAt;
 
     protected Profile() {} // Hibernate
+
+    public Profile(String name, User user, Long avatarId) {
+        this.name = name;
+        this.user = user;
+        this.avatarId = avatarId;
+    }
 
     public Long getId() {
         return id;
@@ -67,11 +74,11 @@ public class Profile {
         this.active = active;
     }
 
-    public int getAvatarId() {
+    public Long getAvatarId() {
         return avatarId;
     }
 
-    public void setAvatarId(int avatarId) {
+    public void setAvatarId(Long avatarId) {
         this.avatarId = avatarId;
     }
 
