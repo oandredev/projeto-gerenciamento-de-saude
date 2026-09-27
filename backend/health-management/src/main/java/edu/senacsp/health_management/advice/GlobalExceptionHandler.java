@@ -1,4 +1,4 @@
-package edu.senacsp.health_management.exception;
+package edu.senacsp.health_management.advice;
 
 import edu.senacsp.health_management.dto.response.general.ErrorResponse;
 import org.springframework.http.ResponseEntity;
