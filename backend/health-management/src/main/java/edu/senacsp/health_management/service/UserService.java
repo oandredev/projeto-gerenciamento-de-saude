@@ -2,8 +2,10 @@
 
     import edu.senacsp.health_management.dto.request.user.LoginRequest;
     import edu.senacsp.health_management.dto.request.user.SignupRequest;
+    import edu.senacsp.health_management.dto.request.user.UpdateUserRequest;
     import edu.senacsp.health_management.dto.response.user.LoginResponse;
     import edu.senacsp.health_management.dto.response.user.SignupResponse;
+    import edu.senacsp.health_management.dto.response.user.UpdateUserResponse;
     import edu.senacsp.health_management.entity.User;
     import edu.senacsp.health_management.repository.UserRepository;
     import org.springframework.http.HttpStatus;
@@ -31,10 +33,10 @@
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
             }
 
-            User newUser = new User(req.name(), req.email(), req.password());
+            User newUser = new User(req.email(), req.password(), req.name());
             repo.save(newUser);
 
-            return new SignupResponse(newUser.getId(), newUser.getName(), newUser.getEmail());
+            return new SignupResponse(newUser.getId(), newUser.getEmail(), newUser.getName());
         }
 
         /**
@@ -45,13 +47,30 @@
          */
         public LoginResponse login (LoginRequest req)
         {
+            // TODO - Add token JWT logic in FUTURE
+
             /* Same message for email not found and wrong password to avoid leaking whether an email is registered */
             User user = repo.findByEmail(req.email())
                     .filter(userDB -> userDB.getPassword().equals(req.password()))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email or password are invalid"));
 
+            return new LoginResponse(user.getId(), user.getEmail(), user.getName());
+        }
+
+        // TODO ADD COMMENTS & TEST
+        public UpdateUserResponse update (UpdateUserRequest req)
+        {
             // TODO - Add token JWT logic in FUTURE
 
-            return new LoginResponse(user.getEmail(), user.getName());
+            User user = repo.findById(req.id())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+            user.setName(req.name());
+            user.setEmail(req.email());
+            user.setPassword(req.password());
+
+            repo.save(user);
+
+            return new UpdateUserResponse(user.getId(), user.getEmail(), user.getName(), user.isActive());
         }
     }

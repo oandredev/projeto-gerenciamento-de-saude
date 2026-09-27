@@ -14,14 +14,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
-
     @Column(nullable = false,unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean active = true;
@@ -36,11 +36,11 @@ public class User {
 
     protected User() {} // Hibernate
 
-    public User(String name, String email, String password)
+    public User(String email, String password, String name)
     {
-        this.name = name;
         this.email = email;
         this.password = password;
+        this.name = name;
     }
 
     //-------------------------------------------------------------
@@ -51,14 +51,6 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {
@@ -75,6 +67,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean isActive() {
