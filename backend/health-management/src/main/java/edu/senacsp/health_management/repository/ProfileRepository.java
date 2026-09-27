@@ -10,6 +10,6 @@ import java.util.List;
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
     boolean existsByNameAndUser(String name, User user);
-
-    List<ProfileItem> findByUser(User user);
+    // TODO Check return of RestrictionItem ProfileItem
+    List<ProfileItem> findAllByUser(User user);
 }
