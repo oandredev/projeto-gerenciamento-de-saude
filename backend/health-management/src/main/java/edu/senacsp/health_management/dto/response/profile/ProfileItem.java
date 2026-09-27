@@ -2,6 +2,9 @@ package edu.senacsp.health_management.dto.response.profile;
 
 import edu.senacsp.health_management.entity.Profile;
 
+/*
+ * NEVER used alone — always paired with a response wrapper.
+ */
 public record ProfileItem(
         Long id,
         String name,

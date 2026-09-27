@@ -1,7 +1,9 @@
 package edu.senacsp.health_management.dto.request.user;
 
-public record SignupRequest(
+public record UpdateUserRequest(
+        Long id,
         String email,
         String password,
-        String name
+        String name,
+        boolean active
 ) {}

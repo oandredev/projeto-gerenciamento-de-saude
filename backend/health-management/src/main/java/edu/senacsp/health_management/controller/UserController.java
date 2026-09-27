@@ -1,10 +1,14 @@
 package edu.senacsp.health_management.controller;
 
 import edu.senacsp.health_management.annotation.ApiMessage;
+import edu.senacsp.health_management.dto.request.profile.UpdateProfileRequest;
 import edu.senacsp.health_management.dto.request.user.LoginRequest;
 import edu.senacsp.health_management.dto.request.user.SignupRequest;
+import edu.senacsp.health_management.dto.request.user.UpdateUserRequest;
+import edu.senacsp.health_management.dto.response.profile.UpdateProfileResponse;
 import edu.senacsp.health_management.dto.response.user.LoginResponse;
 import edu.senacsp.health_management.dto.response.user.SignupResponse;
+import edu.senacsp.health_management.dto.response.user.UpdateUserResponse;
 import edu.senacsp.health_management.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,5 +39,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(service.login(req));
     }
 
-    // Maybe add the section for editing the account, changing the name, etc.
+    @PutMapping()
+    @ApiMessage("User successfully edited")
+    public ResponseEntity<UpdateUserResponse> updateUser(@RequestBody UpdateUserRequest req)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(service.update(req));
+    }
 }

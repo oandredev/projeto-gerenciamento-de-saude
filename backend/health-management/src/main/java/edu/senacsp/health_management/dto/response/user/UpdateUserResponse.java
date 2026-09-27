@@ -1,7 +1,8 @@
 package edu.senacsp.health_management.dto.response.user;
 
-public record LoginResponse(
+public record UpdateUserResponse(
         Long id,
         String email,
-        String name
+        String name,
+        boolean active
 ) {}
