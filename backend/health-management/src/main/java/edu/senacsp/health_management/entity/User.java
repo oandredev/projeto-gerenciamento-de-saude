@@ -89,9 +89,7 @@ public class User {
         return modifiedAt;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) {
-        this.modifiedAt = modifiedAt;
-    }
+    public void setModifiedAt(LocalDateTime modifiedAt) { this.modifiedAt = modifiedAt; }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

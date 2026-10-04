@@ -42,6 +42,8 @@ public class Profile {
         this.avatarId = avatarId;
     }
 
+    //-------------------------------------------------------------
+
     public Long getId() {
         return id;
     }

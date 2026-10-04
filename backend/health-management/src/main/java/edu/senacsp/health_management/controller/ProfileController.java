@@ -6,9 +6,11 @@ import edu.senacsp.health_management.dto.request.profile.UpdateProfileRequest;
 import edu.senacsp.health_management.dto.response.profile.CreateProfileResponse;
 import edu.senacsp.health_management.dto.response.profile.ListProfileResponse;
 import edu.senacsp.health_management.dto.response.profile.UpdateProfileResponse;
+import edu.senacsp.health_management.entity.User;
 import edu.senacsp.health_management.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,24 +26,22 @@ public class ProfileController {
 
     @PostMapping()
     @ApiMessage("Profile successfully created")
-    public ResponseEntity<CreateProfileResponse> create (@RequestBody CreateProfileRequest req)
+    public ResponseEntity<CreateProfileResponse> create (@AuthenticationPrincipal User user, @RequestBody CreateProfileRequest req)
     {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user, req));
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping()
     @ApiMessage("Profile(s) successfully loaded")
-    public ResponseEntity<ListProfileResponse> findAllByUser(@PathVariable Long userId)
+    public ResponseEntity<ListProfileResponse> findAllByUser(@AuthenticationPrincipal User user)
     {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAllByUser(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAllByUser(user));
     }
 
     @PutMapping()
     @ApiMessage("Profile successfully edited")
-    public ResponseEntity<UpdateProfileResponse> updateProfile(@RequestBody UpdateProfileRequest req)
+    public ResponseEntity<UpdateProfileResponse> updateProfile(@AuthenticationPrincipal User user, @RequestBody UpdateProfileRequest req)
     {
-        return ResponseEntity.status(HttpStatus.OK).body(service.update(req.profileItem()));
+        return ResponseEntity.status(HttpStatus.OK).body(service.update(user, req));
     }
-
-    // No hard delete — only updates the profile to set active = false
 }

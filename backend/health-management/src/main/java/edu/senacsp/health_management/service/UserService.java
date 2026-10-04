@@ -114,6 +114,11 @@
                     .filter(userDB -> passwordEncoder.matches(req.password(), userDB.getPassword()))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email or password are invalid"));
 
+            if (!user.isActive())
+            {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This account was archived");
+            }
+
             String token = jwtService.generateToken(user, req.remember());
 
             return new AuthResponse(new LoginResponse(user.getId(), user.getEmail(), user.getName(), user.getModifiedAt(), user.getCreatedAt()), token);
@@ -142,11 +147,17 @@
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use"); // Other user
             }
 
+            if (req.active() == null)
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Active info is required");
+            }
+
             // Sets
             user.setName(name);
             user.setEmail(email);
             String passwordHash = passwordEncoder.encode(req.password());
             user.setPassword(passwordHash);
+            user.setActive(req.active());
 
             // Save and Return
             user = repo.save(user);
@@ -163,7 +174,7 @@
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is required");
             }
 
-            String n = name.trim();
+            String n = name.trim().replaceAll("\\s+", " ");
 
             if (n.length() < NAME_MIN || n.length() > NAME_MAX)
             {

@@ -1,7 +1,9 @@
 package edu.senacsp.health_management.advice;
 
 import edu.senacsp.health_management.dto.response.general.ErrorResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,6 +20,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException exception)
     {
         return ResponseEntity.status(exception.getStatusCode()).body(new ErrorResponse(exception.getReason()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleUnreadableBody(HttpMessageNotReadableException exception)
+    {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Request body is missing or malformed"));
     }
 
     // Unhandled error
