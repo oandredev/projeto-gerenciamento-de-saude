@@ -1,7 +1,21 @@
 package edu.senacsp.health_management.dto.request.profile;
 
-import edu.senacsp.health_management.dto.response.profile.ProfileItem;
-
+/**
+ * Request payload for updating a new Profile
+ *
+ * <p>Example JSON:
+ * <pre>{@code
+ * {
+ *     "id" : 1,
+ *     "name" : "André R Teste Alteração",
+ *     "avatarId" : 5,
+ *     "active" : false
+ * }
+ * }</pre>
+ */
 public record UpdateProfileRequest(
-        ProfileItem profileItem
+        Long id,
+        String name,
+        Long avatarId,
+        Boolean active
 ) {}
