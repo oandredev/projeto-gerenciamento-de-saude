@@ -2,14 +2,10 @@
 
     import edu.senacsp.health_management.dto.request.profile.CreateProfileRequest;
     import edu.senacsp.health_management.dto.request.profile.UpdateProfileRequest;
-    import edu.senacsp.health_management.dto.response.profile.CreateProfileResponse;
-    import edu.senacsp.health_management.dto.response.profile.ListProfileResponse;
-    import edu.senacsp.health_management.dto.response.profile.ProfileItem;
-    import edu.senacsp.health_management.dto.response.profile.UpdateProfileResponse;
+    import edu.senacsp.health_management.dto.response.profile.ProfileResponse;
     import edu.senacsp.health_management.entity.Profile;
     import edu.senacsp.health_management.entity.User;
     import edu.senacsp.health_management.repository.ProfileRepository;
-    import edu.senacsp.health_management.repository.UserRepository;
     import org.springframework.http.HttpStatus;
     import org.springframework.stereotype.Service;
     import org.springframework.web.server.ResponseStatusException;
@@ -21,36 +17,35 @@
     public class ProfileService {
 
         private final ProfileRepository repo;
-        private final UserRepository userRepo;
 
         private static final int NAME_MIN = 3;
         private static final int NAME_MAX = 255;
 
         private static final Pattern NAME_PATTERN = Pattern.compile("^\\p{L}+(?: \\p{L}+)*$");
 
-        public ProfileService(ProfileRepository repo, UserRepository userRepo) {
+        public ProfileService(ProfileRepository repo) {
             this.repo = repo;
-            this.userRepo = userRepo;
         }
 
         /**
          * Creates a new profile for the authenticated user.
          *
          * <p>The name is trimmed and has repeated spaces collapsed before being validated
-         * and stored. A user cannot have two profiles with the same name.
+         * and stored. A user cannot have two profiles with the same name, even if the
+         * existing one is inactive.
          *
          * @param user the authenticated user, resolved from the JWT (owner of the new profile)
          * @param req  the profile data (name and avatar ID)
-         * @return a {@link CreateProfileResponse} with the created profile
-         * @throws ResponseStatusException if the name or the avatar ID is invalid (CODE 400)
+         * @return a {@link ProfileResponse} with the created profile
+         * @throws ResponseStatusException if the name is invalid or the avatar ID is missing or invalid (CODE 400)
          *                                 or the user already has a profile with this name (CODE 409)
          */
-        public CreateProfileResponse create (User user, CreateProfileRequest req) {
+        public ProfileResponse create (User user, CreateProfileRequest req) {
 
             // Validations
             String name = validateName(req.name());
 
-            if (req.avatarId() < 0)
+            if (req.avatarId() == null || req.avatarId() < 0)
             {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Avatar ID is invalid");
             }
@@ -65,20 +60,20 @@
             Profile newProfile = new Profile(name, user, req.avatarId());
             newProfile = repo.save(newProfile);
 
-            return new CreateProfileResponse(new ProfileItem(newProfile));
+            return new ProfileResponse(newProfile);
         }
 
         /**
-         * Lists the profiles that belong to the authenticated user.
+         * Lists all profiles of the authenticated user, active and inactive.
          *
          * @param user the authenticated user, resolved from the JWT
-         * @return a {@link ListProfileResponse} with the user's profiles (empty list if none)
+         * @return the user's profiles (empty list if none)
          */
-        public ListProfileResponse findAllByUser(User user)
+        public List<ProfileResponse> findAllByUser(User user)
         {
-            List<ProfileItem> profileItemsList = repo.findAllByUser(user);
-
-            return new ListProfileResponse(profileItemsList);
+            return repo.findAllByUser(user).stream()
+                    .map(ProfileResponse::new)
+                    .toList();
         }
 
         /**
@@ -89,13 +84,18 @@
          * and a profile that belongs to another user produce the same error, which avoids
          * revealing which IDs exist.
          *
+         * <p>Sending {@code active = false} archives the profile (soft delete) and
+         * {@code active = true} reactivates it.
+         *
          * @param user the authenticated user, resolved from the JWT
          * @param req  the profile ID and its new name, avatar ID and active flag
-         * @return an {@link UpdateProfileResponse} with the updated profile
-         * @throws ResponseStatusException if any field is missing or invalid (CODE 400)
-         *                                 or the profile is not found for this user (CODE 404)
+         * @return a {@link ProfileResponse} with the updated profile
+         * @throws ResponseStatusException if any field is missing or invalid (CODE 400),
+         *                                 the profile is not found for this user (CODE 404)
+         *                                 or the new name is already used by another profile
+         *                                 of this user (CODE 409)
          */
-        public UpdateProfileResponse update(User user, UpdateProfileRequest req)
+        public ProfileResponse update(User user, UpdateProfileRequest req)
         {
             // Validations
             if (req.id() == null || req.id() < 0)
@@ -113,10 +113,16 @@
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Active info is required");
             }
 
-            Profile profile = repo.findByIdAndUserId(req.id(), user.getId())
+            String name = validateName(req.name());
+
+            Profile profile = repo.findByIdAndUser(req.id(), user)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
 
-            String name = validateName(req.name());
+            // Verify if the user already has a profile with the same name
+            if (repo.existsByNameAndUserAndIdNot(name, user, profile.getId()))
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "This profile name is already being used by this same user");
+            }
 
             // Sets
             profile.setName(name);
@@ -125,8 +131,7 @@
 
             // Save and Return
             profile = repo.save(profile);
-            ProfileItem profileItem = new ProfileItem(profile);
-            return new UpdateProfileResponse(profileItem);
+            return new ProfileResponse(profile);
         }
 
         //-------------------------------------------------------------------------------------------------------------

@@ -5,6 +5,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users") // Conflict with H2 when use "user"
@@ -23,6 +25,9 @@ public class User {
     @Column(nullable = false)
     private String name;
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Profile> profiles = new ArrayList<>();
+
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean active = true;
 
@@ -36,8 +41,7 @@ public class User {
 
     protected User() {} // Hibernate
 
-    public User(String email, String password, String name)
-    {
+    public User(String email, String password, String name) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -77,6 +81,14 @@ public class User {
         this.name = name;
     }
 
+    public List<Profile> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(List<Profile> profiles) {
+        this.profiles = profiles;
+    }
+
     public boolean isActive() {
         return active;
     }
@@ -89,7 +101,9 @@ public class User {
         return modifiedAt;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) { this.modifiedAt = modifiedAt; }
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

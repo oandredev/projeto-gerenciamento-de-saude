@@ -7,7 +7,7 @@ package edu.senacsp.health_management.dto.request.profile;
  * <pre>{@code
  * {
  *     "id" : 1,
- *     "name" : "André R Teste Alteração",
+ *     "name" : "André R Teste Alt",
  *     "avatarId" : 5,
  *     "active" : false
  * }

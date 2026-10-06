@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Allows specifying the endpoint's success message via the @ApiMessage annotation,
- * which works together with SuccessResponseWrapper} to automatically wrap the response body
+ * which works together with SuccessResponseWrapper to automatically wrap the response body
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
