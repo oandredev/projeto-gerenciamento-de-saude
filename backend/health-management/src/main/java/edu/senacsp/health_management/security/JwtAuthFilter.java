@@ -1,5 +1,6 @@
 package edu.senacsp.health_management.security;
 
+import edu.senacsp.health_management.entity.User;
 import edu.senacsp.health_management.repository.UserRepository;
 import edu.senacsp.health_management.service.JwtService;
 import jakarta.servlet.FilterChain;
@@ -38,10 +39,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             if (jwtService.isValid(token))
             {
-                userRepository.findById(jwtService.extractUserId(token)).ifPresent(user -> {
-                    var auth = new UsernamePasswordAuthenticationToken(user, null, List.of());
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                });
+                userRepository.findById(jwtService.extractUserId(token))
+                        .filter(User::isActive)
+                        .ifPresent(user -> {
+                            var auth = new UsernamePasswordAuthenticationToken(user, null, List.of());
+                            SecurityContextHolder.getContext().setAuthentication(auth);
+                        });
             }
         }
         chain.doFilter(request, response);

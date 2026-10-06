@@ -12,6 +12,7 @@ package edu.senacsp.health_management.dto.request.user;
  *   "password": "TesteAa.1",
  *   "name": "Nome Teste",
  *   "active": true
+ * }
  * }</pre>
  *
  * @param email    the user's email

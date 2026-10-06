@@ -3,18 +3,19 @@
     import edu.senacsp.health_management.dto.request.user.LoginRequest;
     import edu.senacsp.health_management.dto.request.user.SignupRequest;
     import edu.senacsp.health_management.dto.request.user.UpdateUserRequest;
+    import edu.senacsp.health_management.dto.response.profile.ProfileResponse;
     import edu.senacsp.health_management.dto.response.user.AuthResponse;
-    import edu.senacsp.health_management.dto.response.user.LoginResponse;
-    import edu.senacsp.health_management.dto.response.user.SignupResponse;
-    import edu.senacsp.health_management.dto.response.user.UpdateUserResponse;
+    import edu.senacsp.health_management.dto.response.user.UserResponse;
     import edu.senacsp.health_management.entity.User;
     import edu.senacsp.health_management.repository.UserRepository;
+    import org.springframework.transaction.annotation.Transactional;
     import org.springframework.http.HttpStatus;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.stereotype.Service;
     import org.springframework.web.server.ResponseStatusException;
 
     import java.nio.charset.StandardCharsets;
+    import java.util.List;
     import java.util.regex.Pattern;
 
     @Service
@@ -41,9 +42,9 @@
         // text@text.text
         private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$");
 
-        private static final Pattern LOWER   = Pattern.compile("\\p{Ll}");
-        private static final Pattern UPPER   = Pattern.compile("\\p{Lu}");
-        private static final Pattern DIGIT   = Pattern.compile("\\d");
+        private static final Pattern LOWER = Pattern.compile("\\p{Ll}");
+        private static final Pattern UPPER = Pattern.compile("\\p{Lu}");
+        private static final Pattern DIGIT = Pattern.compile("\\d");
 
         public UserService(UserRepository repo, PasswordEncoder passwordEncoder, JwtService jwtService) {
             this.repo = repo;
@@ -58,11 +59,12 @@
          * and the password is stored only as a BCrypt hash.
          *
          * @param req the signup data (name, email and password)
-         * @return a {@link SignupResponse} with the created user's data
+         * @return a {@link UserResponse} with the created user's data
+         *         ({@code profiles} is always empty for a new user)
          * @throws ResponseStatusException if any field is invalid (CODE 400)
          *                                 or the email is already in use (CODE 409)
          */
-        public SignupResponse signup (SignupRequest req) {
+        public UserResponse signup (SignupRequest req) {
 
             // Validations
             String name = validateName(req.name());
@@ -80,7 +82,7 @@
 
             newUser = repo.save(newUser);
 
-            return new SignupResponse(newUser.getId(), newUser.getEmail(), newUser.getName(), newUser.getModifiedAt(), newUser.getCreatedAt());
+            return new UserResponse(newUser.getId(), newUser.getEmail(), newUser.getName(), List.of(), newUser.isActive(), newUser.getModifiedAt(), newUser.getCreatedAt());
         }
 
         /**
@@ -90,9 +92,13 @@
          * The same error is returned for an unknown email and a wrong password, so the
          * API does not reveal which emails are registered.
          *
+         * <p>The returned user includes all of their profiles, active and inactive.
+         * Clients must use each profile's {@code active} flag to decide how to display it.
+         *
          * @param req the login credentials; {@code remember} is required
-         * @return an {@link AuthResponse} with the user's data and the signed token
-         * @throws ResponseStatusException if email or password is missing or invalid (CODE 401)
+         * @return an {@link AuthResponse} with the user's data (including profiles) and the signed token
+         * @throws ResponseStatusException if email or password is missing or invalid,
+         *                                 or the account is archived (CODE 401),
          *                                 or {@code remember} is missing (CODE 400)
          */
         public AuthResponse login (LoginRequest req)
@@ -121,47 +127,65 @@
 
             String token = jwtService.generateToken(user, req.remember());
 
-            return new AuthResponse(new LoginResponse(user.getId(), user.getEmail(), user.getName(), user.getModifiedAt(), user.getCreatedAt()), token);
+            List<ProfileResponse> profiles = user.getProfiles().stream()
+                    .map(ProfileResponse::new)
+                    .toList();
+
+            return new AuthResponse(new UserResponse(user.getId(), user.getEmail(), user.getName(), profiles, user.isActive(), user.getModifiedAt(), user.getCreatedAt()), token);
         }
 
         /**
+         * Updates the authenticated user's data (full replacement, like an HTTP PUT).
+         *
          * <p>All fields are required and overwrite the stored values, even when unchanged.
          * The password is validated and hashed again with BCrypt. The user being updated is
          * the one identified by the JWT, never one taken from the request body.
          *
+         * <p>Sending {@code active = false} archives the account (soft delete).
+         * The user's profiles are not changed.
+         *
          * @param user the authenticated user, resolved from the JWT
-         * @param req  the new name, email and password
-         * @return an {@link UpdateUserResponse} with the updated user's data
-         * @throws ResponseStatusException if any field is invalid (CODE 400)
+         * @param req  the new name, email, password and active flag
+         * @return a {@link UserResponse} with the updated user's data and all of their profiles
+         * @throws ResponseStatusException if any field is missing or invalid (CODE 400)
          *                                 or the email belongs to another user (CODE 409)
          */
-        public UpdateUserResponse update (User user, UpdateUserRequest req)
+        @Transactional
+        public UserResponse update (User user, UpdateUserRequest req)
         {
             // Validations
             String name = validateName(req.name());
             String email = validateEmail(req.email());
             validatePassword(req.password());
 
-            if (repo.existsByEmailAndIdNot(email, user.getId()))
-            {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use"); // Other user
-            }
-
             if (req.active() == null)
             {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Active info is required");
             }
 
+            if (repo.existsByEmailAndIdNot(email, user.getId()))
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use"); // Other user
+            }
+
+            User userDB = repo.findWithProfilesById(user.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
             // Sets
-            user.setName(name);
-            user.setEmail(email);
-            String passwordHash = passwordEncoder.encode(req.password());
-            user.setPassword(passwordHash);
-            user.setActive(req.active());
+            userDB.setName(name);
+            userDB.setEmail(email);
+            userDB.setPassword(passwordEncoder.encode(req.password()));
+            userDB.setActive(req.active());
 
             // Save and Return
-            user = repo.save(user);
-            return new UpdateUserResponse(user.getId(), user.getEmail(), user.getName(), user.isActive(), user.getModifiedAt(), user.getCreatedAt());
+            userDB = repo.saveAndFlush(userDB);
+
+            List<ProfileResponse> profiles = userDB.getProfiles().stream()
+                    .map(ProfileResponse::new)
+                    .toList();
+
+            return new UserResponse(userDB.getId(), userDB.getEmail(), userDB.getName(), profiles,
+                    userDB.isActive(), userDB.getModifiedAt(), userDB.getCreatedAt());
         }
 
         //-------------------------------------------------------------------------------------------------------------

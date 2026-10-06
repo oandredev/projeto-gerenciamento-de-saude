@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 /*
  * NEVER used alone — always paired with a response wrapper.
  */
-public record ProfileItem(
+public record ProfileResponse(
         Long id,
         String name,
         Long avatarId,
@@ -14,7 +14,7 @@ public record ProfileItem(
         LocalDateTime modifiedAt,
         LocalDateTime createdAt
 ) {
-    public ProfileItem (Profile profile)
+    public ProfileResponse (Profile profile)
     {
         this(
                 profile.getId(),
