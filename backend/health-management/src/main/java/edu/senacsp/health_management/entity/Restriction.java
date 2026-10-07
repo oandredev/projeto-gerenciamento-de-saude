@@ -19,17 +19,18 @@ public class Restriction {
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RestrictionType type;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RestrictionSeverity severity;
 
-    // TODO Add the character limit.
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String title;
 
-    // TODO Add the character limit.
+    @Column(length = 1000)
     private String note; // Optional
 
     @Column(nullable = false, columnDefinition = "boolean default true")
@@ -45,14 +46,15 @@ public class Restriction {
 
     protected Restriction() {}
 
-    public Restriction(Profile profile, RestrictionType type, RestrictionSeverity severity, String title, String note, boolean active) {
+    public Restriction(Profile profile, RestrictionType type, RestrictionSeverity severity, String title, String note) {
         this.profile = profile;
         this.type = type;
         this.severity = severity;
         this.title = title;
         this.note = note;
-        this.active = active;
     }
+
+    //-------------------------------------------------------------
 
     public Long getId() {
         return id;
