@@ -45,7 +45,7 @@
             // Validations
             String name = validateName(req.name());
 
-            if (req.avatarId() == null || req.avatarId() < 0)
+            if (req.avatarId() == null || req.avatarId() <= 0)
             {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Avatar ID is invalid");
             }
@@ -98,12 +98,12 @@
         public ProfileResponse update(User user, UpdateProfileRequest req)
         {
             // Validations
-            if (req.id() == null || req.id() < 0)
+            if (req.id() == null || req.id() <= 0)
             {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID is invalid");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
             }
 
-            if (req.avatarId() == null || req.avatarId() < 0)
+            if (req.avatarId() == null || req.avatarId() <= 0)
             {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Avatar ID is invalid");
             }
@@ -131,6 +131,7 @@
 
             // Save and Return
             profile = repo.save(profile);
+
             return new ProfileResponse(profile);
         }
 

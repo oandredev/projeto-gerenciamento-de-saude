@@ -20,11 +20,11 @@ public class Profile {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, columnDefinition = "boolean default true")
-    private boolean active = true;
-
     @Column(nullable = false)
     private Long avatarId;
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
 
     @UpdateTimestamp
     @Column(nullable = false)
@@ -68,20 +68,20 @@ public class Profile {
         this.user = user;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public Long getAvatarId() {
         return avatarId;
     }
 
     public void setAvatarId(Long avatarId) {
         this.avatarId = avatarId;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public LocalDateTime getModifiedAt() {
