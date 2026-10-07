@@ -38,10 +38,10 @@ public class ProfileController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAllByUser(user));
     }
 
-    @PutMapping()
+    @PutMapping("/{id}")
     @ApiMessage("Profile successfully edited")
-    public ResponseEntity<ProfileResponse> updateProfile(@AuthenticationPrincipal User user, @RequestBody UpdateProfileRequest req)
+    public ResponseEntity<ProfileResponse> update(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody UpdateProfileRequest req)
     {
-        return ResponseEntity.status(HttpStatus.OK).body(service.update(user, req));
+        return ResponseEntity.status(HttpStatus.OK).body(service.update(user, id, req));
     }
 }

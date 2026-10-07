@@ -79,7 +79,8 @@
         /**
          * Updates a profile of the authenticated user (full replacement, like an HTTP PUT).
          *
-         * <p>All fields are required and overwrite the stored values, even when unchanged.
+         * <p>The profile ID comes from the URL ({@code PUT /profile/{id}}); all body fields are
+         * required and overwrite the stored values, even when unchanged.
          * The profile is looked up by ID <em>and</em> owner, so a profile that does not exist
          * and a profile that belongs to another user produce the same error, which avoids
          * revealing which IDs exist.
@@ -88,17 +89,19 @@
          * {@code active = true} reactivates it.
          *
          * @param user the authenticated user, resolved from the JWT
-         * @param req  the profile ID and its new name, avatar ID and active flag
+         * @param id   the ID of the profile to update, taken from the URL
+         * @param req  the new name, avatar ID and active flag
          * @return a {@link ProfileResponse} with the updated profile
-         * @throws ResponseStatusException if any field is missing or invalid (CODE 400),
+         * @throws ResponseStatusException if the profile ID, name, avatar ID or active flag is
+         *                                 missing or invalid (CODE 400),
          *                                 the profile is not found for this user (CODE 404)
          *                                 or the new name is already used by another profile
          *                                 of this user (CODE 409)
          */
-        public ProfileResponse update(User user, UpdateProfileRequest req)
+        public ProfileResponse update(User user, Long id, UpdateProfileRequest req)
         {
             // Validations
-            if (req.id() == null || req.id() <= 0)
+            if (id == null || id <= 0)
             {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
             }
@@ -115,7 +118,7 @@
 
             String name = validateName(req.name());
 
-            Profile profile = repo.findByIdAndUser(req.id(), user)
+            Profile profile = repo.findByIdAndUser(id, user)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
 
             // Verify if the user already has a profile with the same name
