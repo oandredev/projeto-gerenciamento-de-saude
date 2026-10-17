@@ -1,13 +1,12 @@
-// NECESSÁRIA IMPORTAÇÃO DE BIBLIOTECAS JUNIT E HAMCREST
-
 package edu.senacsp.health_management;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-
-@RunWith(TestSuite.class)
-@Suite.SuiteClasses({ UserTest.class, ProfileTest.class })
-
+@Suite
+@SelectClasses({
+        UserTest.class,
+        ProfileTest.class
+})
 public class TestSuite {
 }
