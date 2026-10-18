@@ -2,6 +2,7 @@ package edu.senacsp.health_management.repository;
 
 import edu.senacsp.health_management.entity.Profile;
 import edu.senacsp.health_management.entity.User;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
