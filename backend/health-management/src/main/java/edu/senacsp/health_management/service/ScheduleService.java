@@ -3,10 +3,11 @@ package edu.senacsp.health_management.service;
 import edu.senacsp.health_management.dto.request.schedule.CreateAppointmentData;
 import edu.senacsp.health_management.dto.request.schedule.CreateMedicationData;
 import edu.senacsp.health_management.dto.request.schedule.CreateScheduleRequest;
-import edu.senacsp.health_management.dto.response.schedule.AppointmentDto;
+import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
 import edu.senacsp.health_management.dto.response.schedule.ExtraScheduleDetails;
 import edu.senacsp.health_management.dto.response.schedule.MedicationDto;
-import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
+import edu.senacsp.health_management.dto.response.schedule.AppointmentDto;
+
 import edu.senacsp.health_management.entity.AppointmentSchedule;
 import edu.senacsp.health_management.entity.MedicationSchedule;
 import edu.senacsp.health_management.entity.Profile;
@@ -15,17 +16,20 @@ import edu.senacsp.health_management.entity.User;
 import edu.senacsp.health_management.entity.enums.DosageUnit;
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
 import edu.senacsp.health_management.entity.enums.MedicationStripe;
+
 import edu.senacsp.health_management.repository.AppointmentScheduleRepository;
 import edu.senacsp.health_management.repository.MedicationScheduleRepository;
 import edu.senacsp.health_management.repository.ProfileRepository;
 import edu.senacsp.health_management.repository.ScheduleRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.regex.Pattern;
 
 @Service
@@ -40,7 +44,7 @@ public class ScheduleService {
     private static final int TITLE_MAX = 100;
     private static final int NOTES_MAX = 1000;
     private static final int TEXT_MAX = 255;
-    private static final Double DOSAGE_MAX = 1000d;
+    private static final Double DOSAGE_MAX = 1000d; // TODO Verify
 
     // Letters, digits, spaces and common punctuation
     private static final Pattern TEXT_PATTERN =
@@ -79,7 +83,7 @@ public class ScheduleService {
     @Transactional
     public ScheduleResponse create(User user, CreateScheduleRequest req)
     {
-        // Validations (request only, no database access)
+        // Validations
 
         if (req.profileId() == null || req.profileId() <= 0)
         {
@@ -122,7 +126,6 @@ public class ScheduleService {
             }
         }
 
-        // Reminder: both fields or none
         if ((req.reminderValue() == null) != (req.reminderUnit() == null))
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reminder value and unit must be sent together");
@@ -135,7 +138,6 @@ public class ScheduleService {
 
         String notes = optionalText(req.notes(), NOTES_MAX, "Notes");
 
-        // The details must match the type
         MedicationValues medication = null;
         AppointmentValues appointment = null;
 
@@ -168,10 +170,12 @@ public class ScheduleService {
             }
         }
 
-        Profile profile = profileRepo.findByIdAndUser(req.profileId(), user)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
+        Profile profile = profileRepo.findByIdAndUser(req.profileId(), user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
 
-        Schedule schedule = new Schedule(profile, req.type(), title, req.startAt(), intervalValue, req.intervalUnit(), endAt);
+        Schedule schedule = new Schedule(profile, req.type(), title,
+                req.startAt().truncatedTo(ChronoUnit.SECONDS), intervalValue, req.intervalUnit(),
+                endAt == null ? null : endAt.truncatedTo(ChronoUnit.SECONDS));
+
         schedule.setNotes(notes);
         schedule.setReminderValue(req.reminderValue());
         schedule.setReminderUnit(req.reminderUnit());
@@ -186,9 +190,9 @@ public class ScheduleService {
             schedule.setAlarmEnabled(req.alarmEnabled());
         }
 
+        // Save (3 ways to save; it will always be saved twice: once upon scheduling and an additional time, depending on the type)
         schedule = repo.save(schedule);
 
-        // Child
         ExtraScheduleDetails details = null;
 
         if (medication != null)
@@ -198,6 +202,7 @@ public class ScheduleService {
             m.setBrand(medication.brand());
             m.setActiveIngredient(medication.activeIngredient());
             m.setStripe(medication.stripe());
+            // Save
             details = new MedicationDto(medicationRepo.save(m));
         }
         else if (appointment != null)
@@ -205,6 +210,8 @@ public class ScheduleService {
             AppointmentSchedule a = new AppointmentSchedule(schedule);
             a.setDoctorName(appointment.doctorName());
             a.setLocation(appointment.location());
+
+            // Save
             details = new AppointmentDto(appointmentRepo.save(a));
         }
 

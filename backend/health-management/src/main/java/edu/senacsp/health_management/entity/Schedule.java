@@ -9,6 +9,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The rule of a scheduled event of a {@link Profile} (what happens and how often).
@@ -52,7 +54,7 @@ public class Schedule {
     @Column(nullable = false)
     private IntervalUnit intervalUnit;
 
-    private Instant endAt;
+    private Instant endAt; // If ALWAYS = null
 
     @Column(length = 1000)
     private String notes;
@@ -67,6 +69,9 @@ public class Schedule {
 
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean alarmEnabled = false;
+
+    @OneToMany(mappedBy = "schedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Confirmation> confirmations = new ArrayList<>();
 
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean active = true;
@@ -110,8 +115,12 @@ public class Schedule {
         this.profile = profile;
     }
 
-    public ScheduleType getType() { // No setter: the type never changes
+    public ScheduleType getType() {
         return type;
+    }
+
+    public void setType(ScheduleType type) {
+        this.type = type;
     }
 
     public String getTitle() {
@@ -194,6 +203,14 @@ public class Schedule {
         this.alarmEnabled = alarmEnabled;
     }
 
+    public List<Confirmation> getConfirmations() {
+        return confirmations;
+    }
+
+    public void setConfirmations(List<Confirmation> confirmations) {
+        this.confirmations = confirmations;
+    }
+
     public boolean isActive() {
         return active;
     }
@@ -206,7 +223,15 @@ public class Schedule {
         return modifiedAt;
     }
 
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
