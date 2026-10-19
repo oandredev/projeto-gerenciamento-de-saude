@@ -99,6 +99,38 @@ public class ConfirmationService {
                 confirmation.getConfirmedAt());
     }
 
+    /**
+     * Removes a confirmation (undo). Only allowed inside the occurrence window, like creating.
+     *
+     * @throws ResponseStatusException if the ID is invalid (CODE 400)
+     *                                 or the confirmation is not found for this user, or its
+     *                                 schedule is archived (CODE 404)
+     *                                 or the occurrence window is closed (CODE 409)
+     */
+    @Transactional
+    public void delete(User user, Long id) // No return, as there is nothing to return.
+    {
+        // Validations
+        if (id == null || id <= 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Confirmation ID is invalid");
+        }
+
+        Long scheduleId = repo.findScheduleIdOwnedBy(id, user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Confirmation not found"));
+
+        scheduleRepo.findActiveOwnedForUpdate(scheduleId, user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active schedule not found"));
+
+        Confirmation confirmation = repo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Confirmation not found"));
+
+        validateConfirmationWindow(confirmation.getScheduledAt(), Instant.now());
+
+        // Delete
+        repo.delete(confirmation);
+    }
+
     //-------------------------------------------------------------------------------------------------------------
 
     // VALIDATIONS
