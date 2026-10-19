@@ -1,6 +1,7 @@
 package edu.senacsp.health_management.dto.response.schedule;
 
 import edu.senacsp.health_management.entity.MedicationSchedule;
+
 import edu.senacsp.health_management.entity.enums.DosageUnit;
 import edu.senacsp.health_management.entity.enums.MedicationStripe;
 

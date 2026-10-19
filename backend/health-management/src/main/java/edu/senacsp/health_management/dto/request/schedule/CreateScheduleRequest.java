@@ -2,6 +2,7 @@ package edu.senacsp.health_management.dto.request.schedule;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
 import edu.senacsp.health_management.entity.enums.ReminderUnit;
 import edu.senacsp.health_management.entity.enums.ScheduleType;

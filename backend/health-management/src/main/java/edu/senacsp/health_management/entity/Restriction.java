@@ -2,7 +2,9 @@ package edu.senacsp.health_management.entity;
 
 import edu.senacsp.health_management.entity.enums.RestrictionSeverity;
 import edu.senacsp.health_management.entity.enums.RestrictionType;
+
 import jakarta.persistence.*;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 

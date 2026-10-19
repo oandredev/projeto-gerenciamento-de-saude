@@ -3,10 +3,10 @@ package edu.senacsp.health_management.service;
 import edu.senacsp.health_management.dto.request.schedule.CreateAppointmentData;
 import edu.senacsp.health_management.dto.request.schedule.CreateMedicationData;
 import edu.senacsp.health_management.dto.request.schedule.CreateScheduleRequest;
-import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
 import edu.senacsp.health_management.dto.response.schedule.ExtraScheduleDetails;
-import edu.senacsp.health_management.dto.response.schedule.MedicationDto;
+import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
 import edu.senacsp.health_management.dto.response.schedule.AppointmentDto;
+import edu.senacsp.health_management.dto.response.schedule.MedicationDto;
 
 import edu.senacsp.health_management.entity.AppointmentSchedule;
 import edu.senacsp.health_management.entity.MedicationSchedule;
@@ -22,10 +22,10 @@ import edu.senacsp.health_management.repository.MedicationScheduleRepository;
 import edu.senacsp.health_management.repository.ProfileRepository;
 import edu.senacsp.health_management.repository.ScheduleRepository;
 
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;

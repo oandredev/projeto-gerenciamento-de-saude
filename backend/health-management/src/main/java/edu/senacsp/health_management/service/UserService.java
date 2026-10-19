@@ -3,20 +3,24 @@
     import edu.senacsp.health_management.dto.request.user.LoginRequest;
     import edu.senacsp.health_management.dto.request.user.SignupRequest;
     import edu.senacsp.health_management.dto.request.user.UpdateUserRequest;
-    import edu.senacsp.health_management.dto.response.profile.ProfileResponse;
     import edu.senacsp.health_management.dto.response.user.AuthResponse;
     import edu.senacsp.health_management.dto.response.user.UserResponse;
+    import edu.senacsp.health_management.dto.response.profile.ProfileResponse;
+
     import edu.senacsp.health_management.entity.User;
+
     import edu.senacsp.health_management.repository.UserRepository;
-    import org.springframework.transaction.annotation.Transactional;
+
     import org.springframework.http.HttpStatus;
-    import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.stereotype.Service;
     import org.springframework.web.server.ResponseStatusException;
+    import org.springframework.transaction.annotation.Transactional;
+    import org.springframework.security.crypto.password.PasswordEncoder;
 
-    import java.nio.charset.StandardCharsets;
     import java.util.List;
     import java.util.regex.Pattern;
+
+    import java.nio.charset.StandardCharsets;
 
     @Service
     public class UserService {

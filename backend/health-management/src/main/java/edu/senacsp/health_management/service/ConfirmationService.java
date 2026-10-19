@@ -1,26 +1,26 @@
 package edu.senacsp.health_management.service;
 
-import edu.senacsp.health_management.dto.request.confirmation.CreateConfirmationRequest;
 import edu.senacsp.health_management.dto.response.confirmation.ConfirmationResponse;
+import edu.senacsp.health_management.dto.request.confirmation.CreateConfirmationRequest;
 
-import edu.senacsp.health_management.entity.Confirmation;
-import edu.senacsp.health_management.entity.Schedule;
 import edu.senacsp.health_management.entity.User;
+import edu.senacsp.health_management.entity.Schedule;
+import edu.senacsp.health_management.entity.Confirmation;
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
 
-import edu.senacsp.health_management.repository.ConfirmationRepository;
 import edu.senacsp.health_management.repository.ScheduleRepository;
+import edu.senacsp.health_management.repository.ConfirmationRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.DateTimeException;
-import java.time.Duration;
 import java.time.Instant;
+import java.time.Duration;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.DateTimeException;
 import java.time.temporal.ChronoUnit;
 
 @Service

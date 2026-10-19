@@ -1,11 +1,14 @@
     package edu.senacsp.health_management.service;
 
+    import edu.senacsp.health_management.dto.response.profile.ProfileResponse;
     import edu.senacsp.health_management.dto.request.profile.CreateProfileRequest;
     import edu.senacsp.health_management.dto.request.profile.UpdateProfileRequest;
-    import edu.senacsp.health_management.dto.response.profile.ProfileResponse;
+
     import edu.senacsp.health_management.entity.Profile;
     import edu.senacsp.health_management.entity.User;
+
     import edu.senacsp.health_management.repository.ProfileRepository;
+
     import org.springframework.http.HttpStatus;
     import org.springframework.stereotype.Service;
     import org.springframework.web.server.ResponseStatusException;
