@@ -30,8 +30,11 @@ public class ConfirmationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user, req));
     }
 
-    /*
-    *  GET ->  Feito via Schedule
-    *  TODO UPDATE -> Consiste em apenas desmarcar a confirmação, que internamente vira um DELETE da linha
-    * */
+    @DeleteMapping("/{id}") // DELETE /confirmation/12 | No soft delete
+    @ApiMessage("Confirmation successfully deleted")
+    public ResponseEntity delete(@AuthenticationPrincipal User user, @PathVariable Long id)
+    {
+        service.delete(user, id);
+        return ResponseEntity.ok().build();
+    }
 }
