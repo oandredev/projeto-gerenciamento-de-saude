@@ -1,6 +1,7 @@
 package edu.senacsp.health_management.repository;
 
 import edu.senacsp.health_management.entity.User;
+
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

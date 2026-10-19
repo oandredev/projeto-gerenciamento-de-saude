@@ -1,15 +1,17 @@
 package edu.senacsp.health_management.service;
 
 import edu.senacsp.health_management.entity.User;
-import io.jsonwebtoken.JwtException;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.Date;
+import javax.crypto.SecretKey;
 
 @Service
 public class JwtService {

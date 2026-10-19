@@ -1,6 +1,7 @@
 package edu.senacsp.health_management.controller;
 
 import edu.senacsp.health_management.service.MedicationScheduleService;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

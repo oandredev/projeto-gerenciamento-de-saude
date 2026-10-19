@@ -3,7 +3,9 @@ package edu.senacsp.health_management.entity;
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
 import edu.senacsp.health_management.entity.enums.ReminderUnit;
 import edu.senacsp.health_management.entity.enums.ScheduleType;
+
 import jakarta.persistence.*;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 

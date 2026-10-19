@@ -3,7 +3,6 @@ package edu.senacsp.health_management.dto.request.restriction;
 import edu.senacsp.health_management.entity.enums.RestrictionSeverity;
 import edu.senacsp.health_management.entity.enums.RestrictionType;
 
-
 /**
  * Request payload for updating a restriction (full replacement, like an HTTP PUT).
  *

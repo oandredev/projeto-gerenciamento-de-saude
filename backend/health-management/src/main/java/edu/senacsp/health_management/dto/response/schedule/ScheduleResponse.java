@@ -1,6 +1,7 @@
 package edu.senacsp.health_management.dto.response.schedule;
 
 import edu.senacsp.health_management.entity.Schedule;
+
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
 import edu.senacsp.health_management.entity.enums.ReminderUnit;
 import edu.senacsp.health_management.entity.enums.ScheduleType;

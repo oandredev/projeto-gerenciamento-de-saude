@@ -1,18 +1,22 @@
 package edu.senacsp.health_management.controller;
 
 import edu.senacsp.health_management.annotation.ApiMessage;
+
 import edu.senacsp.health_management.dto.request.user.LoginRequest;
 import edu.senacsp.health_management.dto.request.user.SignupRequest;
 import edu.senacsp.health_management.dto.request.user.UpdateUserRequest;
 import edu.senacsp.health_management.dto.response.user.AuthResponse;
 import edu.senacsp.health_management.dto.response.user.UserResponse;
+
 import edu.senacsp.health_management.entity.User;
+
 import edu.senacsp.health_management.service.UserService;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 @RequestMapping("/user")

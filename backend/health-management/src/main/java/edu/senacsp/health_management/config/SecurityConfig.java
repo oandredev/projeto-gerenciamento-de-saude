@@ -1,7 +1,9 @@
 package edu.senacsp.health_management.config;
 
 import edu.senacsp.health_management.security.JwtAuthFilter;
+
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
