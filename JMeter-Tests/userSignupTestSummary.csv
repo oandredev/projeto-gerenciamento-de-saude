@@ -1,3 +1,51 @@
-Rótulo,# Amostras,Média,Mín.,Máx.,Desvio Padrão,% de Erro,Vazão,KB/s,Sent KB/sec,Média de Bytes
-Requisição HTTP,50,21,3,100,"32,52","80,000%","5,54508","2,86","1,46","528,2"
-TOTAL,50,21,3,100,"32,52","80,000%","5,54508","2,86","1,46","528,2"
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1792510495863,901,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-1,text,true,,727,276,1,1,http://localhost:8080/user/signup,900,0,3
+1792510496765,92,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-1,text,true,,726,275,1,1,http://localhost:8080/user/signup,92,0,0
+1792510496858,89,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-1,text,true,,727,276,2,2,http://localhost:8080/user/signup,88,0,0
+1792510496861,94,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-2,text,true,,725,274,2,2,http://localhost:8080/user/signup,94,0,2
+1792510496947,100,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-1,text,true,,725,274,2,2,http://localhost:8080/user/signup,100,0,0
+1792510496955,109,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-2,text,true,,724,273,2,2,http://localhost:8080/user/signup,108,0,0
+1792510497047,128,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-1,text,true,,725,274,2,2,http://localhost:8080/user/signup,128,0,0
+1792510497064,125,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-2,text,true,,725,274,1,1,http://localhost:8080/user/signup,125,0,0
+1792510497189,81,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-2,text,true,,723,272,1,1,http://localhost:8080/user/signup,81,0,0
+1792510497270,82,Requisição HTTP - User Signup,201,,Grupo de Usuários Teste 1-2,text,true,,725,274,1,1,http://localhost:8080/user/signup,81,0,0
+1792510497853,14,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-3,text,false,,480,276,1,1,http://localhost:8080/user/signup,13,0,2
+1792510497867,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-3,text,false,,480,275,1,1,http://localhost:8080/user/signup,5,0,0
+1792510497872,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-3,text,false,,480,276,1,1,http://localhost:8080/user/signup,4,0,0
+1792510497877,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-3,text,false,,480,274,1,1,http://localhost:8080/user/signup,3,0,0
+1792510497882,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-3,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510498852,8,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-4,text,false,,480,273,1,1,http://localhost:8080/user/signup,8,0,1
+1792510498861,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-4,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510498865,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-4,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510498870,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-4,text,false,,480,272,1,1,http://localhost:8080/user/signup,3,0,0
+1792510498874,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-4,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510499852,10,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-5,text,false,,480,276,1,1,http://localhost:8080/user/signup,9,0,3
+1792510499862,6,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-5,text,false,,480,275,1,1,http://localhost:8080/user/signup,6,0,0
+1792510499869,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-5,text,false,,480,276,1,1,http://localhost:8080/user/signup,4,0,0
+1792510499874,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-5,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510499878,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-5,text,false,,480,274,1,1,http://localhost:8080/user/signup,3,0,0
+1792510500852,8,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-6,text,false,,480,273,1,1,http://localhost:8080/user/signup,7,0,1
+1792510500860,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-6,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510500865,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-6,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510500871,6,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-6,text,false,,480,272,1,1,http://localhost:8080/user/signup,5,0,0
+1792510500878,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-6,text,false,,480,274,1,1,http://localhost:8080/user/signup,5,0,0
+1792510501854,8,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-7,text,false,,480,276,1,1,http://localhost:8080/user/signup,8,0,2
+1792510501862,6,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-7,text,false,,480,275,1,1,http://localhost:8080/user/signup,5,0,0
+1792510501868,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-7,text,false,,480,276,1,1,http://localhost:8080/user/signup,4,0,0
+1792510501873,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-7,text,false,,480,274,1,1,http://localhost:8080/user/signup,3,0,0
+1792510501877,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-7,text,false,,480,274,1,1,http://localhost:8080/user/signup,3,0,0
+1792510502852,9,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-8,text,false,,480,273,1,1,http://localhost:8080/user/signup,8,0,3
+1792510502862,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-8,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510502866,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-8,text,false,,480,274,1,1,http://localhost:8080/user/signup,3,0,0
+1792510502870,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-8,text,false,,480,272,1,1,http://localhost:8080/user/signup,3,0,0
+1792510502874,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-8,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510503855,7,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-9,text,false,,480,276,1,1,http://localhost:8080/user/signup,6,0,1
+1792510503862,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-9,text,false,,480,275,1,1,http://localhost:8080/user/signup,5,0,0
+1792510503867,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-9,text,false,,480,276,1,1,http://localhost:8080/user/signup,5,0,0
+1792510503872,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-9,text,false,,480,274,1,1,http://localhost:8080/user/signup,3,0,0
+1792510503876,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-9,text,false,,480,274,1,1,http://localhost:8080/user/signup,3,0,0
+1792510504854,7,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-10,text,false,,480,273,1,1,http://localhost:8080/user/signup,7,0,1
+1792510504861,5,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-10,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
+1792510504866,3,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-10,text,false,,480,274,1,1,http://localhost:8080/user/signup,3,0,0
+1792510504869,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-10,text,false,,480,272,1,1,http://localhost:8080/user/signup,4,0,0
+1792510504873,4,Requisição HTTP - User Signup,409,,Grupo de Usuários Teste 1-10,text,false,,480,274,1,1,http://localhost:8080/user/signup,4,0,0
