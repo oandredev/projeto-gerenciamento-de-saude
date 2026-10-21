@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/schedule")
 @CrossOrigin(origins = "${path.url}")
@@ -32,16 +34,20 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user, req));
     }
 
-    /*
-     *  GET ->  Consiste em passar um instant (datetime) e com base nisso extrair as ocorrências presentes em uma janela de tempo
-     * que se baseia no instant informado, e cruza com as confirmations para retornar pro front o que exibir
-     *
-     * Exemplo: Ocorrência A (Pendente), Ocorrência B (Confirmada)
-     * */
+    // Get only Rules
+    @GetMapping() // /schedule?profileId=1
+    @ApiMessage("Schedule successfully loaded")
+    public ResponseEntity<List<ScheduleResponse>> findAllByProfile(@AuthenticationPrincipal User user, @RequestParam Long profileId)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAllByProfile(profileId, user));
+    }
 
     /*
-     *  UPDATE ->
+     *  GET 2 ->  Consiste em passar um instant (datetime) e com base nisso extrair as ocorrências pré calculadas presentes em uma janela de tempo
+     *  que se baseia no instant informado cruzando com as confirmations para retornar pro front o que exibir
      *
-     *  Regras: Só pode atualizar se não tiver nenhuma confirmação, se tiver desativa (soft delete) e cria uma nova
+     *  Exemplo:
+     *      - Ocorrência A (Pendente)
+     *      - Ocorrência B (Confirmada)
      * */
 }
