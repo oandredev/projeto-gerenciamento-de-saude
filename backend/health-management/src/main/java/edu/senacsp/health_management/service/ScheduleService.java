@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Service
@@ -218,6 +219,54 @@ public class ScheduleService {
         return new ScheduleResponse(schedule, details);
     }
 
+    /**
+     * Lists all schedules (active and inactive) of one of the authenticated user's profiles,
+     * each one with its type-specific details.
+     *
+     * <p>The profile is checked first, by ID <em>and</em> owner, so a profile that does not
+     * exist and one that belongs to another user produce the same error, which avoids revealing
+     * which IDs exist. Only after that are the schedules loaded, together with their complementary
+     * rows, in a single query. A profile of this user that simply has no schedules returns an
+     * empty list.
+     *
+     * <p>The {@code details} of each item depend on its {@code type}: medication data for
+     * MEDICATION, appointment data for CONSULTATION or EXAM, and {@code null} for the other types
+     * (or for an appointment that has no data).
+     *
+     * @param profileId the ID of the profile whose schedules are listed
+     * @param user      the authenticated user, resolved from the JWT
+     * @return the profile's schedules with their details (empty list if none)
+     * @throws ResponseStatusException if the profile ID is missing or invalid (CODE 400)
+     *                                 or the profile is not found for this user (CODE 404)
+     */
+    public List<ScheduleResponse> findAllByProfile(Long profileId, User user)
+    {
+        // Validations
+        if (profileId == null || profileId <= 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
+        }
+
+        // Validations (DB) | Checks if the specified profile actually exists and belongs to this user
+        Profile profile = profileRepo.findByIdAndUser(profileId, user)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
+
+        // TODO: if a new details DTO is added to Schedule, update this (and the repository query)
+        // Return
+        return repo.findAllWithDetailsByProfile(profile)
+                .stream()
+                .map(row -> {
+                    Schedule s = (Schedule) row[0];
+
+                    MedicationSchedule m = (MedicationSchedule) row[1];
+                    AppointmentSchedule a = (AppointmentSchedule) row[2];
+
+                    ExtraScheduleDetails details = m != null ? new MedicationDto(m) : a != null ? new AppointmentDto(a) : null;
+
+                    return new ScheduleResponse(s, details);
+                })
+                .toList();
+    }
     //-----------------------------------------------------
 
     // VALIDATIONS
