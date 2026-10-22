@@ -2,16 +2,18 @@ package edu.senacsp.health_management.repository;
 
 import edu.senacsp.health_management.entity.Profile;
 import edu.senacsp.health_management.entity.Schedule;
-import edu.senacsp.health_management.entity.MedicationSchedule;
-import edu.senacsp.health_management.entity.AppointmentSchedule;
 
-import jakarta.persistence.LockModeType;
+import edu.senacsp.health_management.entity.enums.ScheduleType;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import jakarta.persistence.LockModeType;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,27 +38,34 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     Optional<Schedule> findActiveOwnedForUpdate(@Param("id") Long id, @Param("userId") Long userId);
 
     /**
-     * Loads every schedule of a profile together with its complementary rows, in a single query.
+     * Finds the active schedules of a profile, optionally restricted to some types, together
+     * with their type-specific rows, in a single query.
      *
-     * <p>Both complementary tables are joined with {@code LEFT JOIN} on the shared ID, so a
-     * schedule is never dropped: a MEDICATION schedule comes with the medication row, a CONSULTATION
-     * or EXAM schedule comes with the appointment row (if it has one), and the other types come
-     * with neither. Each row of the result is an array of three positions: {@code [0]} the
-     * {@link Schedule} (never {@code null}), {@code [1]} the {@link MedicationSchedule}
-     * (or {@code null}) and {@code [2]} the {@link AppointmentSchedule} (or {@code null}).
+     * <p>Each element of the result is an array {@code [Schedule, MedicationSchedule,
+     * AppointmentSchedule]}. The last two come from LEFT JOINs, so they are {@code null} when
+     * the schedule has no row in that complementary table (a schedule has at most one of them).
+     * Archived schedules ({@code active = false}) are never returned.
      *
-     * <p>This query does not check who owns the profile. The caller must have already confirmed
-     * that the profile belongs to the authenticated user.
+     * <p>The query has no {@code ORDER BY} on purpose: Spring Data appends it from {@code sort}.
+     * A fixed {@code ORDER BY} here would take precedence over the one requested.
      *
-     * @param profile the profile whose schedules are loaded
-     * @return one array per schedule, in the order described above (empty list if none)
+     * <p>Ownership is not checked here: the caller must have already verified that the profile
+     * belongs to the user.
+     *
+     * @param profile the profile whose schedules are listed
+     * @param types   the types to include; must not be {@code null} or empty (to include every
+     *                type, pass all of them)
+     * @param sort    the ordering to apply (for example, {@code startAt} and {@code id})
+     * @return the rows {@code [Schedule, MedicationSchedule or null, AppointmentSchedule or null]},
+     *         empty if there are none
      */
     @Query("""
-        SELECT schedule, medication, appointment
-        FROM Schedule schedule
-        LEFT JOIN MedicationSchedule medication ON medication.id = schedule.id
-        LEFT JOIN AppointmentSchedule appointment ON appointment.id = schedule.id
-        WHERE schedule.profile = :profile
+        SELECT s, m, a FROM Schedule s
+        LEFT JOIN MedicationSchedule m ON m.schedule = s
+        LEFT JOIN AppointmentSchedule a ON a.schedule = s
+        WHERE s.profile = :profile
+          AND s.active = true
+          AND s.type IN :types
         """)
-    List<Object[]> findAllWithDetailsByProfile(@Param("profile") Profile profile);
+    List<Object[]> findAllWithDetailsByProfile(@Param("profile") Profile profile, @Param("types") Collection<ScheduleType> types, Sort sort);
 }

@@ -17,6 +17,8 @@ import edu.senacsp.health_management.entity.enums.DosageUnit;
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
 import edu.senacsp.health_management.entity.enums.MedicationStripe;
 
+import edu.senacsp.health_management.entity.enums.ScheduleType;
+
 import edu.senacsp.health_management.repository.AppointmentScheduleRepository;
 import edu.senacsp.health_management.repository.MedicationScheduleRepository;
 import edu.senacsp.health_management.repository.ProfileRepository;
@@ -24,14 +26,15 @@ import edu.senacsp.health_management.repository.ScheduleRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.util.*;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.regex.Pattern;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class ScheduleService {
@@ -220,26 +223,33 @@ public class ScheduleService {
     }
 
     /**
-     * Lists all schedules (active and inactive) of one of the authenticated user's profiles,
-     * each one with its type-specific details.
+     * Lists the active schedules of one of the authenticated user's profiles, each one with its
+     * type-specific details, optionally filtered by type and sorted by start date.
      *
      * <p>The profile is checked first, by ID <em>and</em> owner, so a profile that does not
      * exist and one that belongs to another user produce the same error, which avoids revealing
      * which IDs exist. Only after that are the schedules loaded, together with their complementary
-     * rows, in a single query. A profile of this user that simply has no schedules returns an
-     * empty list.
+     * rows, in a single query. Archived schedules ({@code active = false}) count as deleted and
+     * are not returned. A profile of this user that simply has no schedules returns an empty list.
+     *
+     * <p>When {@code type} is {@code null} there is no type filter and every type is returned.
+     * The order is decided by the database: {@code startAt} in the requested direction, with the
+     * schedule ID as a tie-breaker in the same direction, so the result is always stable.
      *
      * <p>The {@code details} of each item depend on its {@code type}: medication data for
      * MEDICATION, appointment data for CONSULTATION or EXAM, and {@code null} for the other types
      * (or for an appointment that has no data).
      *
-     * @param profileId the ID of the profile whose schedules are listed
      * @param user      the authenticated user, resolved from the JWT
-     * @return the profile's schedules with their details (empty list if none)
+     * @param profileId the ID of the profile whose schedules are listed
+     * @param type      the type to filter by, or {@code null} for every type
+     * @param order     the direction of the sort by start date (ASC or DESC); must not be {@code null}
+     * @return the profile's active schedules with their details (empty list if none)
      * @throws ResponseStatusException if the profile ID is missing or invalid (CODE 400)
      *                                 or the profile is not found for this user (CODE 404)
      */
-    public List<ScheduleResponse> findAllByProfile(Long profileId, User user)
+    @Transactional(readOnly = true)
+    public List<ScheduleResponse> findAllByProfile(User user, Long profileId, ScheduleType type, Sort.Direction order)
     {
         // Validations
         if (profileId == null || profileId <= 0)
@@ -251,9 +261,14 @@ public class ScheduleService {
         Profile profile = profileRepo.findByIdAndUser(profileId, user)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
 
+        // null = no filter
+        Collection<ScheduleType> types = type == null ? EnumSet.allOf(ScheduleType.class) : EnumSet.of(type);
+
+        Sort sort = Sort.by(order, "startAt", "id");
+
         // TODO: if a new details DTO is added to Schedule, update this (and the repository query)
         // Return
-        return repo.findAllWithDetailsByProfile(profile)
+        return repo.findAllWithDetailsByProfile(profile, types, sort)
                 .stream()
                 .map(row -> {
                     Schedule s = (Schedule) row[0];
@@ -271,7 +286,6 @@ public class ScheduleService {
 
     // VALIDATIONS
     private record MedicationValues(String brand, String medicineName, String activeIngredient, Double dosageAmount, DosageUnit dosageUnit, MedicationStripe stripe) {}
-
     private record AppointmentValues(String doctorName, String location) {}
 
     private MedicationValues validateMedication(CreateMedicationData data)
