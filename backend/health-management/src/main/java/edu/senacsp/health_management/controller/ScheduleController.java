@@ -7,8 +7,10 @@ import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
 
 import edu.senacsp.health_management.entity.User;
 
+import edu.senacsp.health_management.entity.enums.ScheduleType;
 import edu.senacsp.health_management.service.ScheduleService;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,11 +37,11 @@ public class ScheduleController {
     }
 
     // Get only Rules
-    @GetMapping() // /schedule?profileId=1
+    @GetMapping() // /schedule?profileId=1&type=MEDICATION&order=ASC
     @ApiMessage("Schedule successfully loaded")
-    public ResponseEntity<List<ScheduleResponse>> findAllByProfile(@AuthenticationPrincipal User user, @RequestParam Long profileId)
+    public ResponseEntity<List<ScheduleResponse>> findAllByProfile(@AuthenticationPrincipal User user, @RequestParam Long profileId, @RequestParam(required = false) ScheduleType type, @RequestParam(defaultValue = "ASC") Sort.Direction order)
     {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAllByProfile(profileId, user));
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAllByProfile(user, profileId, type, order));
     }
 
     /*
