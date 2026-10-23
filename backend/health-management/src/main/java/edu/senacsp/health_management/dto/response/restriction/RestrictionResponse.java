@@ -4,7 +4,7 @@ import edu.senacsp.health_management.entity.Restriction;
 import edu.senacsp.health_management.entity.enums.RestrictionSeverity;
 import edu.senacsp.health_management.entity.enums.RestrictionType;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record RestrictionResponse(
         Long id,
@@ -14,8 +14,8 @@ public record RestrictionResponse(
         String title,
         String note, // Optional
         boolean active,
-        LocalDateTime modifiedAt,
-        LocalDateTime createdAt
+        Instant modifiedAt,
+        Instant createdAt
 ) {
     public RestrictionResponse{
         if (note == null || note.isBlank())

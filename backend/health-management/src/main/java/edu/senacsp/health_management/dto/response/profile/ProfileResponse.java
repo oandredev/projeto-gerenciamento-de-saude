@@ -1,7 +1,8 @@
 package edu.senacsp.health_management.dto.response.profile;
 
 import edu.senacsp.health_management.entity.Profile;
-import java.time.LocalDateTime;
+
+import java.time.Instant;
 
 /*
  * NEVER used alone — always paired with a response wrapper.
@@ -11,8 +12,8 @@ public record ProfileResponse(
         String name,
         Long avatarId,
         Boolean active,
-        LocalDateTime modifiedAt,
-        LocalDateTime createdAt
+        Instant modifiedAt,
+        Instant createdAt
 ) {
     public ProfileResponse (Profile profile)
     {
