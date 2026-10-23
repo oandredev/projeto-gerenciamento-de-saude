@@ -6,7 +6,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 /**
  * Confirmation of one occurrence of a {@link Schedule}. If the row exists, the occurrence
@@ -25,21 +24,19 @@ public class Confirmation {
     @JoinColumn(name = "schedule_id", nullable = false, updatable = false)
     private Schedule schedule;
 
-    /** The occurrence that was confirmed (UTC). Part of the identity. */
     @Column(name = "scheduled_at", nullable = false, updatable = false)
     private Instant scheduledAt;
 
-    /** Server clock when the user confirmed. */
     @Column(nullable = false, updatable = false)
     private Instant confirmedAt;
 
     @UpdateTimestamp
     @Column(nullable = false)
-    private LocalDateTime modifiedAt;
+    private Instant modifiedAt;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     protected Confirmation() {}
 
@@ -67,11 +64,11 @@ public class Confirmation {
         return confirmedAt;
     }
 
-    public LocalDateTime getModifiedAt() {
+    public Instant getModifiedAt() {
         return modifiedAt;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 }

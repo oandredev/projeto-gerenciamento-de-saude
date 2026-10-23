@@ -1,32 +1,32 @@
 package edu.senacsp.health_management.service;
 
-import edu.senacsp.health_management.dto.request.schedule.CreateAppointmentData;
 import edu.senacsp.health_management.dto.request.schedule.CreateMedicationData;
+import edu.senacsp.health_management.dto.request.schedule.CreateAppointmentData;
 import edu.senacsp.health_management.dto.request.schedule.CreateScheduleRequest;
-import edu.senacsp.health_management.dto.response.schedule.ExtraScheduleDetails;
-import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
-import edu.senacsp.health_management.dto.response.schedule.AppointmentDto;
 import edu.senacsp.health_management.dto.response.schedule.MedicationDto;
+import edu.senacsp.health_management.dto.response.schedule.AppointmentDto;
+import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
+import edu.senacsp.health_management.dto.response.schedule.ExtraScheduleDetails;
 
-import edu.senacsp.health_management.entity.AppointmentSchedule;
-import edu.senacsp.health_management.entity.MedicationSchedule;
+import edu.senacsp.health_management.entity.User;
 import edu.senacsp.health_management.entity.Profile;
 import edu.senacsp.health_management.entity.Schedule;
-import edu.senacsp.health_management.entity.User;
+import edu.senacsp.health_management.entity.MedicationSchedule;
+import edu.senacsp.health_management.entity.AppointmentSchedule;
+
 import edu.senacsp.health_management.entity.enums.DosageUnit;
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
+import edu.senacsp.health_management.entity.enums.ScheduleType;
 import edu.senacsp.health_management.entity.enums.MedicationStripe;
 
-import edu.senacsp.health_management.entity.enums.ScheduleType;
-
-import edu.senacsp.health_management.repository.AppointmentScheduleRepository;
-import edu.senacsp.health_management.repository.MedicationScheduleRepository;
 import edu.senacsp.health_management.repository.ProfileRepository;
 import edu.senacsp.health_management.repository.ScheduleRepository;
+import edu.senacsp.health_management.repository.MedicationScheduleRepository;
+import edu.senacsp.health_management.repository.AppointmentScheduleRepository;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,8 +51,7 @@ public class ScheduleService {
     private static final Double DOSAGE_MAX = 1000d; // TODO Verify
 
     // Letters, digits, spaces and common punctuation
-    private static final Pattern TEXT_PATTERN =
-            Pattern.compile("^[\\p{L}\\p{Nd}][\\p{L}\\p{Nd} .,;:!?()'/+%\\-]*$");
+    private static final Pattern TEXT_PATTERN = Pattern.compile("^[\\p{L}\\p{Nd}][\\p{L}\\p{Nd} .,;:!?()'/+%\\-]*$");
 
     public ScheduleService(ScheduleRepository repo,
                            MedicationScheduleRepository medicationRepo,
@@ -176,6 +175,8 @@ public class ScheduleService {
 
         Profile profile = profileRepo.findByIdAndUser(req.profileId(), user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
 
+        //-------------------------------------------------------------------------------------
+
         Schedule schedule = new Schedule(profile, req.type(), title,
                 req.startAt().truncatedTo(ChronoUnit.SECONDS), intervalValue, req.intervalUnit(),
                 endAt == null ? null : endAt.truncatedTo(ChronoUnit.SECONDS));
@@ -218,6 +219,8 @@ public class ScheduleService {
             // Save
             details = new AppointmentDto(appointmentRepo.save(a));
         }
+
+        //-------------------------------------------------------------------------------------
 
         return new ScheduleResponse(schedule, details);
     }
@@ -282,6 +285,7 @@ public class ScheduleService {
                 })
                 .toList();
     }
+
     //-----------------------------------------------------
 
     // VALIDATIONS

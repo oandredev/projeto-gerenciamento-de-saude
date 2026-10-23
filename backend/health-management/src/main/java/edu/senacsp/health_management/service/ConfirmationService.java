@@ -6,12 +6,14 @@ import edu.senacsp.health_management.dto.request.confirmation.CreateConfirmation
 import edu.senacsp.health_management.entity.User;
 import edu.senacsp.health_management.entity.Schedule;
 import edu.senacsp.health_management.entity.Confirmation;
-import edu.senacsp.health_management.entity.enums.IntervalUnit;
 
 import edu.senacsp.health_management.repository.ProfileRepository;
 import edu.senacsp.health_management.repository.ScheduleRepository;
 import edu.senacsp.health_management.repository.ConfirmationRepository;
 
+import edu.senacsp.health_management.util.OccurrenceUtil;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.Duration;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.DateTimeException;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -34,15 +33,18 @@ public class ConfirmationService {
      * 07:59 of the next day.
      */
     private static final Duration WINDOW = Duration.ofHours(24);
+    private static final Duration MAX_RANGE = Duration.ofDays(31);
 
     private final ConfirmationRepository repo;
     private final ScheduleRepository scheduleRepo;
     private final ProfileRepository profileRepo;
+    private final OccurrenceUtil occurrenceUtil;
 
-    public ConfirmationService(ConfirmationRepository repo, ScheduleRepository scheduleRepo, ProfileRepository profileRepo) {
+    public ConfirmationService(ConfirmationRepository repo, ScheduleRepository scheduleRepo, ProfileRepository profileRepo, OccurrenceUtil occurrenceUtil) {
         this.repo = repo;
         this.scheduleRepo = scheduleRepo;
         this.profileRepo = profileRepo;
+        this.occurrenceUtil = occurrenceUtil;
     }
 
     /**
@@ -90,7 +92,12 @@ public class ConfirmationService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This schedule occurrence has already been confirmed");
         }
 
-        validateOccurrence(schedule, scheduledAt);
+        if (!occurrenceUtil.isOccurrence(schedule, scheduledAt))
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Scheduled time is not an occurrence of this schedule");
+        }
+
         validateConfirmationWindow(scheduledAt, Instant.now());
 
         // Save and Return
@@ -103,12 +110,46 @@ public class ConfirmationService {
                 confirmation.getConfirmedAt());
     }
 
-    public List<ConfirmationResponse> findAllByProfile(User user, Long profileId) {
-
+    /**
+     * Lists the confirmations of one of the authenticated user's profiles whose confirmation time
+     * is inside {@code [start, end)}, sorted by confirmation time.
+     *
+     * <p>The window cannot exceed {@code MAX_RANGE}. The profile is checked by ID and owner, so a
+     * profile that does not exist and one from another user produce the same error.
+     *
+     * @param user      the authenticated user, resolved from the JWT
+     * @param profileId the ID of the profile
+     * @param start     the start of the window (inclusive)
+     * @param end       the end of the window (exclusive)
+     * @param order     the direction of the sort (ASC or DESC)
+     * @return the confirmations in the window, empty if there are none
+     * @throws ResponseStatusException if an ID or date is missing or invalid, or the window is
+     *                                 inverted or too large (CODE 400)
+     *                                 or the profile is not found for this user (CODE 404)
+     */
+    @Transactional(readOnly = true)
+    public List<ConfirmationResponse> findByInterval(User user, Long profileId,
+                                                       Instant start, Instant end, Sort.Direction order)
+    {
         // Validations
         if (profileId == null || profileId <= 0)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
+        }
+
+        if (start == null || end == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start and End are required");
+        }
+
+        if (!start.isBefore(end))
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start must be before end");
+        }
+
+        if (Duration.between(start, end).compareTo(MAX_RANGE) > 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Range cannot exceed " + MAX_RANGE.toDays() + " days");
         }
 
         // Validations (DB) | Checks if the specified profile actually exists and belongs to this user
@@ -118,7 +159,7 @@ public class ConfirmationService {
         }
 
         // Return
-        return repo.findAllByProfile(profileId)
+        return repo.findAllByProfileBetween(profileId, start, end, Sort.by(order, "confirmedAt", "id"))
                 .stream()
                 .map(confirmation -> new ConfirmationResponse(
                         confirmation.getId(),
@@ -162,66 +203,8 @@ public class ConfirmationService {
 
     //-------------------------------------------------------------------------------------------------------------
 
-    // VALIDATIONS
+    // VALIDATION
 
-    /** The time must belong to the rule: inside [startAt, endAt) and on its recurrence. */
-    private void validateOccurrence(Schedule schedule, Instant scheduledAt)
-    {
-        Instant startAt = schedule.getStartAt().truncatedTo(ChronoUnit.SECONDS);
-        Instant endAt = schedule.getEndAt() == null ? null : schedule.getEndAt().truncatedTo(ChronoUnit.SECONDS);
-
-        if (scheduledAt.isBefore(startAt))
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Scheduled time cannot be before the schedule start");
-        }
-
-        // The end is exclusive, so a schedule that ends where another begins never overlaps it
-        if (endAt != null && !scheduledAt.isBefore(endAt))
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Scheduled time must be before the schedule end");
-        }
-
-        IntervalUnit intervalUnit = schedule.getIntervalUnit();
-
-        // A UNIQUE schedule has only one valid occurrence
-        if (intervalUnit == IntervalUnit.UNIQUE)
-        {
-            if (!scheduledAt.equals(startAt))
-            {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A unique schedule only has one occurrence");
-            }
-
-            return;
-        }
-
-        int intervalValue = schedule.getIntervalValue();
-
-        if (intervalValue <= 0)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Schedule interval is not configured correctly");
-        }
-
-        /*
-         * Find the occurrence index from the original startAt. Every occurrence is calculated
-         * from startAt (not from the previous one), which avoids month-end drift.
-         */
-        long approximateIndex = calculateApproximateIndex(startAt, scheduledAt, intervalUnit, intervalValue);
-
-        long firstIndex = Math.max(0, approximateIndex - 2);
-        long lastIndex = approximateIndex + 2;
-
-        for (long index = firstIndex; index <= lastIndex; index++)
-        {
-            if (calculateOccurrence(startAt, intervalUnit, intervalValue, index).equals(scheduledAt))
-            {
-                return;
-            }
-        }
-
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Scheduled time does not match the schedule recurrence");
-    }
-
-    /** Editable only strictly between (scheduledAt - 24h) and (scheduledAt + 24h). */
     private void validateConfirmationWindow(Instant scheduledAt, Instant now)
     {
         Instant opensAt = scheduledAt.minus(WINDOW);
@@ -229,56 +212,7 @@ public class ConfirmationService {
 
         if (!now.isAfter(opensAt) || !now.isBefore(closesAt))
         {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "The confirmation window of this occurrence is closed or has not opened yet");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The confirmation window of this occurrence is closed or has not opened yet");
         }
-    }
-
-    // OCCURRENCEs
-
-    private Instant calculateOccurrence(Instant startAt, IntervalUnit intervalUnit, int intervalValue, long index)
-    {
-        try
-        {
-            long amount = Math.multiplyExact((long) intervalValue, index);
-
-            ZonedDateTime start = startAt.atZone(ZoneOffset.UTC);
-
-            ZonedDateTime occurrence = switch (intervalUnit)
-            {
-                case MINUTE -> start.plusMinutes(amount);
-                case HOUR -> start.plusHours(amount);
-                case DAY -> start.plusDays(amount);
-                case WEEK -> start.plusWeeks(amount);
-                case MONTH -> start.plusMonths(amount);
-                case YEAR -> start.plusYears(amount);
-                case UNIQUE -> start; // Never reached: UNIQUE returns before the loop
-            };
-
-            return occurrence.toInstant();
-        }
-        catch (ArithmeticException | DateTimeException ex)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule interval is too large");
-        }
-    }
-
-    private long calculateApproximateIndex(Instant startAt, Instant scheduledAt, IntervalUnit intervalUnit, int intervalValue)
-    {
-        ZonedDateTime start = startAt.atZone(ZoneOffset.UTC);
-        ZonedDateTime target = scheduledAt.atZone(ZoneOffset.UTC);
-
-        long difference = switch (intervalUnit)
-        {
-            case MINUTE -> Duration.between(start, target).toMinutes();
-            case HOUR -> Duration.between(start, target).toHours();
-            case DAY -> Duration.between(start, target).toDays();
-            case WEEK -> Duration.between(start, target).toDays() / 7;
-            case MONTH -> ChronoUnit.MONTHS.between(start, target);
-            case YEAR -> ChronoUnit.YEARS.between(start, target);
-            case UNIQUE -> 0;
-        };
-
-        return Math.max(0, difference / intervalValue);
     }
 }
