@@ -39,17 +39,10 @@ public class ScheduleController {
     // Get only Rules
     @GetMapping() // /schedule?profileId=1&type=MEDICATION&order=ASC
     @ApiMessage("Schedule successfully loaded")
-    public ResponseEntity<List<ScheduleResponse>> findAllByProfile(@AuthenticationPrincipal User user, @RequestParam Long profileId, @RequestParam(required = false) ScheduleType type, @RequestParam(defaultValue = "ASC") Sort.Direction order)
+    public ResponseEntity<List<ScheduleResponse>> findAllByProfile(@AuthenticationPrincipal User user, @RequestParam Long profileId, @RequestParam(required = false) ScheduleType type, @RequestParam(defaultValue = "DESC") Sort.Direction order)
     {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAllByProfile(user, profileId, type, order));
     }
 
-    /*
-     *  GET 2 ->  Consiste em passar um instant (datetime) e com base nisso extrair as ocorrências pré calculadas presentes em uma janela de tempo
-     *  que se baseia no instant informado cruzando com as confirmations para retornar pro front o que exibir
-     *
-     *  Exemplo:
-     *      - Ocorrência A (Pendente)
-     *      - Ocorrência B (Confirmada)
-     * */
+    // TODO | PUT / POST
 }
