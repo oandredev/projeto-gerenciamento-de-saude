@@ -67,6 +67,7 @@ public class OccurrenceService {
 
         List<Schedule> schedules = scheduleRepo
                 .findActiveInWindow(user.getId(), profileId, type, from, to);
+
         if (schedules.isEmpty()) return List.of();
 
         List<Long> ids = schedules.stream().map(Schedule::getId).toList();

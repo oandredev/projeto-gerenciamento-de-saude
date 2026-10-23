@@ -7,7 +7,6 @@ import edu.senacsp.health_management.entity.enums.ReminderUnit;
 import edu.senacsp.health_management.entity.enums.ScheduleType;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 /**
  * Response payload representing a Schedule, for every type.
@@ -63,8 +62,8 @@ public record ScheduleResponse(
         boolean alarmEnabled,
         boolean active,
         ExtraScheduleDetails details,
-        LocalDateTime modifiedAt,
-        LocalDateTime createdAt
+        Instant modifiedAt,
+        Instant createdAt
 ) {
 
     public ScheduleResponse(Schedule s, ExtraScheduleDetails details) {

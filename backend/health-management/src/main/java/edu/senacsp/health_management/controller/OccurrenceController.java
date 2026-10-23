@@ -33,7 +33,7 @@ public class OccurrenceController {
     public ResponseEntity<List<OccurrenceResponse>> findWindow(@AuthenticationPrincipal User user, @RequestParam Long profileId,
                                                                      @RequestParam(required = false) ScheduleType type,
                                                                      @RequestParam(required = false) Instant reference,
-                                                                     @RequestParam(defaultValue = "ASC") Sort.Direction order)
+                                                                     @RequestParam(defaultValue = "DESC") Sort.Direction order)
     {
         return ResponseEntity.ok(service.findWindow(user, profileId, type, reference, order));
     }
