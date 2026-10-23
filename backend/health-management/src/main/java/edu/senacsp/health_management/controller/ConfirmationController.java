@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/confirmation")
 @CrossOrigin(origins = "${path.url}")
@@ -23,13 +25,21 @@ public class ConfirmationController {
 
     public ConfirmationController(ConfirmationService service) { this.service = service; }
 
-    @PostMapping()
+    @PostMapping
     @ApiMessage("Confirmation successfully created")
     public ResponseEntity<ConfirmationResponse> create (@AuthenticationPrincipal User user, @RequestBody CreateConfirmationRequest req)
     {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user, req));
     }
 
+    @GetMapping
+    @ApiMessage("Confirmation(s) successfully loaded")
+    public ResponseEntity<List<ConfirmationResponse>> findAllByProfile (@AuthenticationPrincipal User user, @RequestParam Long profileId)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAllByProfile(user, profileId));
+    }
+
+    // TODO | Review
     @DeleteMapping("/{id}") // DELETE /confirmation/12 | No soft delete
     @ApiMessage("Confirmation successfully deleted")
     public ResponseEntity delete(@AuthenticationPrincipal User user, @PathVariable Long id)
