@@ -1,0 +1,3 @@
+Rótulo,# Amostras,Média,Mín.,Máx.,Desvio Padrão,% de Erro,Vazão,KB/s,Sent KB/sec,Média de Bytes
+Requisição HTTP - User Signup,50,88,77,139,"14,75","0,000%","5,31463","3,76","1,42","723,9"
+TOTAL,50,88,77,139,"14,75","0,000%","5,31463","3,76","1,42","723,9"
