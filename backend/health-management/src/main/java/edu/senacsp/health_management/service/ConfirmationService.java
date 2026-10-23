@@ -8,6 +8,7 @@ import edu.senacsp.health_management.entity.Schedule;
 import edu.senacsp.health_management.entity.Confirmation;
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
 
+import edu.senacsp.health_management.repository.ProfileRepository;
 import edu.senacsp.health_management.repository.ScheduleRepository;
 import edu.senacsp.health_management.repository.ConfirmationRepository;
 
@@ -22,6 +23,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.DateTimeException;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class ConfirmationService {
@@ -35,10 +37,12 @@ public class ConfirmationService {
 
     private final ConfirmationRepository repo;
     private final ScheduleRepository scheduleRepo;
+    private final ProfileRepository profileRepo;
 
-    public ConfirmationService(ConfirmationRepository repo, ScheduleRepository scheduleRepo) {
+    public ConfirmationService(ConfirmationRepository repo, ScheduleRepository scheduleRepo, ProfileRepository profileRepo) {
         this.repo = repo;
         this.scheduleRepo = scheduleRepo;
+        this.profileRepo = profileRepo;
     }
 
     /**
@@ -97,6 +101,31 @@ public class ConfirmationService {
                 confirmation.getSchedule().getId(),
                 confirmation.getScheduledAt(),
                 confirmation.getConfirmedAt());
+    }
+
+    public List<ConfirmationResponse> findAllByProfile(User user, Long profileId) {
+
+        // Validations
+        if (profileId == null || profileId <= 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
+        }
+
+        // Validations (DB) | Checks if the specified profile actually exists and belongs to this user
+        if (!profileRepo.existsByIdAndUser(profileId, user))
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found");
+        }
+
+        // Return
+        return repo.findAllByProfile(profileId)
+                .stream()
+                .map(confirmation -> new ConfirmationResponse(
+                        confirmation.getId(),
+                        confirmation.getSchedule().getId(),
+                        confirmation.getScheduledAt(),
+                        confirmation.getConfirmedAt()))
+                .toList();
     }
 
     /**

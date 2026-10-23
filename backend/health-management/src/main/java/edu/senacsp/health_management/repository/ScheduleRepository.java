@@ -29,12 +29,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
-       SELECT s
-       FROM Schedule s
-       WHERE s.id = :id
-         AND s.profile.user.id = :userId
-         AND s.active = true
-       """)
+        SELECT schedule
+        FROM Schedule schedule
+        WHERE schedule.id = :id
+          AND schedule.profile.user.id = :userId
+          AND schedule.active = true
+        """)
     Optional<Schedule> findActiveOwnedForUpdate(@Param("id") Long id, @Param("userId") Long userId);
 
     /**
@@ -60,12 +60,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      *         empty if there are none
      */
     @Query("""
-        SELECT s, m, a FROM Schedule s
-        LEFT JOIN MedicationSchedule m ON m.schedule = s
-        LEFT JOIN AppointmentSchedule a ON a.schedule = s
-        WHERE s.profile = :profile
-          AND s.active = true
-          AND s.type IN :types
+        SELECT schedule, medication, appointment FROM Schedule schedule
+        LEFT JOIN MedicationSchedule medication ON medication.schedule = schedule
+        LEFT JOIN AppointmentSchedule appointment ON appointment.schedule = schedule
+        WHERE schedule.profile = :profile
+          AND schedule.active = true
+          AND schedule.type IN :types
         """)
     List<Object[]> findAllWithDetailsByProfile(@Param("profile") Profile profile, @Param("types") Collection<ScheduleType> types, Sort sort);
 }
