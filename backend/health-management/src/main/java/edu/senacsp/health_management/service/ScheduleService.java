@@ -1,8 +1,10 @@
 package edu.senacsp.health_management.service;
 
+import edu.senacsp.health_management.dto.request.schedule.ScheduleDetails;
 import edu.senacsp.health_management.dto.request.schedule.CreateMedicationData;
 import edu.senacsp.health_management.dto.request.schedule.CreateAppointmentData;
 import edu.senacsp.health_management.dto.request.schedule.CreateScheduleRequest;
+import edu.senacsp.health_management.dto.request.schedule.UpdateScheduleRequest;
 import edu.senacsp.health_management.dto.response.schedule.MedicationDto;
 import edu.senacsp.health_management.dto.response.schedule.AppointmentDto;
 import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
@@ -16,13 +18,11 @@ import edu.senacsp.health_management.entity.AppointmentSchedule;
 
 import edu.senacsp.health_management.entity.enums.DosageUnit;
 import edu.senacsp.health_management.entity.enums.IntervalUnit;
+import edu.senacsp.health_management.entity.enums.ReminderUnit;
 import edu.senacsp.health_management.entity.enums.ScheduleType;
 import edu.senacsp.health_management.entity.enums.MedicationStripe;
 
-import edu.senacsp.health_management.repository.ProfileRepository;
-import edu.senacsp.health_management.repository.ScheduleRepository;
-import edu.senacsp.health_management.repository.MedicationScheduleRepository;
-import edu.senacsp.health_management.repository.AppointmentScheduleRepository;
+import edu.senacsp.health_management.repository.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.data.domain.Sort;
@@ -43,24 +43,23 @@ public class ScheduleService {
     private final MedicationScheduleRepository medicationRepo;
     private final AppointmentScheduleRepository appointmentRepo;
     private final ProfileRepository profileRepo;
+    private final ConfirmationRepository confirmationRepo;
 
     private static final int TITLE_MIN = 3;
     private static final int TITLE_MAX = 100;
     private static final int NOTES_MAX = 1000;
     private static final int TEXT_MAX = 255;
-    private static final Double DOSAGE_MAX = 1000d; // TODO Verify
+    private static final Double DOSAGE_MAX = 10000d; // TODO | Verify
 
     // Letters, digits, spaces and common punctuation
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[\\p{L}\\p{Nd}][\\p{L}\\p{Nd} .,;:!?()'/+%\\-]*$");
 
-    public ScheduleService(ScheduleRepository repo,
-                           MedicationScheduleRepository medicationRepo,
-                           AppointmentScheduleRepository appointmentRepo,
-                           ProfileRepository profileRepo) {
+    public ScheduleService(ScheduleRepository repo, MedicationScheduleRepository medicationRepo, AppointmentScheduleRepository appointmentRepo, ProfileRepository profileRepo, ConfirmationRepository confirmationRepo) {
         this.repo = repo;
         this.medicationRepo = medicationRepo;
         this.appointmentRepo = appointmentRepo;
         this.profileRepo = profileRepo;
+        this.confirmationRepo = confirmationRepo;
     }
 
     /**
@@ -87,142 +86,22 @@ public class ScheduleService {
     public ScheduleResponse create(User user, CreateScheduleRequest req)
     {
         // Validations
-
         if (req.profileId() == null || req.profileId() <= 0)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
         }
 
-        if (req.type() == null)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type is required");
-        }
+        RuleValues v = validateRule(req.type(), req.title(), req.startAt(), req.intervalUnit(), req.intervalValue(),
+                req.endAt(), req.reminderValue(), req.reminderUnit(), req.notes(), req.details());
 
-        String title = validateTitle(req.title());
-
-        if (req.startAt() == null)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start is required");
-        }
-
-        if (req.intervalUnit() == null)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interval unit is required");
-        }
-
-        int intervalValue = 0;
-        Instant endAt = null;
-
-        if (req.intervalUnit() != IntervalUnit.UNIQUE)
-        {
-            if (req.intervalValue() == null || req.intervalValue() <= 0)
-            {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interval value must be greater than zero");
-            }
-
-            intervalValue = req.intervalValue();
-            endAt = req.endAt();
-
-            if (endAt != null && !endAt.isAfter(req.startAt()))
-            {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End must be after start");
-            }
-        }
-
-        if ((req.reminderValue() == null) != (req.reminderUnit() == null))
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reminder value and unit must be sent together");
-        }
-
-        if (req.reminderValue() != null && req.reminderValue() <= 0)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reminder value must be greater than zero");
-        }
-
-        String notes = optionalText(req.notes(), NOTES_MAX, "Notes");
-
-        MedicationValues medication = null;
-        AppointmentValues appointment = null;
-
-        switch (req.type())
-        {
-            case MEDICATION ->
-            {
-                if (!(req.details() instanceof CreateMedicationData data))
-                {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Medication data is required");
-                }
-
-                medication = validateMedication(data);
-            }
-            case CONSULTATION, EXAM ->
-            {
-                if (req.details() != null && !(req.details() instanceof CreateAppointmentData))
-                {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Details do not match the type");
-                }
-
-                appointment = validateAppointment((CreateAppointmentData) req.details());
-            }
-            default ->
-            {
-                if (req.details() != null)
-                {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This type does not take extra data");
-                }
-            }
-        }
-
-        Profile profile = profileRepo.findByIdAndUser(req.profileId(), user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
+        Profile profile = profileRepo.findByIdAndUser(req.profileId(), user)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
 
         //-------------------------------------------------------------------------------------
 
-        Schedule schedule = new Schedule(profile, req.type(), title,
-                req.startAt().truncatedTo(ChronoUnit.SECONDS), intervalValue, req.intervalUnit(),
-                endAt == null ? null : endAt.truncatedTo(ChronoUnit.SECONDS));
-
-        schedule.setNotes(notes);
-        schedule.setReminderValue(req.reminderValue());
-        schedule.setReminderUnit(req.reminderUnit());
-
-        if (req.notifyEnabled() != null)
-        {
-            schedule.setNotifyEnabled(req.notifyEnabled());
-        }
-
-        if (req.alarmEnabled() != null)
-        {
-            schedule.setAlarmEnabled(req.alarmEnabled());
-        }
-
-        // Save (3 ways to save; it will always be saved twice: once upon scheduling and an additional time, depending on the type)
-        schedule = repo.save(schedule);
-
-        ExtraScheduleDetails details = null;
-
-        if (medication != null)
-        {
-            MedicationSchedule m = new MedicationSchedule(schedule, medication.medicineName(),
-                    medication.dosageAmount(), medication.dosageUnit());
-            m.setBrand(medication.brand());
-            m.setActiveIngredient(medication.activeIngredient());
-            m.setStripe(medication.stripe());
-            // Save
-            details = new MedicationDto(medicationRepo.save(m));
-        }
-        else if (appointment != null)
-        {
-            AppointmentSchedule a = new AppointmentSchedule(schedule);
-            a.setDoctorName(appointment.doctorName());
-            a.setLocation(appointment.location());
-
-            // Save
-            details = new AppointmentDto(appointmentRepo.save(a));
-        }
-
-        //-------------------------------------------------------------------------------------
-
-        return new ScheduleResponse(schedule, details);
+        return saveNew(profile, req.type(), v, req.reminderValue(), req.reminderUnit(),
+                req.notifyEnabled() == null || req.notifyEnabled(),
+                req.alarmEnabled() != null && req.alarmEnabled());
     }
 
     /**
@@ -286,23 +165,293 @@ public class ScheduleService {
                 .toList();
     }
 
+    /**
+     * Updates a schedule of one of the authenticated user's profiles. Like a PUT, the request
+     * replaces the whole rule and its type-specific data: optional fields that are not sent
+     * ({@code notes}, {@code endAt}, the reminder, brand, active ingredient, photo, doctor and
+     * location) are cleared, and a missing {@code stripe} goes back to NONE. Only
+     * {@code notifyEnabled} and {@code alarmEnabled} keep their current value when {@code null}.
+     *
+     * <p>The active schedule is looked up by ID and owner, and its row is locked, so confirming
+     * and editing cannot run at the same time. The {@code type} cannot be changed.
+     *
+     * <p>If the schedule has no confirmations, it is edited in place (the schedule and its
+     * complementary row). If it has, the history must keep its meaning: the schedule is archived
+     * ({@code active = false}) and a new, independent one is created with the new data, whatever
+     * the dates sent. The returned {@code id} is then the new schedule's, so the client must replace
+     * the one it had.
+     *
+     * @param user the authenticated user, resolved from the JWT
+     * @param req  the schedule ID and its new data
+     * @return a {@link ScheduleResponse} with the updated (or newly created) schedule
+     * @throws ResponseStatusException if any field is missing or invalid, or the type changed (CODE 400)
+     *                                 or the active schedule is not found for this user (CODE 404)
+     */
+    @Transactional
+    public ScheduleResponse update(User user, UpdateScheduleRequest req)
+    {
+        // Validations
+        if (req.id() == null || req.id() <= 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule ID is invalid");
+        }
+
+        RuleValues v = validateRule(req.type(), req.title(), req.startAt(), req.intervalUnit(), req.intervalValue(),
+                req.endAt(), req.reminderValue(), req.reminderUnit(), req.notes(), req.details());
+
+        // Database: active schedule + owner in one query (single 404), row locked
+        Schedule old = repo.findActiveOwnedForUpdate(req.id(), user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active schedule not found"));
+
+        if (old.getType() != req.type())
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type cannot be changed");
+        }
+
+        // null = keep the current value
+        boolean notify = req.notifyEnabled() != null ? req.notifyEnabled() : old.isNotifyEnabled();
+        boolean alarm = req.alarmEnabled() != null ? req.alarmEnabled() : old.isAlarmEnabled();
+
+        //-------------------------------------------------------------------------------------
+
+        // With history: the old rule is archived and a new, independent one is created
+        if (confirmationRepo.existsBySchedule_Id(old.getId()))
+        {
+            old.setActive(false);
+
+            return saveNew(old.getProfile(), old.getType(), v, req.reminderValue(), req.reminderUnit(), notify, alarm);
+        }
+
+        //-------------------------------------------------------------------------------------
+
+        // No history: edit in place (managed entities are saved by dirty checking)
+        old.setTitle(v.title());
+        old.setStartAt(v.startAt());
+        old.setIntervalValue(v.intervalValue());
+        old.setIntervalUnit(v.intervalUnit());
+        old.setEndAt(v.endAt());
+        old.setNotes(v.notes());
+        old.setReminderValue(req.reminderValue());
+        old.setReminderUnit(req.reminderUnit());
+        old.setNotifyEnabled(notify);
+        old.setAlarmEnabled(alarm);
+
+        ExtraScheduleDetails details = null;
+
+        if (v.medication() != null)
+        {
+            // The complementary row shares its ID with the schedule (@MapsId)
+            MedicationSchedule row = medicationRepo.findById(old.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medication data not found"));
+
+            row.setMedicineName(v.medication().medicineName());
+            row.setDosageAmount(v.medication().dosageAmount());
+            row.setDosageUnit(v.medication().dosageUnit());
+            row.setBrand(v.medication().brand());
+            row.setActiveIngredient(v.medication().activeIngredient());
+            row.setStripe(v.medication().stripe());
+            row.setPhotoUrl(v.medication().photoUrl());
+
+            details = new MedicationDto(row);
+        }
+        else if (v.appointment() != null)
+        {
+            AppointmentSchedule row = appointmentRepo.findById(old.getId())
+                    .orElseGet(() -> appointmentRepo.save(new AppointmentSchedule(old)));
+
+            row.setDoctorName(v.appointment().doctorName());
+            row.setLocation(v.appointment().location());
+
+            details = new AppointmentDto(row);
+        }
+        repo.flush();
+
+        return new ScheduleResponse(old, details);
+    }
+
+    /**
+     * Archives a schedule (soft delete): sets {@code active = false}. Its confirmations stay as
+     * history, but the schedule no longer appears in the occurrences or in the schedule list, and
+     * its confirmations can no longer be created or undone.
+     *
+     * <p>The active schedule is looked up by ID and owner, and its row is locked. Archiving an
+     * already archived schedule gives the same error as one that does not exist.
+     *
+     * @param user the authenticated user, resolved from the JWT
+     * @param id   the schedule ID
+     * @throws ResponseStatusException if the ID is invalid (CODE 400)
+     *                                 or the active schedule is not found for this user (CODE 404)
+     */
+    @Transactional
+    public void delete(User user, Long id)
+    {
+        // Validations
+        if (id == null || id <= 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule ID is invalid");
+        }
+
+        // Database: active schedule + owner in one query (single 404), row locked
+        Schedule schedule = repo.findActiveOwnedForUpdate(id, user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active schedule not found"));
+
+        // Soft delete: confirmations stay as history
+        schedule.setActive(false);
+    }
+
+    //-----------------------------------------------------
+
+    // SAVE
+
+    /** Saves a new schedule and its complementary row. Used by create and by the versioning in update. */
+    private ScheduleResponse saveNew(Profile profile, ScheduleType type, RuleValues v,
+                                     Integer reminderValue, ReminderUnit reminderUnit,
+                                     boolean notifyEnabled, boolean alarmEnabled)
+    {
+        Schedule schedule = new Schedule(profile, type, v.title(), v.startAt(),
+                v.intervalValue(), v.intervalUnit(), v.endAt());
+
+        schedule.setNotes(v.notes());
+        schedule.setReminderValue(reminderValue);
+        schedule.setReminderUnit(reminderUnit);
+        schedule.setNotifyEnabled(notifyEnabled);
+        schedule.setAlarmEnabled(alarmEnabled);
+
+        // Save (it is saved twice: the schedule first, then its complementary row, depending on the type)
+        schedule = repo.save(schedule);
+
+        ExtraScheduleDetails details = null;
+
+        if (v.medication() != null)
+        {
+            MedicationValues m = v.medication();
+
+            MedicationSchedule row = new MedicationSchedule(schedule, m.medicineName(), m.dosageAmount(), m.dosageUnit());
+            row.setBrand(m.brand());
+            row.setActiveIngredient(m.activeIngredient());
+            row.setStripe(m.stripe());
+            row.setPhotoUrl(m.photoUrl());
+
+            details = new MedicationDto(medicationRepo.save(row));
+        }
+        else if (v.appointment() != null)
+        {
+            AppointmentSchedule row = new AppointmentSchedule(schedule);
+            row.setDoctorName(v.appointment().doctorName());
+            row.setLocation(v.appointment().location());
+
+            details = new AppointmentDto(appointmentRepo.save(row));
+        }
+
+        return new ScheduleResponse(schedule, details);
+    }
+
     //-----------------------------------------------------
 
     // VALIDATIONS
-    private record MedicationValues(String brand, String medicineName, String activeIngredient, Double dosageAmount, DosageUnit dosageUnit, MedicationStripe stripe) {}
-    private record AppointmentValues(String doctorName, String location) {}
+    private record MedicationValues(String brand, String medicineName, String activeIngredient, Double dosageAmount, DosageUnit dosageUnit, MedicationStripe stripe, String photoUrl) { }
 
-    private MedicationValues validateMedication(CreateMedicationData data)
+    private record AppointmentValues(String doctorName, String location) { }
+
+    private record RuleValues(String title, Instant startAt, int intervalValue, IntervalUnit intervalUnit, Instant endAt, String notes, MedicationValues medication, AppointmentValues appointment) { }
+
+    /** Validates what create and update have in common. Start and end come back with seconds precision. */
+    private RuleValues validateRule(ScheduleType type, String title, Instant startAt, IntervalUnit intervalUnit,
+                                    Integer intervalValue, Instant endAt, Integer reminderValue,
+                                    ReminderUnit reminderUnit, String notes, ScheduleDetails details)
     {
-        if (data.medicineName() == null || data.medicineName().isBlank())
+        if (type == null)
         {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type is required");
+        }
+
+        String validTitle = validateTitle(title);
+
+        if (startAt == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start is required");
+        }
+
+        if (intervalUnit == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interval unit is required");
+        }
+
+        Instant start = startAt.truncatedTo(ChronoUnit.SECONDS);
+        int value = 0;
+        Instant end = null;
+
+        if (intervalUnit != IntervalUnit.UNIQUE)
+        {
+            if (intervalValue == null || intervalValue <= 0)
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interval value must be greater than zero");
+            }
+
+            value = intervalValue;
+            end = endAt == null ? null : endAt.truncatedTo(ChronoUnit.SECONDS);
+
+            if (end != null && !end.isAfter(start))
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End must be after start");
+            }
+        }
+
+        if ((reminderValue == null) != (reminderUnit == null))
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reminder value and unit must be sent together");
+        }
+
+        if (reminderValue != null && reminderValue <= 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reminder value must be greater than zero");
+        }
+
+        String validNotes = optionalText(notes, NOTES_MAX, "Notes");
+
+        MedicationValues medication = null;
+        AppointmentValues appointment = null;
+
+        switch (type)
+        {
+            case MEDICATION ->
+            {
+                if (!(details instanceof CreateMedicationData data))
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Medication data is required");
+                }
+
+                medication = validateMedication(data);
+            }
+            case CONSULTATION, EXAM ->
+            {
+                if (details != null && !(details instanceof CreateAppointmentData))
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Details do not match the type");
+                }
+
+                appointment = validateAppointment((CreateAppointmentData) details);
+            }
+            default ->
+            {
+                if (details != null)
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This type does not take extra data");
+                }
+            }
+        }
+
+        return new RuleValues(validTitle, start, value, intervalUnit, end, validNotes, medication, appointment);
+    }
+
+    private MedicationValues validateMedication(CreateMedicationData data) {
+        if (data.medicineName() == null || data.medicineName().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Medicine name is required");
         }
 
         String medicineName = data.medicineName().trim().replaceAll("\\s+", " ");
 
-        if (medicineName.length() > TEXT_MAX || !TEXT_PATTERN.matcher(medicineName).matches())
-        {
+        if (medicineName.length() > TEXT_MAX || !TEXT_PATTERN.matcher(medicineName).matches()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Medicine name is invalid");
         }
 
@@ -312,13 +461,11 @@ public class ScheduleService {
                 || !Double.isFinite(amount)
                 || amount <= 0
                 || amount > DOSAGE_MAX
-                || BigDecimal.valueOf(amount).stripTrailingZeros().scale() > 3)
-        {
+                || BigDecimal.valueOf(amount).stripTrailingZeros().scale() > 3) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dosage amount is invalid");
         }
 
-        if (data.dosageUnit() == null)
-        {
+        if (data.dosageUnit() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dosage unit is required");
         }
 
@@ -328,14 +475,13 @@ public class ScheduleService {
                 optionalText(data.activeIngredient(), TEXT_MAX, "Active ingredient"),
                 amount,
                 data.dosageUnit(),
-                data.stripe() == null ? MedicationStripe.NONE : data.stripe()
+                data.stripe() == null ? MedicationStripe.NONE : data.stripe(),
+                optionalText(data.photoUrl(), TEXT_MAX, "Photo URL")
         );
     }
 
-    private AppointmentValues validateAppointment(CreateAppointmentData data)
-    {
-        if (data == null)
-        {
+    private AppointmentValues validateAppointment(CreateAppointmentData data) {
+        if (data == null) {
             return new AppointmentValues(null, null);
         }
 
@@ -344,39 +490,32 @@ public class ScheduleService {
                 optionalText(data.location(), TEXT_MAX, "Location"));
     }
 
-    private String validateTitle(String title)
-    {
-        if (title == null || title.isBlank())
-        {
+    private String validateTitle(String title) {
+        if (title == null || title.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title is required");
         }
 
         String t = title.trim().replaceAll("\\s+", " ");
 
-        if (t.length() < TITLE_MIN || t.length() > TITLE_MAX)
-        {
+        if (t.length() < TITLE_MIN || t.length() > TITLE_MAX) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must have between " + TITLE_MIN + " and " + TITLE_MAX + " characters");
         }
 
-        if (!TEXT_PATTERN.matcher(t).matches())
-        {
+        if (!TEXT_PATTERN.matcher(t).matches()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title contains invalid characters");
         }
 
         return t;
     }
 
-    private String optionalText(String value, int max, String field)
-    {
-        if (value == null || value.isBlank())
-        {
+    private String optionalText(String value, int max, String field) {
+        if (value == null || value.isBlank()) {
             return null;
         }
 
         String v = value.trim();
 
-        if (v.length() > max)
-        {
+        if (v.length() > max) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, field + " must have at most " + max + " characters");
         }
 
