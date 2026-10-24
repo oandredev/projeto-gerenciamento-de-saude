@@ -15,10 +15,10 @@ import org.springframework.data.repository.query.Param;
 
 import jakarta.persistence.LockModeType;
 
-import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
+import java.time.Instant;
 import java.util.Optional;
+import java.util.Collection;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 

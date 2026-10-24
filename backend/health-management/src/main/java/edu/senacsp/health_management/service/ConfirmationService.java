@@ -32,7 +32,7 @@ public class ConfirmationService {
      * scheduled time. Both ends are exclusive: for 08:00, from 08:01 of the previous day to
      * 07:59 of the next day.
      */
-    private static final Duration WINDOW = Duration.ofHours(24);
+    static final Duration WINDOW = Duration.ofHours(24);
     private static final Duration MAX_RANGE = Duration.ofDays(31);
 
     private final ConfirmationRepository repo;

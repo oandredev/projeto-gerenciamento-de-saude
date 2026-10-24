@@ -3,15 +3,17 @@ package edu.senacsp.health_management.controller;
 import edu.senacsp.health_management.annotation.ApiMessage;
 
 import edu.senacsp.health_management.dto.request.schedule.CreateScheduleRequest;
+import edu.senacsp.health_management.dto.request.schedule.UpdateScheduleRequest;
 import edu.senacsp.health_management.dto.response.schedule.ScheduleResponse;
 
 import edu.senacsp.health_management.entity.User;
 
 import edu.senacsp.health_management.entity.enums.ScheduleType;
+
 import edu.senacsp.health_management.service.ScheduleService;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,5 +46,18 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAllByProfile(user, profileId, type, order));
     }
 
-    // TODO | PUT / POST
+    @PutMapping
+    @ApiMessage("Schedule successfully updated")
+    public ResponseEntity<ScheduleResponse> update(@AuthenticationPrincipal User user, @RequestBody UpdateScheduleRequest req)
+    {
+        return ResponseEntity.ok(service.update(user, req));
+    }
+
+    @DeleteMapping("/{id}") // DELETE /schedule/3 | Soft delete (active = false)
+    @ApiMessage("Schedule successfully deleted")
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal User user, @PathVariable Long id)
+    {
+        service.delete(user, id);
+        return ResponseEntity.ok().build();
+    }
 }

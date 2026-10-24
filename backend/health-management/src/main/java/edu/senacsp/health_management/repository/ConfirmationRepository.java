@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface ConfirmationRepository extends JpaRepository<Confirmation, Long> {
 
     boolean existsBySchedule_IdAndScheduledAt(Long scheduleId, Instant scheduledAt);
+    boolean existsBySchedule_Id(Long scheduleId);
 
     /**
      * Finds the ID of the schedule of a confirmation, only if that schedule's profile belongs

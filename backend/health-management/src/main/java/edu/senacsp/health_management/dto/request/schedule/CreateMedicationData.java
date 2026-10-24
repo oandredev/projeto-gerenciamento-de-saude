@@ -9,5 +9,6 @@ public record CreateMedicationData(
         String activeIngredient,
         Double dosageAmount,
         DosageUnit dosageUnit,
-        MedicationStripe stripe
+        MedicationStripe stripe,
+        String photoUrl
 ) implements ScheduleDetails {}
