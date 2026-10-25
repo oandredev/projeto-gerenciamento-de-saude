@@ -8,4 +8,3 @@
 - [André Rodrigues](https://github.com/oandredev)
 - [André Coutinho](https://github.com/AndreCoutinhom)
 - [Fernanda Souza](https://github.com/souzafe13)
-

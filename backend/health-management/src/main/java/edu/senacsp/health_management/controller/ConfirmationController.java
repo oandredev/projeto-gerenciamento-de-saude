@@ -46,7 +46,7 @@
             return ResponseEntity.ok(service.findByInterval(user, profileId, start, end, order));
         }
 
-        @DeleteMapping("/{id}") // DELETE /confirmation/12 | No soft delete
+        @DeleteMapping("/{id}") // DELETE /confirmation/12 | No soft delete in this case
         @ApiMessage("Confirmation successfully deleted")
         public ResponseEntity delete(@AuthenticationPrincipal User user, @PathVariable Long id)
         {
