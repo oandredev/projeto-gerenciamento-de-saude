@@ -13,12 +13,12 @@ import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
 import { colors } from '../styles/theme';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
 
     function handleLogin() {
-        console.log('Entrar:', login);
+        navigation.replace('MainTabs');
     }
 
     return (
@@ -85,7 +85,10 @@ export default function LoginScreen() {
                 </Pressable>
 
                 <Text style={styles.register}>Ainda não é cadastrado?</Text>
-                <Pressable style={styles.outlineOrange}>
+                <Pressable
+                    style={styles.outlineOrange}
+                    onPress={() => navigation.navigate('SignUp')}
+                >
                     <Text style={styles.outlineOrangeText}>Fazer cadastro</Text>
                 </Pressable>
             </ScrollView>
