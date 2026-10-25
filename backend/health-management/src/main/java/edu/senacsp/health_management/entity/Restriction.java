@@ -1,0 +1,132 @@
+package edu.senacsp.health_management.entity;
+
+import edu.senacsp.health_management.entity.enums.RestrictionSeverity;
+import edu.senacsp.health_management.entity.enums.RestrictionType;
+
+import jakarta.persistence.*;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
+
+@Entity
+public class Restriction {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "profile_id", nullable = false)
+    private Profile profile;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RestrictionType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RestrictionSeverity severity;
+
+    @Column(nullable = false, length = 50)
+    private String title;
+
+    @Column(length = 1000)
+    private String note; // Optional
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private Instant modifiedAt;
+
+    @CreationTimestamp
+    @Column(nullable = false)
+    private Instant createdAt;
+
+    protected Restriction() {}
+
+    public Restriction(Profile profile, RestrictionType type, RestrictionSeverity severity, String title, String note) {
+        this.profile = profile;
+        this.type = type;
+        this.severity = severity;
+        this.title = title;
+        this.note = note;
+    }
+
+    //-------------------------------------------------------------
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public RestrictionType getType() {
+        return type;
+    }
+
+    public void setType(RestrictionType type) {
+        this.type = type;
+    }
+
+    public RestrictionSeverity getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(RestrictionSeverity severity) {
+        this.severity = severity;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Instant getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Instant modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+}

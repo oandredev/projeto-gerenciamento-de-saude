@@ -1,3 +1,10 @@
+### Projeto Gerenciamento de Saúde | Projeto Integrador 4
+
+**Disciplina:** Projeto Integrador 4 - Desenvolvimento de Sistemas para Dispositivos Móveis | Centro Universitário SENAC<br>
+**Orientador:** Prof. João Felipe Fernandes Coghi
+
+---
+
 # Gerenciamento de Saúde
 
 > Documentação inicial do projeto **Gerenciamento de Saúde**, desenvolvido para facilitar o acompanhamento médico, medicamentoso e de hábitos recomendados por profissionais de saúde, com foco em pessoas idosas e seus cuidadores.

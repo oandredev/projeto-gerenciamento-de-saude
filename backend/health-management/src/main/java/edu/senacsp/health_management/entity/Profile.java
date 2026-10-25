@@ -1,0 +1,103 @@
+package edu.senacsp.health_management.entity;
+
+import jakarta.persistence.*;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
+
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "user_id"}))
+public class Profile {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
+    private Long avatarId;
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private Instant modifiedAt;
+
+    @CreationTimestamp
+    @Column(nullable = false)
+    private Instant createdAt;
+
+    protected Profile() {} // Hibernate
+
+    public Profile(String name, User user, Long avatarId) {
+        this.name = name;
+        this.user = user;
+        this.avatarId = avatarId;
+    }
+
+    //-------------------------------------------------------------
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Long getAvatarId() {
+        return avatarId;
+    }
+
+    public void setAvatarId(Long avatarId) {
+        this.avatarId = avatarId;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Instant getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Instant modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+}
