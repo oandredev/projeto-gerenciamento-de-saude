@@ -8,6 +8,7 @@ import SignUpScreen from '../screens/SignUpScreen';
 import HomeScreen from '../screens/HomeScreen';
 import { colors } from '../styles/theme';
 import MedicationsScreen from '../screens/MedicationsScreen';
+import AppointmentsScreen from '../screens/AppointmentsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -18,10 +19,6 @@ function PlaceholderScreen({ title }) {
             <Text style={styles.placeholderText}>{title}</Text>
         </View>
     );
-}
-
-function AppointmentsScreen() {
-    return <PlaceholderScreen title="Consultas" />;
 }
 
 function MoreScreen() {

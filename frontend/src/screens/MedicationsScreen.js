@@ -2,30 +2,17 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import { colors } from '../styles/theme';
-
-const MEDICATIONS = [
-  {
-    id: '1',
-    name: 'Omeprazol 20 mg',
-    activeIngredient: 'omeprazol',
-    times: '08:00 e 20:00',
-    stripe: 'none',
-  },
-  {
-    id: '2',
-    name: 'Metformina 850 mg',
-    activeIngredient: 'metformina',
-    times: '20:00',
-    stripe: 'red',
-  },
-];
+import { mockMedications } from '../services/mockData';
+import { getDailyTimes, joinTimes, STRIPE_LABELS } from '../utils/format';
 
 function StripeTag({ stripe }) {
-  const isRed = stripe === 'red';
+  const isNone = stripe === 'NONE';
   return (
-    <View style={[styles.tag, isRed ? styles.tagRed : styles.tagNone]}>
-      <Text style={[styles.tagText, { color: isRed ? colors.orangeText : colors.blue }]}>
-        {isRed ? 'Tarja vermelha' : 'Sem tarja'}
+    <View style={[styles.tag, isNone ? styles.tagNone : styles.tagStripe]}>
+      <Text
+        style={[styles.tagText, { color: isNone ? colors.blue : colors.orangeText }]}
+      >
+        {STRIPE_LABELS[stripe] ?? STRIPE_LABELS.OTHER}
       </Text>
     </View>
   );
@@ -37,24 +24,33 @@ export default function MedicationsScreen() {
       <Header title="Remédios" />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {MEDICATIONS.map((item) => (
-          <View key={item.id} style={styles.card}>
-            <View style={styles.pillBox}>
-              <MaterialCommunityIcons name="pill" size={30} color={colors.blue} />
-            </View>
-            <View style={styles.cardTexts}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.detail}>
-                Princípio ativo: {item.activeIngredient}
-              </Text>
-              <View style={styles.timeRow}>
-                <Ionicons name="time-outline" size={20} color={colors.gray} />
-                <Text style={styles.detail}>{item.times}</Text>
+        {mockMedications.map((item) => {
+          const times = joinTimes(
+            getDailyTimes(item.startAt, item.intervalValue, item.intervalUnit)
+          );
+          return (
+            <View key={item.id} style={styles.card}>
+              <View style={styles.pillBox}>
+                <MaterialCommunityIcons
+                  name="pill"
+                  size={30}
+                  color={colors.blue}
+                />
               </View>
-              <StripeTag stripe={item.stripe} />
+              <View style={styles.cardTexts}>
+                <Text style={styles.name}>{item.title}</Text>
+                <Text style={styles.detail}>
+                  Princípio ativo: {item.details.activeIngredient}
+                </Text>
+                <View style={styles.timeRow}>
+                  <Ionicons name="time-outline" size={20} color={colors.gray} />
+                  <Text style={styles.detail}>{times}</Text>
+                </View>
+                <StripeTag stripe={item.details.stripe} />
+              </View>
             </View>
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
 
       <View style={styles.footer}>
@@ -98,7 +94,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   tagNone: { backgroundColor: colors.blueBg },
-  tagRed: { backgroundColor: colors.orangeBg },
+  tagStripe: { backgroundColor: colors.orangeBg },
   tagText: { fontSize: 15, fontWeight: '600' },
   footer: { padding: 24, paddingTop: 8 },
   addButton: {
