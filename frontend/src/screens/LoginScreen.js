@@ -97,7 +97,10 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: {
+        flex: 1,
+        backgroundColor: colors.white
+    },
     header: {
         backgroundColor: colors.blue,
         flexDirection: 'row',
@@ -107,10 +110,20 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     headerText: { marginLeft: 14 },
-    brand: { color: colors.white, fontSize: 24, fontWeight: 'bold' },
+    brand: {
+        color: colors.white,
+        fontSize: 24,
+        fontWeight: 'bold'
+    },
     brandAmp: { color: colors.orange },
-    brandSub: { color: colors.white, fontSize: 14 },
-    headerLine: { height: 3, backgroundColor: colors.orange },
+    brandSub: {
+        color: colors.white,
+        fontSize: 14
+    },
+    headerLine: {
+        height: 3,
+        backgroundColor: colors.orange
+    },
     scroll: { padding: 24 },
     help: {
         flexDirection: 'row',
@@ -120,8 +133,14 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 24,
     },
-    helpTextBox: { flex: 1, marginLeft: 12 },
-    helpText: { color: colors.ink, fontSize: 15 },
+    helpTextBox: {
+        flex: 1,
+        marginLeft: 12
+    },
+    helpText: {
+        color: colors.ink,
+        fontSize: 15
+    },
     helpLink: {
         color: colors.blue,
         fontSize: 15,
@@ -165,7 +184,11 @@ const styles = StyleSheet.create({
         gap: 8,
         marginTop: 8,
     },
-    primaryText: { color: colors.white, fontSize: 18, fontWeight: '600' },
+    primaryText: {
+        color: colors.white,
+        fontSize: 18,
+        fontWeight: '600'
+    },
     outlineBlue: {
         height: 56,
         borderRadius: 28,
@@ -175,8 +198,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 12,
     },
-    outlineBlueText: { color: colors.blue, fontSize: 18, fontWeight: '600' },
-    register: { color: colors.gray, fontSize: 16, marginTop: 28, marginBottom: 12 },
+    outlineBlueText: {
+        color: colors.blue,
+        fontSize: 18, fontWeight: '600'
+    },
+    register: {
+        color: colors.gray,
+        fontSize: 16,
+        marginTop: 28, marginBottom: 12
+    },
     outlineOrange: {
         height: 56,
         borderRadius: 28,
