@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.junit.jupiter.api.function.Executable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class UserTest {
         usuariosDeTeste.add(userRepository.findByEmail(usuario01.email()).orElseThrow());
         usuariosDeTeste.add(userRepository.findByEmail(usuario02.email()).orElseThrow());
 
-        // Define um usuário principal para o teste (opcional)
+        // Define um usuário principal para o teste
         usuarioTeste = usuariosDeTeste.get(0);
     }
 
@@ -95,9 +96,8 @@ public class UserTest {
         usuariosDeTeste.add(userRepository.findByEmail(usuario04.email()).orElseThrow());
 
         // Assert de que nenhum dos novos usuários cadastrados retornou null
-        assertNotNull(String.valueOf(resposta03), "O cadastro do usuário 03 não deve retornar null");
-        assertNotNull(String.valueOf(resposta04), "O cadastro do usuário 04 não deve retornar null");
-
+        assertNotNull(resposta03, "O cadastro do usuário 03 não deve retornar null");
+        assertNotNull(resposta04, "O cadastro do usuário 04 não deve retornar null");
         // Assert de que a lista de testes agora possui tamanho 4
         assertEquals(4, usuariosDeTeste.size(), "A lista de usuários de teste deve ter 4 elementos");
     }
@@ -159,43 +159,6 @@ public class UserTest {
         assertFalse(resposta.token().isBlank(), "O token não deve ser vazio");
         assertEquals("joao.silva@email.com", resposta.userResponse().email());
         assertEquals("João Silva", resposta.userResponse().name());
-    }
-
-    @Test
-    public void loginEmailInvalido() {
-        // Verificar se a tentativa de acesso com e-mail não cadastrado no banco retorna exceção.
-        LoginRequest loginRequest = new LoginRequest(
-                "inexistente@email.com",
-                "Senha@123",
-                false
-        );
-
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
-                () -> userService.login(loginRequest)
-        );
-
-        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
-        assertEquals("Email or password are invalid", exception.getReason());
-    }
-
-    @Test
-    public void loginSenhaInvalida() {
-        // Verificar se a tentativa de acesso com e-mail cadastrado, mas com senha inválida, retorna exceção.
-        LoginRequest loginRequest = new LoginRequest(
-                "joao.silva@email.com",
-                "SenhaErrada@999",
-                false
-        );
-
-        ResponseStatusException exception = assertThrows(
-                ResponseStatusException.class,
-                () -> userService.login(loginRequest)
-        );
-
-        // Mesma mensagem do email inexistente, para não revelar quais emails estão cadastrados
-        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
-        assertEquals("Email or password are invalid", exception.getReason());
     }
 
     @Test
@@ -280,4 +243,167 @@ public class UserTest {
         assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
         assertEquals("Email or password are invalid", exception.getReason());
     }
+
+    // ---------- Auxiliar ----------
+    private void assertErro(HttpStatus status, String mensagem, Executable acao) {
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, acao);
+        assertEquals(status, ex.getStatusCode());
+        assertEquals(mensagem, ex.getReason());
+    }
+
+    private SignupRequest signupValido(String email, String senha, String nome) {
+        return new SignupRequest(email, senha, nome);
+    }
+
+    // ---------- Signup: nome ----------
+    @Test
+    public void signupNomeObrigatorio() {
+        assertErro(HttpStatus.BAD_REQUEST, "Name is required",
+                () -> userService.signup(signupValido("novo@email.com", "Senha@123", null)));
+        assertErro(HttpStatus.BAD_REQUEST, "Name is required",
+                () -> userService.signup(signupValido("novo@email.com", "Senha@123", "   ")));
+    }
+
+    @Test
+    public void signupNomeTamanhoInvalido() {
+        assertErro(HttpStatus.BAD_REQUEST, "Name must have between 3 and 255 characters",
+                () -> userService.signup(signupValido("novo@email.com", "Senha@123", "Jo")));
+        assertErro(HttpStatus.BAD_REQUEST, "Name must have between 3 and 255 characters",
+                () -> userService.signup(signupValido("novo@email.com", "Senha@123", "a".repeat(256))));
+    }
+
+    @Test
+    public void signupNomeComCaracteresInvalidos() {
+        assertErro(HttpStatus.BAD_REQUEST, "Name must contain only letters",
+                () -> userService.signup(signupValido("novo@email.com", "Senha@123", "João123")));
+    }
+
+    // ---------- Signup: email ----------
+    @Test
+    public void signupEmailObrigatorio() {
+        assertErro(HttpStatus.BAD_REQUEST, "Email is required",
+                () -> userService.signup(signupValido(null, "Senha@123", "Novo Usuario")));
+        assertErro(HttpStatus.BAD_REQUEST, "Email is required",
+                () -> userService.signup(signupValido("  ", "Senha@123", "Novo Usuario")));
+    }
+
+    @Test
+    public void signupEmailTamanhoInvalido() {
+        assertErro(HttpStatus.BAD_REQUEST, "Email must have between 6 and 255 characters",
+                () -> userService.signup(signupValido("a@b.c", "Senha@123", "Novo Usuario")));
+        assertErro(HttpStatus.BAD_REQUEST, "Email must have between 6 and 255 characters",
+                () -> userService.signup(signupValido("a".repeat(250) + "@b.com", "Senha@123", "Novo Usuario")));
+    }
+
+    // ---------- Signup: senha ----------
+    @Test
+    public void signupSenhaObrigatoria() {
+        assertErro(HttpStatus.BAD_REQUEST, "Password is required",
+                () -> userService.signup(signupValido("novo@email.com", null, "Novo Usuario")));
+        assertErro(HttpStatus.BAD_REQUEST, "Password is required",
+                () -> userService.signup(signupValido("novo@email.com", "   ", "Novo Usuario")));
+    }
+
+    @Test
+    public void signupSenhaCurta() {
+        assertErro(HttpStatus.BAD_REQUEST, "Password must have at least 8 characters",
+                () -> userService.signup(signupValido("novo@email.com", "Aa1@aa", "Novo Usuario")));
+    }
+
+    @Test
+    public void signupSenhaComCaracteresInvalidos() {
+        String msg = "Password contains invalid characters (emojis and spaces are not allowed)";
+        assertErro(HttpStatus.BAD_REQUEST, msg,
+                () -> userService.signup(signupValido("novo@email.com", "Senha @123", "Novo Usuario")));
+        assertErro(HttpStatus.BAD_REQUEST, msg,
+                () -> userService.signup(signupValido("novo@email.com", "Senha@123😀", "Novo Usuario")));
+    }
+
+    @Test
+    public void signupSenhaLongaDemais() {
+        // 73 bytes (limite é 72)
+        String senhaLonga = "Aa1@" + "a".repeat(69);
+        assertErro(HttpStatus.BAD_REQUEST, "Password is too long",
+                () -> userService.signup(signupValido("novo@email.com", senhaLonga, "Novo Usuario")));
+    }
+
+    @Test
+    public void signupSenhaSemComplexidade() {
+        String msg = "Password must contain lowercase, uppercase, number and special character";
+        assertErro(HttpStatus.BAD_REQUEST, msg,
+                () -> userService.signup(signupValido("novo@email.com", "SENHA@123", "Novo Usuario"))); // sem minúscula
+        assertErro(HttpStatus.BAD_REQUEST, msg,
+                () -> userService.signup(signupValido("novo@email.com", "senha@123", "Novo Usuario"))); // sem maiúscula
+        assertErro(HttpStatus.BAD_REQUEST, msg,
+                () -> userService.signup(signupValido("novo@email.com", "Senha@abc", "Novo Usuario"))); // sem número
+        assertErro(HttpStatus.BAD_REQUEST, msg,
+                () -> userService.signup(signupValido("novo@email.com", "Senha1234", "Novo Usuario"))); // sem especial
+    }
+
+    // ---------- Login ----------
+    @Test
+    public void loginEmailOuSenhaNulos() {
+        assertErro(HttpStatus.UNAUTHORIZED, "Email or password are invalid",
+                () -> userService.login(new LoginRequest(null, "Senha@123", false)));
+        assertErro(HttpStatus.UNAUTHORIZED, "Email or password are invalid",
+                () -> userService.login(new LoginRequest("joao.silva@email.com", null, false)));
+    }
+
+    @Test
+    public void loginRememberObrigatorio() {
+        assertErro(HttpStatus.BAD_REQUEST, "Remember is required",
+                () -> userService.login(new LoginRequest("joao.silva@email.com", "Senha@123", null)));
+    }
+
+    @Test
+    public void loginMensagemParaEmailNaoCadastrado() {
+        assertErro(HttpStatus.UNAUTHORIZED, "Email or password are invalid",
+                () -> userService.login(new LoginRequest("inexistente@email.com", "Senha@123", false)));
+    }
+
+    @Test
+    public void loginMensagemParaSenhaIncorreta() {
+        assertErro(HttpStatus.UNAUTHORIZED, "Email or password are invalid",
+                () -> userService.login(new LoginRequest("joao.silva@email.com", "Errada@123", false)));
+    }
+
+    @Test
+    public void loginContaArquivada() {
+        // Arquiva a conta do usuário principal (active = false)
+        userService.update(usuarioTeste,
+                new UpdateUserRequest("joao.silva@email.com", "Senha@123", "João Silva", false));
+
+        assertErro(HttpStatus.UNAUTHORIZED, "This account was archived",
+                () -> userService.login(new LoginRequest("joao.silva@email.com", "Senha@123", false)));
+    }
+
+    // ---------- Update ----------
+    @Test
+    public void updateActiveObrigatorio() {
+        assertErro(HttpStatus.BAD_REQUEST, "Active info is required",
+                () -> userService.update(usuarioTeste,
+                        new UpdateUserRequest("joao.silva@email.com", "Senha@123", "João Silva", null)));
+    }
+
+    @Test
+    public void updateEmailDeOutroUsuario() {
+        // Tenta trocar o email do João pelo da Maria
+        assertErro(HttpStatus.CONFLICT, "Email already in use",
+                () -> userService.update(usuarioTeste,
+                        new UpdateUserRequest("maria.souza@email.com", "Senha@123", "João Silva", true)));
+    }
+
+    @Test
+    public void updateUsuarioNaoEncontrado() {
+        // Cria e remove um usuário para obter uma entidade com ID que não existe mais no banco
+        SignupRequest temp = signupValido("temporario@email.com", "Senha@123", "Usuario Temporario");
+        userService.signup(temp);
+        User fantasma = userRepository.findByEmail(temp.email()).orElseThrow();
+        userRepository.deleteById(fantasma.getId());
+
+        assertErro(HttpStatus.UNAUTHORIZED, "User not found",
+                () -> userService.update(fantasma,
+                        new UpdateUserRequest("outro.email@email.com", "Senha@123", "Usuario Temporario", true)));
+    }
+
 }
