@@ -12,13 +12,29 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Logo from '../components/Logo';
 import { colors } from '../styles/theme';
+import { login as loginRequest } from '../services/authService';
 
 export default function LoginScreen({ navigation }) {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    function handleLogin() {
-        navigation.replace('MainTabs');
+    async function handleLogin() {
+        if (!login || !password) {
+            setError('Digite o e-mail e a senha.');
+            return;
+        }
+        setError('');
+        setLoading(true);
+        try {
+            await loginRequest({ email: login, password });
+            navigation.replace('MainTabs');
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -75,13 +91,21 @@ export default function LoginScreen({ navigation }) {
                     onChangeText={setPassword}
                 />
 
+                {error !== '' && <Text style={styles.error}>{error}</Text>}
+
                 <Pressable style={styles.primaryButton}>
                     <Text style={styles.primaryText}>Entrar com biometria</Text>
                     <Ionicons name="finger-print" size={22} color={colors.orangeLight} />
                 </Pressable>
 
-                <Pressable style={styles.outlineBlue} onPress={handleLogin}>
-                    <Text style={styles.outlineBlueText}>Entrar</Text>
+                <Pressable
+                    style={styles.outlineBlue}
+                    onPress={handleLogin}
+                    disabled={loading}
+                >
+                    <Text style={styles.outlineBlueText}>
+                        {loading ? 'Entrando...' : 'Entrar'}
+                    </Text>
                 </Pressable>
 
                 <Text style={styles.register}>Ainda não é cadastrado?</Text>
@@ -173,6 +197,12 @@ const styles = StyleSheet.create({
         color: colors.ink,
         backgroundColor: colors.white,
         marginBottom: 20,
+    },
+    error: {
+        color: colors.orangeText,
+        fontSize: 16,
+        fontWeight: '600',
+        marginBottom: 12,
     },
     primaryButton: {
         height: 56,
