@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.junit.jupiter.api.function.Executable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -301,6 +302,98 @@ public class ProfileTest {
         Profile perfilOriginal = profileRepository.findByIdAndUser(perfilTeste.getId(), usuarioTeste).orElseThrow();
         assertEquals("Pedro Silva", perfilOriginal.getName());
         assertEquals(1L, perfilOriginal.getAvatarId());
+    }
+
+    // ---------- Auxiliar ----------
+    private void assertErro(HttpStatus status, String mensagem, Executable acao) {
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, acao);
+        assertEquals(status, ex.getStatusCode());
+        assertEquals(mensagem, ex.getReason());
+    }
+
+    // ---------- Create ----------
+    @Test
+    public void criarPerfilNomeObrigatorio() {
+        assertErro(HttpStatus.BAD_REQUEST, "Name is required",
+                () -> profileService.create(usuarioTeste, new CreateProfileRequest(null, 1L)));
+        assertErro(HttpStatus.BAD_REQUEST, "Name is required",
+                () -> profileService.create(usuarioTeste, new CreateProfileRequest("   ", 1L)));
+    }
+
+    @Test
+    public void criarPerfilNomeTamanhoInvalido() {
+        assertErro(HttpStatus.BAD_REQUEST, "Name must have between 3 and 255 characters",
+                () -> profileService.create(usuarioTeste, new CreateProfileRequest("Jo", 1L)));
+        assertErro(HttpStatus.BAD_REQUEST, "Name must have between 3 and 255 characters",
+                () -> profileService.create(usuarioTeste, new CreateProfileRequest("a".repeat(256), 1L)));
+    }
+
+    @Test
+    public void criarPerfilNomeComCaracteresInvalidos() {
+        assertErro(HttpStatus.BAD_REQUEST, "Name must contain only letters",
+                () -> profileService.create(usuarioTeste, new CreateProfileRequest("Pedro123", 1L)));
+    }
+
+    @Test
+    public void criarPerfilAvatarInvalido() {
+        assertErro(HttpStatus.BAD_REQUEST, "Avatar ID is invalid",
+                () -> profileService.create(usuarioTeste, new CreateProfileRequest("Carlos Lima", null)));
+        assertErro(HttpStatus.BAD_REQUEST, "Avatar ID is invalid",
+                () -> profileService.create(usuarioTeste, new CreateProfileRequest("Carlos Lima", 0L)));
+        assertErro(HttpStatus.BAD_REQUEST, "Avatar ID is invalid",
+                () -> profileService.create(usuarioTeste, new CreateProfileRequest("Carlos Lima", -1L)));
+    }
+
+    // ---------- Update ----------
+    @Test
+    public void editarPerfilIdInvalido() {
+        UpdateProfileRequest req = new UpdateProfileRequest("Pedro Silva", 1L, true);
+
+        assertErro(HttpStatus.BAD_REQUEST, "Profile ID is invalid",
+                () -> profileService.update(usuarioTeste, null, req));
+        assertErro(HttpStatus.BAD_REQUEST, "Profile ID is invalid",
+                () -> profileService.update(usuarioTeste, 0L, req));
+    }
+
+    @Test
+    public void editarPerfilAvatarInvalido() {
+        Long id = perfisDeTeste.get(0).getId();
+
+        assertErro(HttpStatus.BAD_REQUEST, "Avatar ID is invalid",
+                () -> profileService.update(usuarioTeste, id, new UpdateProfileRequest("Pedro Silva", null, true)));
+        assertErro(HttpStatus.BAD_REQUEST, "Avatar ID is invalid",
+                () -> profileService.update(usuarioTeste, id, new UpdateProfileRequest("Pedro Silva", 0L, true)));
+    }
+
+    @Test
+    public void editarPerfilActiveObrigatorio() {
+        Long id = perfisDeTeste.get(0).getId();
+
+        assertErro(HttpStatus.BAD_REQUEST, "Active info is required",
+                () -> profileService.update(usuarioTeste, id, new UpdateProfileRequest("Pedro Silva", 1L, null)));
+    }
+
+    @Test
+    public void editarPerfilNomeInvalido() {
+        Long id = perfisDeTeste.get(0).getId();
+
+        assertErro(HttpStatus.BAD_REQUEST, "Name is required",
+                () -> profileService.update(usuarioTeste, id, new UpdateProfileRequest(null, 1L, true)));
+        assertErro(HttpStatus.BAD_REQUEST, "Name must have between 3 and 255 characters",
+                () -> profileService.update(usuarioTeste, id, new UpdateProfileRequest("Jo", 1L, true)));
+        assertErro(HttpStatus.BAD_REQUEST, "Name must contain only letters",
+                () -> profileService.update(usuarioTeste, id, new UpdateProfileRequest("Pedro123", 1L, true)));
+    }
+
+    @Test
+    public void editarPerfilNomeDuplicadoMensagem() {
+        // Cria um segundo perfil para o mesmo usuário e registra para limpeza no tearDown
+        ProfileResponse segundo = profileService.create(usuarioTeste, new CreateProfileRequest("Ana Souza", 2L));
+        perfisDeTeste.add(profileRepository.findByIdAndUser(segundo.id(), usuarioTeste).orElseThrow());
+
+        // Tenta renomear "Ana Souza" para "Pedro Silva" (já usado pelo perfil do setUp)
+        assertErro(HttpStatus.CONFLICT, "This profile name is already being used by this same user",
+                () -> profileService.update(usuarioTeste, segundo.id(), new UpdateProfileRequest("Pedro Silva", 2L, true)));
     }
 
 }
