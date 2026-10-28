@@ -1,7 +1,7 @@
 ### Projeto Gerenciamento de Saúde | Projeto Integrador 4
 
 **Disciplina:** Projeto Integrador 4 - Desenvolvimento de Sistemas para Dispositivos Móveis | Centro Universitário SENAC<br>
-**Orientador:** Prof. João Felipe Fernandes Coghi
+**Orientador:** [Prof. João Felipe Fernandes Coghi](https://github.com/joaocoghi)
 
 ---
 
@@ -105,6 +105,8 @@ Cada integrante se encontra responsável pela apresentação de componentes da c
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/9f7294d4-202c-49e0-bc7e-e3c99103ea5c" hspace='1.5' />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/eb433a28-6fb7-49d8-a338-bf0be6a3a8a0" hspace='1.5' />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/f9a534f5-468a-4b80-9a7b-0492ed8ef1c5" hspace='1.5' />
+  <img height="48" alt="image" src="https://github.com/user-attachments/assets/a7e42bbe-7002-41a6-a7b9-753b797b0491" hspace='1.5' />
+
 </p>
 
 
@@ -116,7 +118,8 @@ As principais ferramentas utilizadas por este membro são:
 * **Google Planilhas:** Para a organização de requisitos funcionais, requisitos não funcionais e planos de teste;
 * **JUnit:** Para a programação e geração de diagnósticos para testes unitários em Java;
 * **JMeter:** Para a realização de testes de desempenho de requisições HTTP;
-* **Lighthouse, WAVE e Accessibility Checker:** Para a realização de testes de acessibilidade.
+* **Lighthouse e WAVE:** Para a realização de testes de acessibilidade;
+* **Checkstyle:** Para checar a compatibilidade dos códigos com boas práticas de escrita.
 
 ### 7.2 [André Rodrigues](https://github.com/oandredev)
 
