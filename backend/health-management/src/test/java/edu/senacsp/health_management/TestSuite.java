@@ -7,7 +7,8 @@ import org.junit.platform.suite.api.Suite;
 @SelectClasses({
         UserTest.class,
         ProfileTest.class,
-        RestrictionTest.class
+        RestrictionTest.class,
+        ScheduleTest.class
 })
 public class TestSuite {
 }
