@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import HomeScreen from '../screens/HomeScreen';
@@ -12,21 +12,15 @@ import AppointmentsScreen from '../screens/AppointmentsScreen';
 import ProfileSelectScreen from '../screens/ProfileSelectScreen';
 import MedicationFormScreen from '../screens/MedicationFormScreen';
 import AppointmentFormScreen from '../screens/AppointmentFormScreen';
+import MoreScreen from '../screens/MoreScreen';
+import RestrictionsScreen from '../screens/RestrictionsScreen';
+import RestrictionFormScreen from '../screens/RestrictionFormScreen';
+import ProfileEditScreen from '../screens/ProfileEditScreen';
+import AccountEditScreen from '../screens/AccountEditScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function PlaceholderScreen({ title }) {
-    return (
-        <View style={styles.placeholder}>
-            <Text style={styles.placeholderText}>{title}</Text>
-        </View>
-    );
-}
-
-function MoreScreen() {
-    return <PlaceholderScreen title="Mais" />;
-}
 function TabIcon({ name, color, focused }) { // eu quase esqueci da barra laranja em cima do ícone selecionado 
     return (
         <View style={styles.tabIconWrap}>
@@ -40,6 +34,7 @@ function MainTabs() {
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
+                animation: 'shift',
                 tabBarActiveTintColor: colors.blue,
                 tabBarInactiveTintColor: colors.gray,
                 tabBarLabelStyle: { fontSize: 14 },
@@ -100,23 +95,16 @@ export default function AppNavigator() {
                 <Stack.Screen name="MainTabs" component={MainTabs} />
                 <Stack.Screen name="MedicationForm" component={MedicationFormScreen} />
                 <Stack.Screen name="AppointmentForm" component={AppointmentFormScreen} />
+                <Stack.Screen name="Restrictions" component={RestrictionsScreen} />
+                <Stack.Screen name="RestrictionForm" component={RestrictionFormScreen} />
+                <Stack.Screen name="ProfileEdit" component={ProfileEditScreen} />
+                <Stack.Screen name="AccountEdit" component={AccountEditScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    placeholder: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: colors.white,
-    },
-    placeholderText: {
-        color: colors.blue,
-        fontSize: 28,
-        fontWeight: 'bold'
-    },
     tabIconWrap: { alignItems: 'center' },
     tabIndicator: {
         position: 'absolute',

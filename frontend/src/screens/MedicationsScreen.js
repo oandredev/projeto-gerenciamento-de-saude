@@ -28,7 +28,7 @@ function StripeTag({ stripe }) {
   );
 }
 
-export default function MedicationsScreen({ navigation }) {
+export default function MedicationsScreen({ navigation, route }) {
   const profile = getActiveProfile();
 
   const [medications, setMedications] = useState([]);
@@ -56,12 +56,17 @@ export default function MedicationsScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       loadMedications();
+      // Ao sair da tela, apaga a marca "veio da Mais" (a seta só aparece quando vem de lá)
+      return () => navigation.setParams({ from: undefined });
     }, [])
   );
 
   return (
     <View style={styles.container}>
-      <Header title="Remédios" />
+      <Header
+        title="Remédios"
+        onBack={route.params?.from === 'More' ? () => navigation.navigate('More') : undefined}
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         {loading && <ActivityIndicator size="large" color={colors.blue} />}

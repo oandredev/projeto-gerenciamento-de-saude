@@ -4,7 +4,7 @@ import Logo from './Logo';
 import { colors } from '../styles/theme';
 import { useNavigation } from '@react-navigation/native';
 
-export default function Header({ title, onBack, showProfileSwitch = true }) {
+export default function Header({ title, onBack, showProfileSwitch = true, logoInverted = false }) {
   const navigation = useNavigation();
 
   return (
@@ -17,7 +17,7 @@ export default function Header({ title, onBack, showProfileSwitch = true }) {
                 <Ionicons name="arrow-back" size={24} color={colors.white} />
               </Pressable>
             )}
-            <Logo size={44} />
+            <Logo size={44} inverted={logoInverted} />
           </View>
           <Pressable style={styles.circleButton}>
             <Ionicons

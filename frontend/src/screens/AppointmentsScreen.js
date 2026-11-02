@@ -15,7 +15,7 @@ import { getActiveProfile } from '../services/profileService';
 import { listSchedules } from '../services/scheduleService';
 import { formatDate, formatTime } from '../utils/format';
 
-export default function AppointmentsScreen({ navigation }) {
+export default function AppointmentsScreen({ navigation, route }) {
   const profile = getActiveProfile();
 
   const [appointments, setAppointments] = useState([]);
@@ -47,12 +47,17 @@ export default function AppointmentsScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       loadAppointments();
+      // Ao sair da tela, apaga a marca "veio da Mais" (a seta só aparece quando vem de lá)
+      return () => navigation.setParams({ from: undefined });
     }, [])
   );
 
   return (
     <View style={styles.container}>
-      <Header title="Consultas" />
+      <Header
+        title="Consultas"
+        onBack={route.params?.from === 'More' ? () => navigation.navigate('More') : undefined}
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         {loading && <ActivityIndicator size="large" color={colors.blue} />}
