@@ -6,6 +6,14 @@ const MONTHS = [
 
 const pad = (n) => String(n).padStart(2, '0');
 
+// Bom dia (5h às 11h59), Boa tarde (12h às 17h59), Boa noite (no resto)
+export function getGreeting(date = new Date()) {
+  const hour = date.getHours();
+  if (hour >= 5 && hour < 12) return 'Bom dia';
+  if (hour >= 12 && hour < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
+
 export function formatTime(iso) {
   const d = new Date(iso);
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;

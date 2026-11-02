@@ -29,7 +29,7 @@ export default function LoginScreen({ navigation }) {
         setLoading(true);
         try {
             await loginRequest({ email: login, password });
-            navigation.replace('MainTabs');
+            navigation.replace('ProfileSelect');
         } catch (e) {
             setError(e.message);
         } finally {

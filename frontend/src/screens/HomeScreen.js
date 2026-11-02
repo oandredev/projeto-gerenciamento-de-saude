@@ -3,7 +3,8 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import { colors } from '../styles/theme';
 import { mockOccurrences } from '../services/mockData';
-import { formatTime } from '../utils/format';
+import { getActiveProfile } from '../services/profileService';
+import { formatTime, getGreeting } from '../utils/format'; // eu corrijo o time UTC e o horário para cumprimentar a saudação correta (bom dia, boa tarde, boa noite) de acordo com o horário local do usuário
 
 const STATUS_STYLES = {
     CONFIRMED: { icon: 'checkmark-circle', color: colors.blue, bg: colors.blueBg },
@@ -30,6 +31,10 @@ function StatusChip({ occurrence }) {
 }
 
 export default function HomeScreen() {
+    const profile = getActiveProfile();
+    const firstName = profile?.name?.split(' ')[0];
+    const greeting = getGreeting();
+
     const occurrences = [...mockOccurrences].sort(
         (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)
     );
@@ -44,7 +49,7 @@ export default function HomeScreen() {
 
     return (
         <View style={styles.container}>
-            <Header title="Boa tarde, Fernanda!" />
+            <Header title={firstName ? `${greeting}, ${firstName}!` : `${greeting}!`} />
 
             <ScrollView contentContainerStyle={styles.content}>
                 {nowItem && (

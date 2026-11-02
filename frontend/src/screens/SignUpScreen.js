@@ -41,7 +41,7 @@ export default function SignUpScreen({ navigation }) {
         try {
             await signup({ name, email, password });
             await login({ email, password });
-            navigation.replace('MainTabs');
+            navigation.replace('ProfileSelect');
         } catch (e) {
             setError(e.message);
         } finally {

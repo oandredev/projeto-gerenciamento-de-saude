@@ -2,8 +2,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Logo from './Logo';
 import { colors } from '../styles/theme';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Header({ title, onBack, showProfileSwitch = true }) {
+  const navigation = useNavigation();
+
   return (
     <View>
       <View style={styles.container}>
@@ -26,9 +29,11 @@ export default function Header({ title, onBack, showProfileSwitch = true }) {
         </View>
 
         <Text style={styles.title}>{title}</Text>
-
         {showProfileSwitch && (
-          <Pressable style={styles.profileButton}>
+          <Pressable
+            style={styles.profileButton}
+            onPress={() => navigation.navigate('ProfileSelect')}
+          >
             <Ionicons
               name="swap-horizontal"
               size={20}
