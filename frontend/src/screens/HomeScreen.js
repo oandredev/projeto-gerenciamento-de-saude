@@ -1,10 +1,19 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+    ActivityIndicator,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
 import { colors } from '../styles/theme';
-import { mockOccurrences } from '../services/mockData';
 import { getActiveProfile } from '../services/profileService';
-import { formatTime, getGreeting } from '../utils/format'; // eu corrijo o time UTC e o horário para cumprimentar a saudação correta (bom dia, boa tarde, boa noite) de acordo com o horário local do usuário
+import { listOccurrences, confirmOccurrence } from '../services/occurrenceService';
+import { formatTime, getGreeting } from '../utils/format';// eu corrijo o time UTC e o horário para cumprimentar a saudação correta (bom dia, boa tarde, boa noite) de acordo com o horário local do usuário
 
 const STATUS_STYLES = {
     CONFIRMED: { icon: 'checkmark-circle', color: colors.blue, bg: colors.blueBg },
@@ -30,21 +39,64 @@ function StatusChip({ occurrence }) {
     );
 }
 
+function isToday(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    return (
+        d.getFullYear() === now.getFullYear() &&
+        d.getMonth() === now.getMonth() &&
+        d.getDate() === now.getDate()
+    );
+}
+
 export default function HomeScreen() {
     const profile = getActiveProfile();
     const firstName = profile?.name?.split(' ')[0];
     const greeting = getGreeting();
 
-    const occurrences = [...mockOccurrences].sort(
-        (a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)
+    const [occurrences, setOccurrences] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    async function loadOccurrences() {
+        if (!profile) {
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        setError('');
+        try {
+            const list = await listOccurrences(profile.id, { order: 'ASC' });
+            setOccurrences(list.filter((o) => isToday(o.scheduledAt)));
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // Recarrega sempre que a tela aparece
+    useFocusEffect(
+        useCallback(() => {
+            loadOccurrences();
+        }, [])
     );
+
     const nowItem = occurrences.find(
         (o) => o.type === 'MEDICATION' && o.status === 'PENDING'
     );
     const todayItems = occurrences.filter((o) => o !== nowItem);
 
-    function handleTaken() {
-        console.log('Já tomei, confirmationId:', nowItem.confirmationId);
+    async function handleTaken() {
+        try {
+            await confirmOccurrence({
+                scheduleId: nowItem.scheduleId,
+                scheduledAt: nowItem.scheduledAt,
+            });
+            await loadOccurrences();
+        } catch (e) {
+            setError(e.message);
+        }
     }
 
     return (
@@ -52,6 +104,16 @@ export default function HomeScreen() {
             <Header title={firstName ? `${greeting}, ${firstName}!` : `${greeting}!`} />
 
             <ScrollView contentContainerStyle={styles.content}>
+                {loading && <ActivityIndicator size="large" color={colors.blue} />}
+
+                {error !== '' && <Text style={styles.error}>{error}</Text>}
+
+                {!loading && !error && occurrences.length === 0 && (
+                    <Text style={styles.message}>
+                        Nenhum remédio ou consulta para hoje.
+                    </Text>
+                )}
+
                 {nowItem && (
                     <>
                         <Text style={styles.nowLabel}>Agora</Text>
@@ -79,9 +141,12 @@ export default function HomeScreen() {
                     </>
                 )}
 
-                <Text style={styles.todayLabel}>Hoje</Text>
+                {todayItems.length > 0 && <Text style={styles.todayLabel}>Hoje</Text>}
                 {todayItems.map((item) => (
-                    <View key={item.confirmationId} style={styles.item}>
+                    <View
+                        key={`${item.scheduleId}-${item.scheduledAt}`}
+                        style={styles.item}
+                    >
                         <View style={styles.itemTop}>
                             <Text style={styles.itemTime}>{formatTime(item.scheduledAt)}</Text>
                             <StatusChip occurrence={item} />
@@ -198,5 +263,17 @@ const styles = StyleSheet.create({
     chipText: {
         fontSize: 16,
         fontWeight: '600'
+    },
+    message: {
+        color: colors.gray,
+        fontSize: 18,
+        textAlign: 'center',
+        marginTop: 24,
+    },
+    error: {
+        color: colors.orangeText,
+        fontSize: 16,
+        fontWeight: '600',
+        marginBottom: 12,
     },
 });
