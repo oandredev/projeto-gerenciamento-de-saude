@@ -26,12 +26,21 @@ const EXACT = {
 
   'Request body is missing or malformed':
     'Os dados enviados estão incompletos. Tente novamente.',
+
+  'Title is required': 'Digite o nome do remédio.',
+  'Title contains invalid characters': 'O nome tem caracteres que não são aceitos.',
+  'Medicine name is required': 'Digite o nome do remédio.',
+  'Medicine name is invalid': 'O nome do remédio tem caracteres que não são aceitos.',
+  'Dosage amount is invalid': 'A dose informada não é válida.',
+  'Dosage unit is required': 'Escolha a unidade da dose.',
+  'Interval value must be greater than zero': 'O intervalo precisa ser maior que zero.',
 };
 
 const PATTERNS = [
   [/^Password must have at least (\d+) characters$/, (m) => `A senha precisa ter pelo menos ${m[1]} caracteres.`],
   [/^Name must have between (\d+) and (\d+) characters$/, (m) => `O nome deve ter entre ${m[1]} e ${m[2]} caracteres.`],
   [/^Email must have between (\d+) and (\d+) characters$/, (m) => `O e-mail deve ter entre ${m[1]} e ${m[2]} caracteres.`],
+  [/^Title must have between (\d+) and (\d+) characters$/, (m) => `O nome deve ter entre ${m[1]} e ${m[2]} caracteres.`],
   [/^(.+) must have at most (\d+) characters$/, (m) => `Este campo aceita no máximo ${m[2]} caracteres.`],
 ];
 

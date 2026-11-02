@@ -1,8 +1,18 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
 import { colors } from '../styles/theme';
-import { mockMedications } from '../services/mockData';
+import { getActiveProfile } from '../services/profileService';
+import { listSchedules } from '../services/scheduleService';
 import { getDailyTimes, joinTimes, STRIPE_LABELS } from '../utils/format';
 
 function StripeTag({ stripe }) {
@@ -18,13 +28,51 @@ function StripeTag({ stripe }) {
   );
 }
 
-export default function MedicationsScreen() {
+export default function MedicationsScreen({ navigation }) {
+  const profile = getActiveProfile();
+
+  const [medications, setMedications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  async function loadMedications() {
+    if (!profile) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const list = await listSchedules(profile.id, { type: 'MEDICATION' });
+      setMedications(list);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Recarrega sempre que a tela aparece
+  useFocusEffect(
+    useCallback(() => {
+      loadMedications();
+    }, [])
+  );
+
   return (
     <View style={styles.container}>
       <Header title="Remédios" />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {mockMedications.map((item) => {
+        {loading && <ActivityIndicator size="large" color={colors.blue} />}
+
+        {error !== '' && <Text style={styles.error}>{error}</Text>}
+
+        {!loading && !error && medications.length === 0 && (
+          <Text style={styles.message}>Nenhum remédio cadastrado.</Text>
+        )}
+
+        {medications.map((item) => {
           const times = joinTimes(
             getDailyTimes(item.startAt, item.intervalValue, item.intervalUnit)
           );
@@ -39,14 +87,16 @@ export default function MedicationsScreen() {
               </View>
               <View style={styles.cardTexts}>
                 <Text style={styles.name}>{item.title}</Text>
-                <Text style={styles.detail}>
-                  Princípio ativo: {item.details.activeIngredient}
-                </Text>
+                {item.details?.activeIngredient ? (
+                  <Text style={styles.detail}>
+                    Princípio ativo: {item.details.activeIngredient}
+                  </Text>
+                ) : null}
                 <View style={styles.timeRow}>
                   <Ionicons name="time-outline" size={20} color={colors.gray} />
                   <Text style={styles.detail}>{times}</Text>
                 </View>
-                <StripeTag stripe={item.details.stripe} />
+                <StripeTag stripe={item.details?.stripe} />
               </View>
             </View>
           );
@@ -54,7 +104,7 @@ export default function MedicationsScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Pressable style={styles.addButton}>
+        <Pressable style={styles.addButton} onPress={() => navigation.navigate('MedicationForm')}>
           <Ionicons name="add" size={26} color={colors.white} />
           <Text style={styles.addText}>Novo remédio</Text>
         </Pressable>
@@ -106,5 +156,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  addText: { color: colors.white, fontSize: 20, fontWeight: '600' },
+  addText: {
+    color: colors.white,
+    fontSize: 20,
+    fontWeight: '600'
+  },
+  message: {
+    color: colors.gray,
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 24,
+  },
+  error: {
+    color: colors.orangeText,
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
 });
