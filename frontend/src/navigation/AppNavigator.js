@@ -9,6 +9,7 @@ import HomeScreen from '../screens/HomeScreen';
 import { colors } from '../styles/theme';
 import MedicationsScreen from '../screens/MedicationsScreen';
 import AppointmentsScreen from '../screens/AppointmentsScreen';
+import ProfileSelectScreen from '../screens/ProfileSelectScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -93,6 +94,7 @@ export default function AppNavigator() {
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="SignUp" component={SignUpScreen} />
+                <Stack.Screen name="ProfileSelect" component={ProfileSelectScreen} />
                 <Stack.Screen name="MainTabs" component={MainTabs} />
             </Stack.Navigator>
         </NavigationContainer>

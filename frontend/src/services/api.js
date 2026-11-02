@@ -1,5 +1,6 @@
+import { translateError } from './errorMessages';
 
-export const BASE_URL = 'http://192.168.0.101:8080';
+export const BASE_URL = 'http://192.168.1.215:8080';
 
 let authToken = null;
 
@@ -36,7 +37,7 @@ export async function request(path, { method = 'GET', body } = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(json?.message ?? 'Erro inesperado. Tente novamente.');
+    throw new Error(translateError(json?.message));
   }
 
   return { data: json?.data ?? json, headers: response.headers };
