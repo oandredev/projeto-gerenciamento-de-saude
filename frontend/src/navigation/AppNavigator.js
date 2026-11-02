@@ -11,6 +11,7 @@ import MedicationsScreen from '../screens/MedicationsScreen';
 import AppointmentsScreen from '../screens/AppointmentsScreen';
 import ProfileSelectScreen from '../screens/ProfileSelectScreen';
 import MedicationFormScreen from '../screens/MedicationFormScreen';
+import AppointmentFormScreen from '../screens/AppointmentFormScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -98,6 +99,7 @@ export default function AppNavigator() {
                 <Stack.Screen name="ProfileSelect" component={ProfileSelectScreen} />
                 <Stack.Screen name="MainTabs" component={MainTabs} />
                 <Stack.Screen name="MedicationForm" component={MedicationFormScreen} />
+                <Stack.Screen name="AppointmentForm" component={AppointmentFormScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

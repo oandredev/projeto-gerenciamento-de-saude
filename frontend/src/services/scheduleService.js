@@ -16,3 +16,9 @@ export async function createSchedule(body) {
   const { data } = await request('/schedule', { method: 'POST', body });
   return data;
 }
+
+// PUT /schedule: o id vai no corpo, junto com o type (que não pode mudar)
+export async function updateSchedule(body) {
+  const { data } = await request('/schedule', { method: 'PUT', body });
+  return data;
+}
