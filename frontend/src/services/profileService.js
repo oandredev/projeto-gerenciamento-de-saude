@@ -26,3 +26,8 @@ export async function createProfile({ name, avatarId = 1 }) {
   return data;
 }
 
+// O id vai na URL; o corpo leva name, avatarId e active (tudo obrigatório)
+export async function updateProfile(id, body) {
+  const { data } = await request(`/profile/${id}`, { method: 'PUT', body });
+  return data;
+}

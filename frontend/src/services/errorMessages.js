@@ -27,13 +27,18 @@ const EXACT = {
   'Request body is missing or malformed':
     'Os dados enviados estão incompletos. Tente novamente.',
 
-  'Title is required': 'Digite o nome do remédio.',
+  'Title is required': 'Digite o nome.',
   'Title contains invalid characters': 'O nome tem caracteres que não são aceitos.',
   'Medicine name is required': 'Digite o nome do remédio.',
   'Medicine name is invalid': 'O nome do remédio tem caracteres que não são aceitos.',
   'Dosage amount is invalid': 'A dose informada não é válida.',
   'Dosage unit is required': 'Escolha a unidade da dose.',
   'Interval value must be greater than zero': 'O intervalo precisa ser maior que zero.',
+
+  'Type is required': 'Escolha o tipo.',
+  'Severity is required': 'Escolha a gravidade.',
+  'Restriction not found': 'Restrição não encontrada.',
+  'Active schedule not found': 'Este item não existe mais. Volte e atualize a lista.',
 };
 
 const PATTERNS = [
@@ -43,16 +48,3 @@ const PATTERNS = [
   [/^Title must have between (\d+) and (\d+) characters$/, (m) => `O nome deve ter entre ${m[1]} e ${m[2]} caracteres.`],
   [/^(.+) must have at most (\d+) characters$/, (m) => `Este campo aceita no máximo ${m[2]} caracteres.`],
 ];
-
-const FALLBACK = 'Erro inesperado. Tente novamente.';
-
-export function translateError(message) {
-  if (!message) return FALLBACK;
-  if (EXACT[message]) return EXACT[message];
-
-  for (const [regex, build] of PATTERNS) {
-    const match = message.match(regex);
-    if (match) return build(match);
-  }
-  return FALLBACK;
-}

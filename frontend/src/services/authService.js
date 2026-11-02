@@ -1,5 +1,16 @@
 import { request, setToken } from './api';
 
+// Dados da conta que entrou (ficam só na memória do app, como o token)
+let currentUser = null;
+
+export function getCurrentUser() {
+  return currentUser;
+}
+
+export function clearCurrentUser() {
+  currentUser = null;
+}
+
 export async function signup({ name, email, password }) {
   const { data } = await request('/user/signup', {
     method: 'POST',
@@ -18,5 +29,16 @@ export async function login({ email, password, remember = false }) {
   if (authorization) {
     setToken(authorization.replace('Bearer ', ''));
   }
+  currentUser = data;
+  return data;
+}
+
+// O PUT /user substitui tudo e exige a senha (ele regrava a senha a cada edição)
+export async function updateAccount({ name, email, password }) {
+  const { data } = await request('/user', {
+    method: 'PUT',
+    body: { name, email, password, active: true },
+  });
+  currentUser = data;
   return data;
 }
