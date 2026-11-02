@@ -12,8 +12,8 @@ import {
 import Header from '../components/Header';
 import { colors } from '../styles/theme';
 import { getActiveProfile } from '../services/profileService';
-import { createSchedule } from '../services/scheduleService';
-import { STRIPE_LABELS } from '../utils/format';
+import { createSchedule, updateSchedule } from '../services/scheduleService';
+import { STRIPE_LABELS, formatTime } from '../utils/format';
 
 // Os valores (MG, ML...) são os do back-end; o texto é o que a pessoa vê.
 const DOSAGE_UNITS = [
@@ -29,6 +29,14 @@ const DOSAGE_UNITS = [
 
 const STRIPES = ['NONE', 'YELLOW', 'RED', 'BLACK'];
 
+// Converte o intervalo do back-end para "a cada quantas horas".
+// O formulário só entende horas (1 a 24); outros intervalos voltam vazios.
+function toIntervalInput(s) {
+  if (s.intervalUnit === 'HOUR') return String(s.intervalValue);
+  if (s.intervalUnit === 'DAY' && s.intervalValue === 1) return '24';
+  return '';
+}
+
 function Chip({ label, selected, onPress }) {
   return (
     <Pressable
@@ -42,14 +50,21 @@ function Chip({ label, selected, onPress }) {
   );
 }
 
-export default function MedicationFormScreen({ navigation }) {
-  const [name, setName] = useState('');
-  const [ingredient, setIngredient] = useState('');
-  const [dose, setDose] = useState('');
-  const [unit, setUnit] = useState('MG');
-  const [time, setTime] = useState('');
-  const [interval, setInterval] = useState('');
-  const [stripe, setStripe] = useState('NONE');
+export default function MedicationFormScreen({ navigation, route }) {
+  // Se veio um item da lista, estamos editando
+  const schedule = route.params?.schedule;
+  const isEditing = !!schedule;
+  const details = schedule?.details;
+
+  const [name, setName] = useState(details?.medicineName ?? '');
+  const [ingredient, setIngredient] = useState(details?.activeIngredient ?? '');
+  const [dose, setDose] = useState(
+    details?.dosageAmount != null ? String(details.dosageAmount).replace('.', ',') : ''
+  );
+  const [unit, setUnit] = useState(details?.dosageUnit ?? 'MG');
+  const [time, setTime] = useState(schedule ? formatTime(schedule.startAt) : '');
+  const [interval, setInterval] = useState(schedule ? toIntervalInput(schedule) : '');
+  const [stripe, setStripe] = useState(details?.stripe ?? 'NONE');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -81,33 +96,60 @@ export default function MedicationFormScreen({ navigation }) {
       return;
     }
 
-    // Primeiro horário: hoje, no horário do celular. O back-end recebe em UTC.
-    const startAt = new Date();
+    // Primeiro horário no relógio do celular (o back-end recebe em UTC).
+    // Ao criar: hoje. Ao editar: mantém o dia original e troca só a hora.
+    const startAt = isEditing ? new Date(schedule.startAt) : new Date();
     startAt.setHours(Number(timeMatch[1]), Number(timeMatch[2]), 0, 0);
 
     const unitLabel = DOSAGE_UNITS.find((u) => u.value === unit).label;
     const doseText = String(amount).replace('.', ',');
 
+    // Campos que servem tanto para criar quanto para editar
+    const fields = {
+      type: 'MEDICATION',
+      title: `${cleanName} ${doseText} ${unitLabel}`,
+      startAt: startAt.toISOString(),
+      intervalValue: hours === 24 ? 1 : hours,
+      intervalUnit: hours === 24 ? 'DAY' : 'HOUR',
+    };
+
     setError('');
     setSaving(true);
     try {
-      await createSchedule({
-        profileId: profile.id,
-        type: 'MEDICATION',
-        title: `${cleanName} ${doseText} ${unitLabel}`,
-        startAt: startAt.toISOString(),
-        intervalValue: hours === 24 ? 1 : hours,
-        intervalUnit: hours === 24 ? 'DAY' : 'HOUR',
-        notifyEnabled: true,
-        alarmEnabled: false,
-        details: {
-          medicineName: cleanName,
-          activeIngredient: ingredient.trim() || undefined,
-          dosageAmount: amount,
-          dosageUnit: unit,
-          stripe,
-        },
-      });
+      if (isEditing) {
+        // O PUT substitui tudo: devolvemos o que o remédio já tinha (e o formulário não mostra)
+        await updateSchedule({
+          ...fields,
+          id: schedule.id,
+          notes: schedule.notes ?? undefined,
+          endAt: schedule.endAt ?? undefined,
+          reminderValue: schedule.reminderValue ?? undefined,
+          reminderUnit: schedule.reminderUnit ?? undefined,
+          details: {
+            medicineName: cleanName,
+            activeIngredient: ingredient.trim() || undefined,
+            dosageAmount: amount,
+            dosageUnit: unit,
+            stripe,
+            brand: details?.brand ?? undefined,
+            photoUrl: details?.photoUrl ?? undefined,
+          },
+        });
+      } else {
+        await createSchedule({
+          ...fields,
+          profileId: profile.id,
+          notifyEnabled: true,
+          alarmEnabled: false,
+          details: {
+            medicineName: cleanName,
+            activeIngredient: ingredient.trim() || undefined,
+            dosageAmount: amount,
+            dosageUnit: unit,
+            stripe,
+          },
+        });
+      }
       navigation.goBack();
     } catch (e) {
       setError(e.message);
@@ -122,7 +164,7 @@ export default function MedicationFormScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Header
-        title="Novo remédio"
+        title={isEditing ? 'Editar remédio' : 'Novo remédio'}
         showProfileSwitch={false}
         onBack={() => navigation.goBack()}
       />
@@ -208,7 +250,9 @@ export default function MedicationFormScreen({ navigation }) {
           onPress={handleSave}
           disabled={saving}
         >
-          <Text style={styles.saveText}>{saving ? 'Salvando...' : 'Salvar'}</Text>
+          <Text style={styles.saveText}>
+            {saving ? 'Salvando...' : isEditing ? 'Salvar edição' : 'Salvar'}
+          </Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

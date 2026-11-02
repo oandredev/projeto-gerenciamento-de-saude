@@ -4,7 +4,7 @@ const MONTHS = [
   'jul', 'ago', 'set', 'out', 'nov', 'dez',
 ];
 
-const pad = (n) => String(n).padStart(2, '0');
+export const pad = (n) => String(n).padStart(2, '0');
 
 // Bom dia (5h às 11h59), Boa tarde (12h às 17h59), Boa noite (no resto)
 export function getGreeting(date = new Date()) {

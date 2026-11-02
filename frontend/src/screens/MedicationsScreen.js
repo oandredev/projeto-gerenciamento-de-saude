@@ -77,7 +77,11 @@ export default function MedicationsScreen({ navigation }) {
             getDailyTimes(item.startAt, item.intervalValue, item.intervalUnit)
           );
           return (
-            <View key={item.id} style={styles.card}>
+            <Pressable
+              key={item.id}
+              style={styles.card}
+              onPress={() => navigation.navigate('MedicationForm', { schedule: item })}
+            >
               <View style={styles.pillBox}>
                 <MaterialCommunityIcons
                   name="pill"
@@ -98,7 +102,7 @@ export default function MedicationsScreen({ navigation }) {
                 </View>
                 <StripeTag stripe={item.details?.stripe} />
               </View>
-            </View>
+            </Pressable>
           );
         })}
       </ScrollView>
