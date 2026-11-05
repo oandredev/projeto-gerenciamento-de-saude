@@ -43,9 +43,11 @@
   </module>
 </module>
 
-<!-- Todos os métodos que sobrescrevem superclasses terão a anotação @Override -->
+<!-- Nenhum throw responderá com mensagens padrão de erros de execução. Problemas previstos no código possuem suas próprias mensagens de erro -->
 <module name="Checker">
   <module name="TreeWalker">
-    <module name="MissingOverride"/>
+    <module name="IllegalThrows">
+      <property name="illegalClassNames" value="RuntimeException"/>
+    </module>
   </module>
 </module>
