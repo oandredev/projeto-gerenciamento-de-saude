@@ -2,6 +2,7 @@
 
     import edu.senacsp.health_management.dto.request.user.LoginRequest;
     import edu.senacsp.health_management.dto.request.user.SignupRequest;
+    import edu.senacsp.health_management.dto.request.user.UpdatePasswordRequest;
     import edu.senacsp.health_management.dto.request.user.UpdateUserRequest;
     import edu.senacsp.health_management.dto.response.user.AuthResponse;
     import edu.senacsp.health_management.dto.response.user.UserResponse;
@@ -23,7 +24,8 @@
     import java.nio.charset.StandardCharsets;
 
     @Service
-    public class UserService {
+    public class UserService
+    {
 
         private final UserRepository repo;
 
@@ -193,6 +195,56 @@
 
             userDB.setName(name);
             userDB.setEmail(email);
+
+            userDB = repo.saveAndFlush(userDB);
+
+            List<ProfileResponse> profiles = userDB.getProfiles().stream()
+                    .map(ProfileResponse::new)
+                    .toList();
+
+            return new UserResponse(userDB.getId(), userDB.getEmail(), userDB.getName(), profiles,
+                    userDB.isActive(), userDB.getModifiedAt(), userDB.getCreatedAt());
+        }
+
+        /**
+         * Changes the authenticated user's password.
+         *
+         * <p>The current password must match the stored one. Only after that is the new password
+         * validated, using the same rules as in signup, and stored as a BCrypt hash.
+         * The user being updated is the one identified by the JWT, never one taken from the request body.
+         *
+         * @param user the authenticated user, resolved from the JWT
+         * @param req  the current and the new password
+         * @return a {@link UserResponse} with the user's data and all of their profiles
+         * @throws ResponseStatusException if the current password is missing,
+         *                                 or the new password is missing or invalid (CODE 400),
+         *                                 the authenticated user no longer exists (CODE 401),
+         *                                 or the current password is incorrect (CODE 403)
+         */
+        @Transactional
+        public UserResponse updatePassword(User user, UpdatePasswordRequest req)
+        {
+            // Validations
+
+            // Only checks presence, not the password rules: the rules may change over time,
+            // and validating them here would reject users whose old password no longer meets them.
+            // Whether it is correct is decided by passwordEncoder.matches.
+            if (req.currentPassword() == null || req.currentPassword().isBlank())
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is required");
+            }
+
+            User userDB = repo.findWithProfilesById(user.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+            if (!passwordEncoder.matches(req.currentPassword(), userDB.getPassword()))
+            {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Current password is incorrect");
+            }
+
+            validatePassword(req.newPassword());
+
+            userDB.setPassword(passwordEncoder.encode(req.newPassword()));
 
             userDB = repo.saveAndFlush(userDB);
 
