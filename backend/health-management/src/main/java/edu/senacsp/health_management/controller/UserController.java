@@ -49,8 +49,9 @@ public class UserController {
 
     @PutMapping()
     @ApiMessage("User successfully edited")
-    public ResponseEntity<UserResponse> updateUser(@AuthenticationPrincipal User user, @RequestBody UpdateUserRequest req)
+    public ResponseEntity<UserResponse> update(@AuthenticationPrincipal User user, @RequestBody UpdateUserRequest req)
     {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(user, req));
     }
+
 }

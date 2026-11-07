@@ -139,49 +139,61 @@
         }
 
         /**
-         * Updates the authenticated user's data (full replacement, like an HTTP PUT).
+         * Updates the authenticated user's name and email (full replacement, like an HTTP PUT).
          *
-         * <p>All fields are required and overwrite the stored values, even when unchanged.
-         * The password is validated and hashed again with BCrypt. The user being updated is
-         * the one identified by the JWT, never one taken from the request body.
+         * <p>Name and email are required and overwrite the stored values, even when unchanged.
+         * The name has its extra spaces collapsed and the email is trimmed before being stored.
          *
-         * <p>Sending {@code active = false} archives the account (soft delete).
-         * The user's profiles are not changed.
+         * <p>Changing the email is a sensitive change, so it also requires the current password,
+         * which must match the stored one. The comparison is case-sensitive, so changing only the
+         * letter case of the email also counts as a change. The email uniqueness check only runs
+         * when the email changes. The password itself is not changed here.
+         *
+         * <p>The user being updated is the one identified by the JWT, never one taken from the
+         * request body.
          *
          * @param user the authenticated user, resolved from the JWT
-         * @param req  the new name, email, password and active flag
+         * @param req  the name, email and (when the email changes) the current password
          * @return a {@link UserResponse} with the updated user's data and all of their profiles
-         * @throws ResponseStatusException if any field is missing or invalid (CODE 400)
+         * @throws ResponseStatusException if name or email is missing or invalid, or the current
+         *                                 password is missing when required (CODE 400),
+         *                                 the authenticated user no longer exists (CODE 401),
+         *                                 the current password is incorrect (CODE 403),
          *                                 or the email belongs to another user (CODE 409)
          */
         @Transactional
-        public UserResponse update (User user, UpdateUserRequest req)
+        public UserResponse update(User user, UpdateUserRequest req)
         {
-            // Validations
             String name = validateName(req.name());
             String email = validateEmail(req.email());
-            validatePassword(req.password());
-
-            if (req.active() == null)
-            {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Active info is required");
-            }
-
-            if (repo.existsByEmailAndIdNot(email, user.getId()))
-            {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use"); // Other user
-            }
 
             User userDB = repo.findWithProfilesById(user.getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-            // Sets
+            boolean changeEmail = !email.equals(userDB.getEmail());
+
+            // Sensitive change (email) requires the current password
+            if (changeEmail)
+            {
+                if (req.currentPassword() == null || req.currentPassword().isBlank())
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is required");
+                }
+
+                if (!passwordEncoder.matches(req.currentPassword(), userDB.getPassword()))
+                {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Current password is incorrect");
+                }
+
+                if (repo.existsByEmailAndIdNot(email, userDB.getId()))
+                {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
+                }
+            }
+
             userDB.setName(name);
             userDB.setEmail(email);
-            userDB.setPassword(passwordEncoder.encode(req.password()));
-            userDB.setActive(req.active());
 
-            // Save and Return
             userDB = repo.saveAndFlush(userDB);
 
             List<ProfileResponse> profiles = userDB.getProfiles().stream()
