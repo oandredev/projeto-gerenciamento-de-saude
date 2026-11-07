@@ -148,7 +148,7 @@ public class ScheduleService {
 
         Sort sort = Sort.by(order, "startAt", "id");
 
-        // TODO: if a new details DTO is added to Schedule, update this (and the repository query)
+        // If new details are added to Schedule, update this (and the repository query)
         // Return
         return repo.findAllWithDetailsByProfile(profile, types, sort)
                 .stream()
