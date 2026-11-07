@@ -4,6 +4,7 @@ import edu.senacsp.health_management.annotation.ApiMessage;
 
 import edu.senacsp.health_management.dto.request.user.LoginRequest;
 import edu.senacsp.health_management.dto.request.user.SignupRequest;
+import edu.senacsp.health_management.dto.request.user.UpdatePasswordRequest;
 import edu.senacsp.health_management.dto.request.user.UpdateUserRequest;
 import edu.senacsp.health_management.dto.response.user.AuthResponse;
 import edu.senacsp.health_management.dto.response.user.UserResponse;
@@ -54,4 +55,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(user, req));
     }
 
+    @PutMapping("/password")
+    @ApiMessage("Password successfully edited")
+    public ResponseEntity<UserResponse> updatePassword(@AuthenticationPrincipal User user, @RequestBody UpdatePasswordRequest req)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(service.updatePassword(user, req));
+    }
 }
