@@ -25,7 +25,8 @@ public class AppointmentSchedule {
 
     private String location;
 
-    protected AppointmentSchedule() {} // Required by Hibernate
+    protected AppointmentSchedule() {
+    } // Required by Hibernate
 
     public AppointmentSchedule(Schedule schedule) {
         this.schedule = schedule;

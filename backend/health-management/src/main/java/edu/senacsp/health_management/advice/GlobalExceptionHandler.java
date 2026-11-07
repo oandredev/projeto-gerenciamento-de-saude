@@ -10,29 +10,26 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
- *  Prevents unhandled error from leaking sensitive details (stack traces, etc.), to the client
- *  Intercepts {@link ResponseStatusException} and converts it into a clean {@link ResponseEntity}
+ * Prevents unhandled error from leaking sensitive details (stack traces, etc.), to the client
+ * Intercepts {@link ResponseStatusException} and converts it into a clean {@link ResponseEntity}
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     // Business logic error
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException exception)
-    {
+    public ResponseEntity<ErrorResponse> handleResponseStatus(ResponseStatusException exception) {
         return ResponseEntity.status(exception.getStatusCode()).body(new ErrorResponse(exception.getReason()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleUnreadableBody(HttpMessageNotReadableException exception)
-    {
+    public ResponseEntity<ErrorResponse> handleUnreadableBody(HttpMessageNotReadableException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Request body is missing or malformed"));
     }
 
     // Unhandled error
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneric(Exception exception)
-    {
+    public ResponseEntity<ErrorResponse> handleGeneric(Exception exception) {
         return ResponseEntity.status(500).body(new ErrorResponse("Internal server error"));
     }
 }

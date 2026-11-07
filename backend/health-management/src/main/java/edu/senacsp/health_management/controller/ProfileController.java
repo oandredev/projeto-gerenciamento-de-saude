@@ -30,22 +30,19 @@ public class ProfileController {
 
     @PostMapping()
     @ApiMessage("Profile successfully created")
-    public ResponseEntity<ProfileResponse> create (@AuthenticationPrincipal User user, @RequestBody CreateProfileRequest req)
-    {
+    public ResponseEntity<ProfileResponse> create(@AuthenticationPrincipal User user, @RequestBody CreateProfileRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user, req));
     }
 
     @GetMapping()
     @ApiMessage("Profile(s) successfully loaded")
-    public ResponseEntity<List<ProfileResponse>> findAllByUser(@AuthenticationPrincipal User user)
-    {
+    public ResponseEntity<List<ProfileResponse>> findAllByUser(@AuthenticationPrincipal User user) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAllByUser(user));
     }
 
     @PutMapping("/{id}")
     @ApiMessage("Profile successfully edited")
-    public ResponseEntity<ProfileResponse> update(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody UpdateProfileRequest req)
-    {
+    public ResponseEntity<ProfileResponse> update(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestBody UpdateProfileRequest req) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(user, id, req));
     }
 }

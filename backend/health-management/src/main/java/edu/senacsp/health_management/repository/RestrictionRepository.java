@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface RestrictionRepository extends JpaRepository<Restriction, Long> {
 
     List<Restriction> findAllByProfileId(Long profileId);
+
     Optional<Restriction> findByIdAndProfileIdAndProfileUserId(Long id, Long profileId, Long userId);
 }

@@ -12,17 +12,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class SuccessResponseWrapper implements ResponseBodyAdvice<Object>
-{
+public class SuccessResponseWrapper implements ResponseBodyAdvice<Object> {
     @Override
-    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType)
-    {
+    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         return returnType.hasMethodAnnotation(ApiMessage.class);
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selelctedConverterType, ServerHttpRequest request, ServerHttpResponse response)
-    {
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selelctedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         String message = returnType.getMethodAnnotation(ApiMessage.class).value();
         return new SuccessResponse<>(body, message);
     }

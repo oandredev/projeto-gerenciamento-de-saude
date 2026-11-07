@@ -65,7 +65,6 @@ public record ScheduleResponse(
         Instant modifiedAt,
         Instant createdAt
 ) {
-
     public ScheduleResponse(Schedule s, ExtraScheduleDetails details) {
         this(s.getId(), s.getProfile().getId(), s.getType(), s.getTitle(), s.getStartAt(),
                 s.getIntervalValue(), s.getIntervalUnit(), s.getEndAt(), s.getNotes(),

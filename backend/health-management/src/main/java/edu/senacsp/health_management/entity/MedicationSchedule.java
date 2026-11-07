@@ -45,7 +45,8 @@ public class MedicationSchedule {
 
     private String photoUrl;
 
-    protected MedicationSchedule() {} // Required by Hibernate
+    protected MedicationSchedule() {
+    } // Required by Hibernate
 
     public MedicationSchedule(Schedule schedule, String medicineName,
                               Double dosageAmount, DosageUnit dosageUnit) {

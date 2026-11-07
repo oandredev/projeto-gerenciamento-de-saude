@@ -14,7 +14,6 @@ public record MedicationDto(
         MedicationStripe stripe,
         String photoUrl
 ) implements ExtraScheduleDetails {
-
     public MedicationDto(MedicationSchedule m) {
         this(m.getBrand(), m.getMedicineName(), m.getActiveIngredient(),
                 m.getDosageAmount(), m.getDosageUnit(), m.getStripe(), m.getPhotoUrl());

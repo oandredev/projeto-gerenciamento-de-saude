@@ -46,7 +46,8 @@ public class Restriction {
     @Column(nullable = false)
     private Instant createdAt;
 
-    protected Restriction() {}
+    protected Restriction() {
+    }
 
     public Restriction(Profile profile, RestrictionType type, RestrictionSeverity severity, String title, String note) {
         this.profile = profile;

@@ -33,30 +33,26 @@ public class ScheduleController {
 
     @PostMapping()
     @ApiMessage("Schedule successfully saved")
-    public ResponseEntity<ScheduleResponse> create(@AuthenticationPrincipal User user, @RequestBody CreateScheduleRequest req)
-    {
+    public ResponseEntity<ScheduleResponse> create(@AuthenticationPrincipal User user, @RequestBody CreateScheduleRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user, req));
     }
 
     // Get only Rules
     @GetMapping() // /schedule?profileId=1&type=MEDICATION&order=ASC
     @ApiMessage("Schedule successfully loaded")
-    public ResponseEntity<List<ScheduleResponse>> findAllByProfile(@AuthenticationPrincipal User user, @RequestParam Long profileId, @RequestParam(required = false) ScheduleType type, @RequestParam(defaultValue = "DESC") Sort.Direction order)
-    {
+    public ResponseEntity<List<ScheduleResponse>> findAllByProfile(@AuthenticationPrincipal User user, @RequestParam Long profileId, @RequestParam(required = false) ScheduleType type, @RequestParam(defaultValue = "DESC") Sort.Direction order) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAllByProfile(user, profileId, type, order));
     }
 
     @PutMapping
     @ApiMessage("Schedule successfully updated")
-    public ResponseEntity<ScheduleResponse> update(@AuthenticationPrincipal User user, @RequestBody UpdateScheduleRequest req)
-    {
+    public ResponseEntity<ScheduleResponse> update(@AuthenticationPrincipal User user, @RequestBody UpdateScheduleRequest req) {
         return ResponseEntity.ok(service.update(user, req));
     }
 
     @DeleteMapping("/{id}") // DELETE /schedule/3 | Soft delete (active = false)
     @ApiMessage("Schedule successfully deleted")
-    public ResponseEntity<Void> delete(@AuthenticationPrincipal User user, @PathVariable Long id)
-    {
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal User user, @PathVariable Long id) {
         service.delete(user, id);
         return ResponseEntity.ok().build();
     }

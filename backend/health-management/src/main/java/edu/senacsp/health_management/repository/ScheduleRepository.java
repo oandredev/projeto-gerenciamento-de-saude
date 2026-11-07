@@ -32,12 +32,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
-        SELECT schedule
-        FROM Schedule schedule
-        WHERE schedule.id = :id
-          AND schedule.profile.user.id = :userId
-          AND schedule.active = true
-        """)
+            SELECT schedule
+            FROM Schedule schedule
+            WHERE schedule.id = :id
+              AND schedule.profile.user.id = :userId
+              AND schedule.active = true
+            """)
     Optional<Schedule> findActiveOwnedForUpdate(@Param("id") Long id, @Param("userId") Long userId);
 
     /**
@@ -54,13 +54,13 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      * @return the rows with the schedule and its details, empty if there are none
      */
     @Query("""
-        SELECT schedule, medication, appointment FROM Schedule schedule
-        LEFT JOIN MedicationSchedule medication ON medication.schedule = schedule
-        LEFT JOIN AppointmentSchedule appointment ON appointment.schedule = schedule
-        WHERE schedule.profile = :profile
-          AND schedule.active = true
-          AND schedule.type IN :types
-        """)
+            SELECT schedule, medication, appointment FROM Schedule schedule
+            LEFT JOIN MedicationSchedule medication ON medication.schedule = schedule
+            LEFT JOIN AppointmentSchedule appointment ON appointment.schedule = schedule
+            WHERE schedule.profile = :profile
+              AND schedule.active = true
+              AND schedule.type IN :types
+            """)
     List<Object[]> findAllWithDetailsByProfile(@Param("profile") Profile profile, @Param("types") Collection<ScheduleType> types, Sort sort);
 
     /**
@@ -80,13 +80,13 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      * @return the matching active schedules, empty if there are none
      */
     @Query("""
-    SELECT schedule FROM Schedule schedule
-    WHERE schedule.profile.id = :profileId
-      AND schedule.profile.user.id = :userId
-      AND schedule.active = true
-      AND (:type is null or schedule.type = :type)
-      AND schedule.startAt <= :to
-      AND (schedule.endAt is null or schedule.endAt > :from)
-    """)
+            SELECT schedule FROM Schedule schedule
+            WHERE schedule.profile.id = :profileId
+              AND schedule.profile.user.id = :userId
+              AND schedule.active = true
+              AND (:type is null or schedule.type = :type)
+              AND schedule.startAt <= :to
+              AND (schedule.endAt is null or schedule.endAt > :from)
+            """)
     List<Schedule> findActiveInWindow(@Param("userId") Long userId, @Param("profileId") Long profileId, @Param("type") ScheduleType type, @Param("from") Instant from, @Param("to") Instant to);
 }
