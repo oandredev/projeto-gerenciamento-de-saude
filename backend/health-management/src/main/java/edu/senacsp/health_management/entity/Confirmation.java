@@ -38,7 +38,8 @@ public class Confirmation {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
-    protected Confirmation() {}
+    protected Confirmation() {
+    }
 
     public Confirmation(Schedule schedule, Instant scheduledAt) {
         this.schedule = schedule;

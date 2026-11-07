@@ -19,8 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder()
-    {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -29,15 +28,15 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement((s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)))
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/user/login").permitAll()
-                                .requestMatchers("/user/signup").permitAll()
-                                .requestMatchers("/h2-console/**").permitAll() // TODO - Only for development
-                                .requestMatchers(
+                        .requestMatchers("/user/login").permitAll()
+                        .requestMatchers("/user/signup").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll() // TODO - Only for development
+                        .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**").permitAll()
-                                .anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((request, response, ex) -> {
@@ -48,6 +47,6 @@ public class SecurityConfig {
                 )
                 .headers(h -> h.frameOptions(f -> f.sameOrigin()))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-            return http.build();
+        return http.build();
     }
 }

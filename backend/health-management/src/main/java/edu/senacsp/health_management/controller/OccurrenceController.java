@@ -31,10 +31,9 @@ public class OccurrenceController {
     @GetMapping
     @ApiMessage("Occurrence(s) successfully loaded")
     public ResponseEntity<List<OccurrenceResponse>> findWindow(@AuthenticationPrincipal User user, @RequestParam Long profileId,
-                                                                     @RequestParam(required = false) ScheduleType type,
-                                                                     @RequestParam Instant reference,
-                                                                     @RequestParam(defaultValue = "DESC") Sort.Direction order)
-    {
+                                                               @RequestParam(required = false) ScheduleType type,
+                                                               @RequestParam Instant reference,
+                                                               @RequestParam(defaultValue = "DESC") Sort.Direction order) {
         return ResponseEntity.ok(service.findWindow(user, profileId, type, reference, order));
     }
 }

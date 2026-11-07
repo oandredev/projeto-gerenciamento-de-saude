@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface ConfirmationRepository extends JpaRepository<Confirmation, Long> {
 
     boolean existsBySchedule_IdAndScheduledAt(Long scheduleId, Instant scheduledAt);
+
     boolean existsBySchedule_Id(Long scheduleId);
 
     /**
@@ -26,11 +27,11 @@ public interface ConfirmationRepository extends JpaRepository<Confirmation, Long
      * @return the schedule ID, or empty if the confirmation does not exist or is not the user's
      */
     @Query("""
-        SELECT confirmation.schedule.id
-        FROM Confirmation confirmation
-        WHERE confirmation.id = :id
-          AND confirmation.schedule.profile.user.id = :userId
-        """)
+            SELECT confirmation.schedule.id
+            FROM Confirmation confirmation
+            WHERE confirmation.id = :id
+              AND confirmation.schedule.profile.user.id = :userId
+            """)
     Optional<Long> findScheduleIdOwnedBy(@Param("id") Long id, @Param("userId") Long userId);
 
     /**
@@ -47,11 +48,11 @@ public interface ConfirmationRepository extends JpaRepository<Confirmation, Long
      * @return the profile's confirmations in the window, empty if there are none
      */
     @Query("""
-    SELECT confirmation FROM Confirmation confirmation
-    WHERE confirmation.schedule.profile.id = :profileId
-      AND confirmation.confirmedAt >= :start
-      AND confirmation.confirmedAt < :end
-    """)
+            SELECT confirmation FROM Confirmation confirmation
+            WHERE confirmation.schedule.profile.id = :profileId
+              AND confirmation.confirmedAt >= :start
+              AND confirmation.confirmedAt < :end
+            """)
     List<Confirmation> findAllByProfileBetween(@Param("profileId") Long profileId, @Param("start") Instant start, @Param("end") Instant end, Sort sort);
 
     /**
@@ -67,9 +68,9 @@ public interface ConfirmationRepository extends JpaRepository<Confirmation, Long
      * @return the matching confirmations, empty if there are none
      */
     @Query("""
-    SELECT confirmation FROM Confirmation confirmation
-    WHERE confirmation.schedule.id IN :ids
-      AND confirmation.scheduledAt BETWEEN :from AND :to
-    """)
+            SELECT confirmation FROM Confirmation confirmation
+            WHERE confirmation.schedule.id IN :ids
+              AND confirmation.scheduledAt BETWEEN :from AND :to
+            """)
     List<Confirmation> findInWindow(@Param("ids") Collection<Long> ids, @Param("from") Instant from, @Param("to") Instant to);
 }

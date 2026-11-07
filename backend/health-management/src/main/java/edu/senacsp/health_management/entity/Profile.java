@@ -35,7 +35,8 @@ public class Profile {
     @Column(nullable = false)
     private Instant createdAt;
 
-    protected Profile() {} // Hibernate
+    protected Profile() {
+    } // Hibernate
 
     public Profile(String name, User user, Long avatarId) {
         this.name = name;

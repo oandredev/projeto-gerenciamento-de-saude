@@ -32,15 +32,13 @@ public class UserController {
 
     @PostMapping("/signup")
     @ApiMessage("Successfully created")
-    public ResponseEntity<UserResponse> signup (@RequestBody SignupRequest req)
-    {
+    public ResponseEntity<UserResponse> signup(@RequestBody SignupRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.signup(req));
     }
 
     @PostMapping("/login")
     @ApiMessage("Login successful")
-    public ResponseEntity<UserResponse> login (@RequestBody LoginRequest req)
-    {
+    public ResponseEntity<UserResponse> login(@RequestBody LoginRequest req) {
         AuthResponse response = service.login(req);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -50,15 +48,13 @@ public class UserController {
 
     @PutMapping()
     @ApiMessage("User successfully edited")
-    public ResponseEntity<UserResponse> update(@AuthenticationPrincipal User user, @RequestBody UpdateUserRequest req)
-    {
+    public ResponseEntity<UserResponse> update(@AuthenticationPrincipal User user, @RequestBody UpdateUserRequest req) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(user, req));
     }
 
     @PutMapping("/password")
     @ApiMessage("Password successfully edited")
-    public ResponseEntity<UserResponse> updatePassword(@AuthenticationPrincipal User user, @RequestBody UpdatePasswordRequest req)
-    {
+    public ResponseEntity<UserResponse> updatePassword(@AuthenticationPrincipal User user, @RequestBody UpdatePasswordRequest req) {
         return ResponseEntity.status(HttpStatus.OK).body(service.updatePassword(user, req));
     }
 }

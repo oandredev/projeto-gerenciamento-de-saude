@@ -83,11 +83,9 @@ public class ScheduleService {
      *                                 or the profile is not found for this user (CODE 404)
      */
     @Transactional
-    public ScheduleResponse create(User user, CreateScheduleRequest req)
-    {
+    public ScheduleResponse create(User user, CreateScheduleRequest req) {
         // Validations
-        if (req.profileId() == null || req.profileId() <= 0)
-        {
+        if (req.profileId() == null || req.profileId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
         }
 
@@ -131,11 +129,9 @@ public class ScheduleService {
      *                                 or the profile is not found for this user (CODE 404)
      */
     @Transactional(readOnly = true)
-    public List<ScheduleResponse> findAllByProfile(User user, Long profileId, ScheduleType type, Sort.Direction order)
-    {
+    public List<ScheduleResponse> findAllByProfile(User user, Long profileId, ScheduleType type, Sort.Direction order) {
         // Validations
-        if (profileId == null || profileId <= 0)
-        {
+        if (profileId == null || profileId <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
         }
 
@@ -188,11 +184,9 @@ public class ScheduleService {
      *                                 or the active schedule is not found for this user (CODE 404)
      */
     @Transactional
-    public ScheduleResponse update(User user, UpdateScheduleRequest req)
-    {
+    public ScheduleResponse update(User user, UpdateScheduleRequest req) {
         // Validations
-        if (req.id() == null || req.id() <= 0)
-        {
+        if (req.id() == null || req.id() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule ID is invalid");
         }
 
@@ -203,8 +197,7 @@ public class ScheduleService {
         Schedule old = repo.findActiveOwnedForUpdate(req.id(), user.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active schedule not found"));
 
-        if (old.getType() != req.type())
-        {
+        if (old.getType() != req.type()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type cannot be changed");
         }
 
@@ -215,8 +208,7 @@ public class ScheduleService {
         //-------------------------------------------------------------------------------------
 
         // With history: the old rule is archived and a new, independent one is created
-        if (confirmationRepo.existsBySchedule_Id(old.getId()))
-        {
+        if (confirmationRepo.existsBySchedule_Id(old.getId())) {
             old.setActive(false);
 
             return saveNew(old.getProfile(), old.getType(), v, req.reminderValue(), req.reminderUnit(), notify, alarm);
@@ -238,8 +230,7 @@ public class ScheduleService {
 
         ExtraScheduleDetails details = null;
 
-        if (v.medication() != null)
-        {
+        if (v.medication() != null) {
             // The complementary row shares its ID with the schedule (@MapsId)
             MedicationSchedule row = medicationRepo.findById(old.getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Medication data not found"));
@@ -253,9 +244,7 @@ public class ScheduleService {
             row.setPhotoUrl(v.medication().photoUrl());
 
             details = new MedicationDto(row);
-        }
-        else if (v.appointment() != null)
-        {
+        } else if (v.appointment() != null) {
             AppointmentSchedule row = appointmentRepo.findById(old.getId())
                     .orElseGet(() -> appointmentRepo.save(new AppointmentSchedule(old)));
 
@@ -283,11 +272,9 @@ public class ScheduleService {
      *                                 or the active schedule is not found for this user (CODE 404)
      */
     @Transactional
-    public void delete(User user, Long id)
-    {
+    public void delete(User user, Long id) {
         // Validations
-        if (id == null || id <= 0)
-        {
+        if (id == null || id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule ID is invalid");
         }
 
@@ -303,11 +290,12 @@ public class ScheduleService {
 
     // SAVE
 
-    /** Saves a new schedule and its complementary row. Used by create and by the versioning in update. */
+    /**
+     * Saves a new schedule and its complementary row. Used by create and by the versioning in update.
+     */
     private ScheduleResponse saveNew(Profile profile, ScheduleType type, RuleValues v,
                                      Integer reminderValue, ReminderUnit reminderUnit,
-                                     boolean notifyEnabled, boolean alarmEnabled)
-    {
+                                     boolean notifyEnabled, boolean alarmEnabled) {
         Schedule schedule = new Schedule(profile, type, v.title(), v.startAt(),
                 v.intervalValue(), v.intervalUnit(), v.endAt());
 
@@ -322,8 +310,7 @@ public class ScheduleService {
 
         ExtraScheduleDetails details = null;
 
-        if (v.medication() != null)
-        {
+        if (v.medication() != null) {
             MedicationValues m = v.medication();
 
             MedicationSchedule row = new MedicationSchedule(schedule, m.medicineName(), m.dosageAmount(), m.dosageUnit());
@@ -333,9 +320,7 @@ public class ScheduleService {
             row.setPhotoUrl(m.photoUrl());
 
             details = new MedicationDto(medicationRepo.save(row));
-        }
-        else if (v.appointment() != null)
-        {
+        } else if (v.appointment() != null) {
             AppointmentSchedule row = new AppointmentSchedule(schedule);
             row.setDoctorName(v.appointment().doctorName());
             row.setLocation(v.appointment().location());
@@ -349,31 +334,34 @@ public class ScheduleService {
     //-----------------------------------------------------
 
     // VALIDATIONS
-    private record MedicationValues(String brand, String medicineName, String activeIngredient, Double dosageAmount, DosageUnit dosageUnit, MedicationStripe stripe, String photoUrl) { }
+    private record MedicationValues(String brand, String medicineName, String activeIngredient, Double dosageAmount,
+                                    DosageUnit dosageUnit, MedicationStripe stripe, String photoUrl) {
+    }
 
-    private record AppointmentValues(String doctorName, String location) { }
+    private record AppointmentValues(String doctorName, String location) {
+    }
 
-    private record RuleValues(String title, Instant startAt, int intervalValue, IntervalUnit intervalUnit, Instant endAt, String notes, MedicationValues medication, AppointmentValues appointment) { }
+    private record RuleValues(String title, Instant startAt, int intervalValue, IntervalUnit intervalUnit,
+                              Instant endAt, String notes, MedicationValues medication, AppointmentValues appointment) {
+    }
 
-    /** Validates what create and update have in common. Start and end come back with seconds precision. */
+    /**
+     * Validates what create and update have in common. Start and end come back with seconds precision.
+     */
     private RuleValues validateRule(ScheduleType type, String title, Instant startAt, IntervalUnit intervalUnit,
                                     Integer intervalValue, Instant endAt, Integer reminderValue,
-                                    ReminderUnit reminderUnit, String notes, ScheduleDetails details)
-    {
-        if (type == null)
-        {
+                                    ReminderUnit reminderUnit, String notes, ScheduleDetails details) {
+        if (type == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type is required");
         }
 
         String validTitle = validateTitle(title);
 
-        if (startAt == null)
-        {
+        if (startAt == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start is required");
         }
 
-        if (intervalUnit == null)
-        {
+        if (intervalUnit == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interval unit is required");
         }
 
@@ -381,29 +369,24 @@ public class ScheduleService {
         int value = 0;
         Instant end = null;
 
-        if (intervalUnit != IntervalUnit.UNIQUE)
-        {
-            if (intervalValue == null || intervalValue <= 0)
-            {
+        if (intervalUnit != IntervalUnit.UNIQUE) {
+            if (intervalValue == null || intervalValue <= 0) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Interval value must be greater than zero");
             }
 
             value = intervalValue;
             end = endAt == null ? null : endAt.truncatedTo(ChronoUnit.SECONDS);
 
-            if (end != null && !end.isAfter(start))
-            {
+            if (end != null && !end.isAfter(start)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End must be after start");
             }
         }
 
-        if ((reminderValue == null) != (reminderUnit == null))
-        {
+        if ((reminderValue == null) != (reminderUnit == null)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reminder value and unit must be sent together");
         }
 
-        if (reminderValue != null && reminderValue <= 0)
-        {
+        if (reminderValue != null && reminderValue <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reminder value must be greater than zero");
         }
 
@@ -412,30 +395,23 @@ public class ScheduleService {
         MedicationValues medication = null;
         AppointmentValues appointment = null;
 
-        switch (type)
-        {
-            case MEDICATION ->
-            {
-                if (!(details instanceof CreateMedicationData data))
-                {
+        switch (type) {
+            case MEDICATION -> {
+                if (!(details instanceof CreateMedicationData data)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Medication data is required");
                 }
 
                 medication = validateMedication(data);
             }
-            case CONSULTATION, EXAM ->
-            {
-                if (details != null && !(details instanceof CreateAppointmentData))
-                {
+            case CONSULTATION, EXAM -> {
+                if (details != null && !(details instanceof CreateAppointmentData)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Details do not match the type");
                 }
 
                 appointment = validateAppointment((CreateAppointmentData) details);
             }
-            default ->
-            {
-                if (details != null)
-                {
+            default -> {
+                if (details != null) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This type does not take extra data");
                 }
             }

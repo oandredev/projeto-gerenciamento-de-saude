@@ -66,16 +66,13 @@ public class ConfirmationService {
      *                                 confirmed (CODE 409)
      */
     @Transactional
-    public ConfirmationResponse create(User user, CreateConfirmationRequest req)
-    {
+    public ConfirmationResponse create(User user, CreateConfirmationRequest req) {
         // Validations
-        if (req.scheduleId() == null || req.scheduleId() <= 0)
-        {
+        if (req.scheduleId() == null || req.scheduleId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule ID is invalid");
         }
 
-        if (req.scheduleAt() == null)
-        {
+        if (req.scheduleAt() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule At is required");
         }
 
@@ -87,13 +84,11 @@ public class ConfirmationService {
                 .findActiveOwnedForUpdate(req.scheduleId(), user.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active schedule not found"));
 
-        if (repo.existsBySchedule_IdAndScheduledAt(schedule.getId(), scheduledAt))
-        {
+        if (repo.existsBySchedule_IdAndScheduledAt(schedule.getId(), scheduledAt)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This schedule occurrence has already been confirmed");
         }
 
-        if (!occurrenceUtil.isOccurrence(schedule, scheduledAt))
-        {
+        if (!occurrenceUtil.isOccurrence(schedule, scheduledAt)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Scheduled time is not an occurrence of this schedule");
         }
@@ -129,32 +124,26 @@ public class ConfirmationService {
      */
     @Transactional(readOnly = true)
     public List<ConfirmationResponse> findByInterval(User user, Long profileId,
-                                                       Instant start, Instant end, Sort.Direction order)
-    {
+                                                     Instant start, Instant end, Sort.Direction order) {
         // Validations
-        if (profileId == null || profileId <= 0)
-        {
+        if (profileId == null || profileId <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile ID is invalid");
         }
 
-        if (start == null || end == null)
-        {
+        if (start == null || end == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start and End are required");
         }
 
-        if (!start.isBefore(end))
-        {
+        if (!start.isBefore(end)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start must be before end");
         }
 
-        if (Duration.between(start, end).compareTo(MAX_RANGE) > 0)
-        {
+        if (Duration.between(start, end).compareTo(MAX_RANGE) > 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Range cannot exceed " + MAX_RANGE.toDays() + " days");
         }
 
         // Validations (DB) | Checks if the specified profile actually exists and belongs to this user
-        if (!profileRepo.existsByIdAndUser(profileId, user))
-        {
+        if (!profileRepo.existsByIdAndUser(profileId, user)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found");
         }
 
@@ -181,8 +170,7 @@ public class ConfirmationService {
     public void delete(User user, Long id) // No return, as there is nothing to return.
     {
         // Validations
-        if (id == null || id <= 0)
-        {
+        if (id == null || id <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Confirmation ID is invalid");
         }
 
@@ -205,13 +193,11 @@ public class ConfirmationService {
 
     // VALIDATION
 
-    private void validateConfirmationWindow(Instant scheduledAt, Instant now)
-    {
+    private void validateConfirmationWindow(Instant scheduledAt, Instant now) {
         Instant opensAt = scheduledAt.minus(WINDOW);
         Instant closesAt = scheduledAt.plus(WINDOW);
 
-        if (!now.isAfter(opensAt) || !now.isBefore(closesAt))
-        {
+        if (!now.isAfter(opensAt) || !now.isBefore(closesAt)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "The confirmation window of this occurrence is closed or has not opened yet");
         }
     }

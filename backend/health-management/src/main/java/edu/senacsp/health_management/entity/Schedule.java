@@ -85,7 +85,8 @@ public class Schedule {
     @Column(nullable = false)
     private Instant createdAt;
 
-    protected Schedule() {} // Required by Hibernate
+    protected Schedule() {
+    } // Required by Hibernate
 
     public Schedule(Profile profile, ScheduleType type, String title, Instant startAt,
                     int intervalValue, IntervalUnit intervalUnit, Instant endAt) {

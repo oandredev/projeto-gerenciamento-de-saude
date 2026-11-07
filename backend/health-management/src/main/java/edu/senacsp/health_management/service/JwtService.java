@@ -22,15 +22,13 @@ public class JwtService {
 
     public JwtService(@Value("${jwt.key}") String secret,
                       @Value("${jwt.expiration-ms}") long expiration,
-                      @Value("${jwt.remember-expiration-ms}") long rememberExpiration)
-    {
+                      @Value("${jwt.remember-expiration-ms}") long rememberExpiration) {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.expiration = expiration;
         this.rememberExpiration = rememberExpiration;
     }
 
-    public String generateToken(User user, boolean rememberMe)
-    {
+    public String generateToken(User user, boolean rememberMe) {
         Date now = new Date();
 
         long expirationTime = rememberMe ? rememberExpiration : expiration;
