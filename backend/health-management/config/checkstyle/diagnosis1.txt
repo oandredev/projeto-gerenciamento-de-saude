@@ -1,0 +1,82 @@
+[INFO] There are 76 errors reported by Checkstyle 14.4.0 with config/checkstyle/checkstyle.xml ruleset.
+[ERROR] src\main\java\edu\senacsp\health_management\advice\GlobalExceptionHandler.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\advice\SuccessResponseWrapper.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\annotation\ApiMessage.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\config\OpenApiConfig.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\config\SecurityConfig.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\controller\AppointmentScheduleController.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\controller\ConfirmationController.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\controller\MedicationScheduleController.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\controller\OccurrenceController.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\controller\ProfileController.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\controller\RestrictionController.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\controller\ScheduleController.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\controller\UserController.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\confirmation\CreateConfirmationRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\profile\CreateProfileRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\profile\UpdateProfileRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\restriction\CreateRestrictionRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\restriction\UpdateRestrictionRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\schedule\CreateAppointmentData.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\schedule\CreateMedicationData.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\schedule\CreateScheduleRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\schedule\ScheduleDetails.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\schedule\UpdateScheduleRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\user\LoginRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\user\SignupRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\request\user\UpdateUserRequest.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\confirmation\ConfirmationResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\general\ErrorResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\general\SuccessResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\occurrence\OccurrenceResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\profile\ProfileResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\restriction\RestrictionResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\schedule\AppointmentDto.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\schedule\ExtraScheduleDetails.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\schedule\MedicationDto.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\schedule\ScheduleResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\user\AuthResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\dto\response\user\UserResponse.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\AppointmentSchedule.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\Confirmation.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\enums\DosageUnit.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\enums\MedicationStripe.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\enums\OccurrenceStatus.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\enums\ReminderUnit.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\enums\RestrictionSeverity.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\enums\RestrictionType.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\enums\ScheduleType.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\MedicationSchedule.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\Profile.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\Restriction.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\Schedule.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\entity\User.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\HealthManagementApplication.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\repository\AppointmentScheduleRepository.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\repository\ConfirmationRepository.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\repository\MedicationScheduleRepository.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\repository\ProfileRepository.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\repository\RestrictionRepository.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\repository\ScheduleRepository.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\repository\UserRepository.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\security\JwtAuthFilter.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\AppointmentScheduleService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\ConfirmationService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\JwtService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\MedicationScheduleService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\OccurrenceService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\OccurrenceService.java:[104,9] (blocks) NeedBraces: A estrutura 'if' deve utilizar '{}'s.
+[ERROR] src\main\java\edu\senacsp\health_management\service\ProfileService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\RestrictionService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\ScheduleService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\service\UserService.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\util\OccurrenceUtil.java:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[ERROR] src\main\java\edu\senacsp\health_management\util\OccurrenceUtil.java:[34,13] (blocks) NeedBraces: A estrutura 'if' deve utilizar '{}'s.
+[ERROR] src\main\java\edu\senacsp\health_management\util\OccurrenceUtil.java:[50,13] (blocks) NeedBraces: A estrutura 'if' deve utilizar '{}'s.
+[ERROR] src\main\java\edu\senacsp\health_management\util\OccurrenceUtil.java:[51,13] (blocks) NeedBraces: A estrutura 'if' deve utilizar '{}'s.
+[ERROR] src\main\resources\application.properties:[1] (misc) NewlineAtEndOfFile: O arquivo não termina com uma linha em branco.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  12.804 s
+[INFO] Finished at: 2026-11-06T22:00:15-03:00
