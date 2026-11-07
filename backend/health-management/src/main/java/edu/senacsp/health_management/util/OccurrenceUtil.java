@@ -31,7 +31,10 @@ public class OccurrenceUtil
             boolean inWindow = !startAt.isBefore(from) && !startAt.isAfter(to);
             boolean beforeEnd = endAt == null || startAt.isBefore(endAt);
 
-            if (inWindow && beforeEnd) list.add(startAt);
+            if (inWindow && beforeEnd)
+            {
+                list.add(startAt);
+            }
             return list;
         }
 
@@ -47,8 +50,13 @@ public class OccurrenceUtil
         {
             Instant occurrence = calculateOccurrence(startAt, intervalUnit, intervalValue, index);
 
-            if (occurrence.isAfter(to) || (endAt != null && !occurrence.isBefore(endAt))) break;
-            if (!occurrence.isBefore(from)) list.add(occurrence);
+            if (occurrence.isAfter(to) || (endAt != null && !occurrence.isBefore(endAt))) {
+                break;
+            }
+
+            if (!occurrence.isBefore(from)) {
+                list.add(occurrence);
+            }
         }
 
         return list;

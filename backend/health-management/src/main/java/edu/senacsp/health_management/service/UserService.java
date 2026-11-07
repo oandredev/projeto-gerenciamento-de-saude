@@ -26,7 +26,6 @@
     @Service
     public class UserService
     {
-
         private final UserRepository repo;
 
         private final PasswordEncoder passwordEncoder;
