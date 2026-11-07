@@ -1,6 +1,6 @@
 import { translateError } from './errorMessages';
 
-export const BASE_URL = 'http://192.168.1.215:8080';
+export const BASE_URL = 'http://192.168.0.71:8080';
 
 let authToken = null;
 

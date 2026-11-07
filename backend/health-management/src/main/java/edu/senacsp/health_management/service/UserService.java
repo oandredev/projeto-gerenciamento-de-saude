@@ -2,6 +2,7 @@
 
     import edu.senacsp.health_management.dto.request.user.LoginRequest;
     import edu.senacsp.health_management.dto.request.user.SignupRequest;
+    import edu.senacsp.health_management.dto.request.user.UpdatePasswordRequest;
     import edu.senacsp.health_management.dto.request.user.UpdateUserRequest;
     import edu.senacsp.health_management.dto.response.user.AuthResponse;
     import edu.senacsp.health_management.dto.response.user.UserResponse;
@@ -23,7 +24,8 @@
     import java.nio.charset.StandardCharsets;
 
     @Service
-    public class UserService {
+    public class UserService
+    {
 
         private final UserRepository repo;
 
@@ -139,49 +141,111 @@
         }
 
         /**
-         * Updates the authenticated user's data (full replacement, like an HTTP PUT).
+         * Updates the authenticated user's name and email (full replacement, like an HTTP PUT).
          *
-         * <p>All fields are required and overwrite the stored values, even when unchanged.
-         * The password is validated and hashed again with BCrypt. The user being updated is
-         * the one identified by the JWT, never one taken from the request body.
+         * <p>Name and email are required and overwrite the stored values, even when unchanged.
+         * The name has its extra spaces collapsed and the email is trimmed before being stored.
          *
-         * <p>Sending {@code active = false} archives the account (soft delete).
-         * The user's profiles are not changed.
+         * <p>Changing the email is a sensitive change, so it also requires the current password,
+         * which must match the stored one. The comparison is case-sensitive, so changing only the
+         * letter case of the email also counts as a change. The email uniqueness check only runs
+         * when the email changes. The password itself is not changed here.
+         *
+         * <p>The user being updated is the one identified by the JWT, never one taken from the
+         * request body.
          *
          * @param user the authenticated user, resolved from the JWT
-         * @param req  the new name, email, password and active flag
+         * @param req  the name, email and (when the email changes) the current password
          * @return a {@link UserResponse} with the updated user's data and all of their profiles
-         * @throws ResponseStatusException if any field is missing or invalid (CODE 400)
+         * @throws ResponseStatusException if name or email is missing or invalid, or the current
+         *                                 password is missing when required (CODE 400),
+         *                                 the authenticated user no longer exists (CODE 401),
+         *                                 the current password is incorrect (CODE 403),
          *                                 or the email belongs to another user (CODE 409)
          */
         @Transactional
-        public UserResponse update (User user, UpdateUserRequest req)
+        public UserResponse update(User user, UpdateUserRequest req)
         {
-            // Validations
             String name = validateName(req.name());
             String email = validateEmail(req.email());
-            validatePassword(req.password());
 
-            if (req.active() == null)
+            User userDB = repo.findWithProfilesById(user.getId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+            boolean changeEmail = !email.equals(userDB.getEmail());
+
+            // Sensitive change (email) requires the current password
+            if (changeEmail)
             {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Active info is required");
+                if (req.currentPassword() == null || req.currentPassword().isBlank())
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is required");
+                }
+
+                if (!passwordEncoder.matches(req.currentPassword(), userDB.getPassword()))
+                {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Current password is incorrect");
+                }
+
+                if (repo.existsByEmailAndIdNot(email, userDB.getId()))
+                {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
+                }
             }
 
-            if (repo.existsByEmailAndIdNot(email, user.getId()))
+            userDB.setName(name);
+            userDB.setEmail(email);
+
+            userDB = repo.saveAndFlush(userDB);
+
+            List<ProfileResponse> profiles = userDB.getProfiles().stream()
+                    .map(ProfileResponse::new)
+                    .toList();
+
+            return new UserResponse(userDB.getId(), userDB.getEmail(), userDB.getName(), profiles,
+                    userDB.isActive(), userDB.getModifiedAt(), userDB.getCreatedAt());
+        }
+
+        /**
+         * Changes the authenticated user's password.
+         *
+         * <p>The current password must match the stored one. Only after that is the new password
+         * validated, using the same rules as in signup, and stored as a BCrypt hash.
+         * The user being updated is the one identified by the JWT, never one taken from the request body.
+         *
+         * @param user the authenticated user, resolved from the JWT
+         * @param req  the current and the new password
+         * @return a {@link UserResponse} with the user's data and all of their profiles
+         * @throws ResponseStatusException if the current password is missing,
+         *                                 or the new password is missing or invalid (CODE 400),
+         *                                 the authenticated user no longer exists (CODE 401),
+         *                                 or the current password is incorrect (CODE 403)
+         */
+        @Transactional
+        public UserResponse updatePassword(User user, UpdatePasswordRequest req)
+        {
+            // Validations
+
+            // Only checks presence, not the password rules: the rules may change over time,
+            // and validating them here would reject users whose old password no longer meets them.
+            // Whether it is correct is decided by passwordEncoder.matches.
+            if (req.currentPassword() == null || req.currentPassword().isBlank())
             {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use"); // Other user
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is required");
             }
 
             User userDB = repo.findWithProfilesById(user.getId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-            // Sets
-            userDB.setName(name);
-            userDB.setEmail(email);
-            userDB.setPassword(passwordEncoder.encode(req.password()));
-            userDB.setActive(req.active());
+            if (!passwordEncoder.matches(req.currentPassword(), userDB.getPassword()))
+            {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Current password is incorrect");
+            }
 
-            // Save and Return
+            validatePassword(req.newPassword());
+
+            userDB.setPassword(passwordEncoder.encode(req.newPassword()));
+
             userDB = repo.saveAndFlush(userDB);
 
             List<ProfileResponse> profiles = userDB.getProfiles().stream()
