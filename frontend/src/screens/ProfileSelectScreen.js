@@ -17,6 +17,8 @@ import {
     createProfile,
     setActiveProfile,
 } from '../services/profileService';
+import { setToken } from '../services/api';
+import { clearCurrentUser } from '../services/authService';
 import { AVATARS, getAvatar } from '../utils/avatars';
 
 export default function ProfileSelectScreen({ navigation }) {
@@ -55,6 +57,14 @@ export default function ProfileSelectScreen({ navigation }) {
         navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
     }
 
+    // O back-end não tem rota de logout: sair é apagar o token e os dados aqui no app.
+    function handleLogout() {
+        setToken(null);
+        setActiveProfile(null);
+        clearCurrentUser();
+        navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    }
+
     function openForm() {
         setName('');
         setAvatarId(1);
@@ -87,7 +97,7 @@ export default function ProfileSelectScreen({ navigation }) {
             {loading ? (
                 <ActivityIndicator size="large" color={colors.white} />
             ) : (
-                <ScrollView contentContainerStyle={styles.grid}>
+                <ScrollView style={styles.scrollArea} contentContainerStyle={styles.grid}>
                     {error !== '' && <Text style={styles.error}>{error}</Text>}
 
                     {profiles.map((profile) => (
@@ -120,6 +130,13 @@ export default function ProfileSelectScreen({ navigation }) {
                     </Pressable>
                 </ScrollView>
             )}
+
+            <View style={styles.footer}>
+                <Pressable style={styles.logoutButton} onPress={handleLogout}>
+                    <Ionicons name="log-out-outline" size={22} color={colors.white} />
+                    <Text style={styles.logoutText}>Sair</Text>
+                </Pressable>
+            </View>
 
             <Modal visible={showForm} transparent animationType="slide">
                 <View style={styles.overlay}>
@@ -164,6 +181,9 @@ export default function ProfileSelectScreen({ navigation }) {
                             <Text style={styles.saveText}>
                                 {saving ? 'Salvando...' : 'Salvar'}
                             </Text>
+                            {!saving && (
+                                <Ionicons name="checkmark" size={24} color={colors.orangeLight} />
+                            )}
                         </Pressable>
                         <Pressable
                             style={styles.cancelButton}
@@ -192,14 +212,31 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         marginBottom: 32,
     },
+    scrollArea: { flex: 1 },
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',
         gap: 24,
         paddingHorizontal: 24,
+        paddingBottom: 24,
+    },
+    footer: {
+        alignItems: 'center',
+        paddingTop: 12,
         paddingBottom: 40,
     },
+    logoutButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        height: 52,
+        paddingHorizontal: 32,
+        borderRadius: 26,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.6)',
+    },
+    logoutText: { color: colors.white, fontSize: 18, fontWeight: '600' },
     tile: { width: 130, alignItems: 'center' },
     avatar: {
         width: 120,
@@ -274,8 +311,10 @@ const styles = StyleSheet.create({
         height: 56,
         borderRadius: 28,
         backgroundColor: colors.blue,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 8,
     },
     saveText: { color: colors.white, fontSize: 20, fontWeight: '600' },
     cancelButton: { alignItems: 'center', paddingVertical: 16 },
