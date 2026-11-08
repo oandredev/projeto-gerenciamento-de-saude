@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import { colors } from '../styles/theme';
 import { getActiveProfile } from '../services/profileService';
@@ -181,6 +182,9 @@ export default function RestrictionFormScreen({ navigation, route }) {
           <Text style={styles.saveText}>
             {saving ? 'Salvando...' : isEditing ? 'Salvar edição' : 'Salvar'}
           </Text>
+          {!saving && (
+            <Ionicons name="checkmark" size={24} color={colors.orangeLight} />
+          )}
         </Pressable>
 
         {isEditing && (
@@ -189,6 +193,7 @@ export default function RestrictionFormScreen({ navigation, route }) {
             onPress={handleArchive}
             disabled={saving}
           >
+            <Ionicons name="archive-outline" size={20} color={colors.orangeText} />
             <Text style={styles.archiveText}>Arquivar restrição</Text>
           </Pressable>
         )}
@@ -249,8 +254,10 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     backgroundColor: colors.blue,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
     marginTop: 8,
   },
   saveText: { color: colors.white, fontSize: 20, fontWeight: '600' },
@@ -259,8 +266,10 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 1.5,
     borderColor: colors.orangeText,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
     marginTop: 12,
   },
   archiveText: { color: colors.orangeText, fontSize: 18, fontWeight: '600' },
