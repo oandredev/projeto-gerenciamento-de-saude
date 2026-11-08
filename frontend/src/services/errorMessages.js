@@ -48,3 +48,17 @@ const PATTERNS = [
   [/^Title must have between (\d+) and (\d+) characters$/, (m) => `O nome deve ter entre ${m[1]} e ${m[2]} caracteres.`],
   [/^(.+) must have at most (\d+) characters$/, (m) => `Este campo aceita no máximo ${m[2]} caracteres.`],
 ];
+
+
+const FALLBACK = 'Erro inesperado. Tente novamente.';
+
+export function translateError(message) {
+  if (!message) return FALLBACK;
+  if (EXACT[message]) return EXACT[message];
+
+  for (const [regex, build] of PATTERNS) {
+    const match = message.match(regex);
+    if (match) return build(match);
+  }
+  return FALLBACK;
+}
