@@ -9,12 +9,20 @@ import { listSchedules } from '../services/scheduleService';
 import { listRestrictions } from '../services/restrictionService';
 import { setToken } from '../services/api';
 import { getCurrentUser, clearCurrentUser } from '../services/authService';
+
 function SummaryTile({ icon, value, label, onPress }) {
     return (
         <Pressable style={styles.tile} onPress={onPress}>
             <MaterialCommunityIcons name={icon} size={26} color={colors.white} />
             <Text style={styles.tileValue}>{value}</Text>
-            <Text style={styles.tileLabel}>{label}</Text>
+            <Text
+                style={styles.tileLabel}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
+            >
+                {label}
+            </Text>
         </Pressable>
     );
 }
@@ -87,17 +95,27 @@ export default function MoreScreen({ navigation }) {
             <Header title="Mais" showProfileSwitch={false} logoInverted />
 
             <ScrollView contentContainerStyle={styles.content}>
-                <View style={styles.profileCard}>
+                <Pressable
+                    style={styles.profileCard}
+                    onPress={() => navigation.navigate('ProfileSelect')}
+                >
                     <View style={styles.avatar}>
                         <Text style={styles.avatarText}>
                             {profile?.name?.charAt(0).toUpperCase() ?? '?'}
                         </Text>
                     </View>
-                    <View>
+                    <View style={styles.profileTexts}>
                         <Text style={styles.profileLabel}>Acompanhando</Text>
-                        <Text style={styles.profileName}>{profile?.name ?? 'Nenhum perfil'}</Text>
+                        <Text style={styles.profileName} numberOfLines={1}>
+                            {profile?.name ?? 'Nenhum perfil'}
+                        </Text>
                     </View>
-                </View>
+                    <Ionicons
+                        name="chevron-forward"
+                        size={24}
+                        color="rgba(255,255,255,0.75)"
+                    />
+                </Pressable>
 
                 <View style={styles.tilesRow}>
                     <SummaryTile
@@ -109,7 +127,7 @@ export default function MoreScreen({ navigation }) {
                     <SummaryTile
                         icon="stethoscope"
                         value={counts ? counts.appointments : '-'}
-                        label="Consultas"
+                        label="Consultas/Exames"
                         onPress={() => navigation.navigate('Appointments', { from: 'More' })}
                     />
                     <SummaryTile
@@ -168,6 +186,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     avatarText: { color: colors.blue, fontSize: 28, fontWeight: '700' },
+    profileTexts: { flex: 1 },
     profileLabel: { color: 'rgba(255,255,255,0.75)', fontSize: 15 },
     profileName: { color: colors.white, fontSize: 24, fontWeight: '600' },
     tilesRow: { flexDirection: 'row', gap: 12, marginBottom: 24 },
@@ -178,6 +197,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.15)',
         borderRadius: 16,
         paddingVertical: 14,
+        paddingHorizontal: 6,
     },
     tileValue: { color: colors.white, fontSize: 28, fontWeight: '700' },
     tileLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 14 },
