@@ -15,14 +15,22 @@ import { getActiveProfile } from '../services/profileService';
 import { listSchedules } from '../services/scheduleService';
 import { getDailyTimes, joinTimes, STRIPE_LABELS } from '../utils/format';
 
+// Cada tipo de tarja tem a sua cor, como na caixa do remédio.
+const STRIPE_COLORS = {
+  NONE: { bg: colors.blueBg, text: colors.blue },
+  YELLOW: { bg: '#FFD54F', text: '#4E3B00' },
+  RED: { bg: '#C62828', text: colors.white },
+  BLACK: { bg: '#1A1A1A', text: colors.white },
+  OTHER: { bg: '#E6E6E6', text: colors.gray },
+};
+
 function StripeTag({ stripe }) {
-  const isNone = stripe === 'NONE';
+  const key = STRIPE_COLORS[stripe] ? stripe : 'OTHER';
+  const palette = STRIPE_COLORS[key];
   return (
-    <View style={[styles.tag, isNone ? styles.tagNone : styles.tagStripe]}>
-      <Text
-        style={[styles.tagText, { color: isNone ? colors.blue : colors.orangeText }]}
-      >
-        {STRIPE_LABELS[stripe] ?? STRIPE_LABELS.OTHER}
+    <View style={[styles.tag, { backgroundColor: palette.bg }]}>
+      <Text style={[styles.tagText, { color: palette.text }]}>
+        {STRIPE_LABELS[key]}
       </Text>
     </View>
   );
@@ -106,6 +114,10 @@ export default function MedicationsScreen({ navigation, route }) {
                   <Text style={styles.detail}>{times}</Text>
                 </View>
                 <StripeTag stripe={item.details?.stripe} />
+                <View style={styles.editRow}>
+                  <Ionicons name="create-outline" size={18} color={colors.blue} />
+                  <Text style={styles.editText}>Toque para editar</Text>
+                </View>
               </View>
             </Pressable>
           );
@@ -152,9 +164,14 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     marginTop: 10,
   },
-  tagNone: { backgroundColor: colors.blueBg },
-  tagStripe: { backgroundColor: colors.orangeBg },
   tagText: { fontSize: 15, fontWeight: '600' },
+  editRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+  },
+  editText: { color: colors.blue, fontSize: 15, fontWeight: '600' },
   footer: { padding: 24, paddingTop: 8 },
   addButton: {
     height: 56,
