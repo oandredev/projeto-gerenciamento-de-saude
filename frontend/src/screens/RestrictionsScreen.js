@@ -109,6 +109,12 @@ export default function RestrictionsScreen({ navigation }) {
                 <Text style={styles.title}>{item.title}</Text>
                 {item.note ? <Text style={styles.note}>{item.note}</Text> : null}
                 <SeverityTag severity={item.severity} />
+
+                {/* Aviso de que o card pode ser tocado para editar */}
+                <View style={styles.editRow}>
+                  <Ionicons name="create-outline" size={18} color={colors.blue} />
+                  <Text style={styles.editText}>Toque para editar</Text>
+                </View>
               </View>
             </Pressable>
           );
@@ -162,6 +168,13 @@ const styles = StyleSheet.create({
   tagModerate: { backgroundColor: colors.orangeBg },
   tagSevere: { backgroundColor: colors.orangeText },
   tagText: { fontSize: 15, fontWeight: '600' },
+  editRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+  },
+  editText: { color: colors.blue, fontSize: 15, fontWeight: '600' },
   footer: { padding: 24, paddingTop: 8 },
   addButton: {
     height: 56,
