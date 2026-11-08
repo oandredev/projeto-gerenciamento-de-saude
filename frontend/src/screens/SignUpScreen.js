@@ -9,11 +9,39 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import { colors } from '../styles/theme';
 import { signup, login } from '../services/authService';
 import PasswordRules from '../components/PasswordRules';
 import { getPasswordRules } from '../utils/validation';
+
+// Campo de senha com o olhinho. Cada campo guarda sozinho se está mostrando a senha.
+function PasswordField({ placeholder, value, onChangeText }) {
+    const [visible, setVisible] = useState(false);
+
+    return (
+        <View style={styles.passwordBox}>
+            <TextInput
+                style={styles.passwordInput}
+                placeholder={placeholder}
+                placeholderTextColor={colors.placeholder}
+                secureTextEntry={!visible}
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={value}
+                onChangeText={onChangeText}
+            />
+            <Pressable style={styles.eyeButton} onPress={() => setVisible(!visible)}>
+                <Ionicons
+                    name={visible ? 'eye-off-outline' : 'eye-outline'}
+                    size={24}
+                    color={colors.gray}
+                />
+            </Pressable>
+        </View>
+    );
+}
 
 export default function SignUpScreen({ navigation }) {
     const [name, setName] = useState('');
@@ -80,16 +108,14 @@ export default function SignUpScreen({ navigation }) {
                     placeholderTextColor={colors.placeholder}
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    autoCorrect={false}
                     value={email}
                     onChangeText={setEmail}
                 />
 
                 <Text style={styles.label}>Senha</Text>
-                <TextInput
-                    style={styles.input}
+                <PasswordField
                     placeholder="Crie uma senha"
-                    placeholderTextColor={colors.placeholder}
-                    secureTextEntry
                     value={password}
                     onChangeText={setPassword}
                 />
@@ -97,11 +123,8 @@ export default function SignUpScreen({ navigation }) {
                 <PasswordRules password={password} />
 
                 <Text style={styles.label}>Confirmar senha</Text>
-                <TextInput
-                    style={styles.input}
+                <PasswordField
                     placeholder="Digite a senha de novo"
-                    placeholderTextColor={colors.placeholder}
-                    secureTextEntry
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                 />
@@ -116,6 +139,9 @@ export default function SignUpScreen({ navigation }) {
                     <Text style={styles.primaryText}>
                         {loading ? 'Criando...' : 'Criar conta'}
                     </Text>
+                    {!loading && (
+                        <Ionicons name="checkmark-circle-outline" size={24} color={colors.orangeLight} />
+                    )}
                 </Pressable>
 
                 <Pressable
@@ -149,6 +175,23 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
         marginBottom: 20,
     },
+    passwordBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 56,
+        borderWidth: 1.5,
+        borderColor: colors.border,
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        backgroundColor: colors.white,
+        marginBottom: 20,
+    },
+    passwordInput: {
+        flex: 1,
+        fontSize: 18,
+        color: colors.ink,
+    },
+    eyeButton: { paddingLeft: 12, paddingVertical: 8 },
     error: {
         color: colors.orangeText,
         fontSize: 16,
@@ -159,8 +202,10 @@ const styles = StyleSheet.create({
         height: 56,
         borderRadius: 28,
         backgroundColor: colors.blue,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 8,
         marginTop: 8,
     },
     primaryText: { color: colors.white, fontSize: 20, fontWeight: '600' },
