@@ -17,6 +17,7 @@ import { login as loginRequest } from '../services/authService';
 export default function LoginScreen({ navigation }) {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -74,6 +75,7 @@ export default function LoginScreen({ navigation }) {
                     placeholderTextColor={colors.placeholder}
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    autoCorrect={false}
                     value={login}
                     onChangeText={setLogin}
                 />
@@ -82,30 +84,42 @@ export default function LoginScreen({ navigation }) {
                     <Text style={styles.label}>Senha</Text>
                     <Text style={styles.forgot}>Esqueci minha senha</Text>
                 </View>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Digite sua senha"
-                    placeholderTextColor={colors.placeholder}
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                />
+                <View style={styles.passwordBox}>
+                    <TextInput
+                        style={styles.passwordInput}
+                        placeholder="Digite sua senha"
+                        placeholderTextColor={colors.placeholder}
+                        secureTextEntry={!showPassword}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        value={password}
+                        onChangeText={setPassword}
+                    />
+                    <Pressable
+                        style={styles.eyeButton}
+                        onPress={() => setShowPassword(!showPassword)}
+                    >
+                        <Ionicons
+                            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                            size={24}
+                            color={colors.gray}
+                        />
+                    </Pressable>
+                </View>
 
                 {error !== '' && <Text style={styles.error}>{error}</Text>}
 
-                <Pressable style={styles.primaryButton}>
-                    <Text style={styles.primaryText}>Entrar com biometria</Text>
-                    <Ionicons name="finger-print" size={22} color={colors.orangeLight} />
-                </Pressable>
-
                 <Pressable
-                    style={styles.outlineBlue}
+                    style={styles.primaryButton}
                     onPress={handleLogin}
                     disabled={loading}
                 >
-                    <Text style={styles.outlineBlueText}>
+                    <Text style={styles.primaryText}>
                         {loading ? 'Entrando...' : 'Entrar'}
                     </Text>
+                    {!loading && (
+                        <Ionicons name="log-in-outline" size={22} color={colors.orangeLight} />
+                    )}
                 </Pressable>
 
                 <Text style={styles.register}>Ainda não é cadastrado?</Text>
@@ -114,6 +128,7 @@ export default function LoginScreen({ navigation }) {
                     onPress={() => navigation.navigate('SignUp')}
                 >
                     <Text style={styles.outlineOrangeText}>Fazer cadastro</Text>
+                    <Ionicons name="person-add-outline" size={20} color={colors.orangeText} />
                 </Pressable>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -198,6 +213,23 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
         marginBottom: 20,
     },
+    passwordBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 56,
+        borderWidth: 1.5,
+        borderColor: colors.border,
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        backgroundColor: colors.white,
+        marginBottom: 20,
+    },
+    passwordInput: {
+        flex: 1,
+        fontSize: 18,
+        color: colors.ink,
+    },
+    eyeButton: { paddingLeft: 12, paddingVertical: 8 },
     error: {
         color: colors.orangeText,
         fontSize: 16,
@@ -219,19 +251,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600'
     },
-    outlineBlue: {
-        height: 56,
-        borderRadius: 28,
-        borderWidth: 1.5,
-        borderColor: colors.blue,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 12,
-    },
-    outlineBlueText: {
-        color: colors.blue,
-        fontSize: 18, fontWeight: '600'
-    },
     register: {
         color: colors.gray,
         fontSize: 16,
@@ -242,8 +261,10 @@ const styles = StyleSheet.create({
         borderRadius: 28,
         borderWidth: 1.5,
         borderColor: colors.orange,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 8,
     },
     outlineOrangeText: {
         color: colors.orangeText,
