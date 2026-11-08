@@ -104,6 +104,10 @@ export default function AppointmentsScreen({ navigation, route }) {
                   {formatDate(item.startAt)} · {formatTime(item.startAt)}
                 </Text>
               </View>
+              <View style={styles.editRow}>
+                <Ionicons name="create-outline" size={18} color={colors.blue} />
+                <Text style={styles.editText}>Toque para editar</Text>
+              </View>
             </View>
           </Pressable>
         ))}
@@ -146,6 +150,13 @@ const styles = StyleSheet.create({
   title: { color: colors.ink, fontSize: 22, fontWeight: '600' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
   detail: { color: colors.gray, fontSize: 17 },
+  editRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+  },
+  editText: { color: colors.blue, fontSize: 15, fontWeight: '600' },
   footer: { padding: 24, paddingTop: 8 },
   addButton: {
     height: 56,
