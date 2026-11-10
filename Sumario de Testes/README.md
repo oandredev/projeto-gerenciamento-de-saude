@@ -2744,14 +2744,57 @@ O [Front-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/m
 
 ### 2.1 Testes de caixa preta
 
+Até o momento atual do projeto os testes de caixa preta do front-end compuseram a entrada válida e inválida de um usuário cadastrado por meio da análise de transição de estados. O fluxograma abaixo determina quais os estados esperados diante de diferentes ações de cadastro e login:
+
+#### Fluxograma de variação de estados
+<picture>
+<img width="650" height="420" alt="image" src="https://github.com/user-attachments/assets/ed2d968e-6612-4cfb-aaac-4fcd68bc1862" />
+</picture>
+
+A primeira etapa consiste no cadastro de um usuário válido conforme a imagem abaixo:
+
+#### Tela de cadastro com campos preenchidos
+
+<picture>
+<img width="370" height="710" alt="image" src="https://github.com/user-attachments/assets/ffed5f7d-c6de-4268-a1d2-51cd04d4faf8" />
+</picture>
+
+A expectativa dessa ação que o cadastro seja efetuado no banco de dados. O estado do banco deve envolver o usuário com o respectivo e-mail cadastrado e a senha criptografada. O teste foi bem-sucedido:
+
+#### Evidência de usuário cadastrado com senha criptografada (H2 Console)
+
+<img width="1785" height="537" alt="image" src="https://github.com/user-attachments/assets/ab1234a3-f13e-4a17-89f6-d4eb03946ee3" />
+
+Após efetuar o cadastro são feitos dois outros testes envolvendo a página de login: um com a senha inválida e outro com a senha inválida. Com a senha inválida digitada o estado da tela deve compilar uma mensagem escrita: "E-mail ou senha incorretos". O teste foi bem-sucedido:
+
+#### Tela com login inválido e mensagem de erro
+<picture>
+<img width="370" height="710" alt="image" src="https://github.com/user-attachments/assets/fef102ac-ef3a-4bf3-a7e5-400a7b5a983e" />
+</picture>
+
+Com o login válido, o botão entrar deve alterar o estado da tela para que compile a página inicial, que saúda o usuário chamando-o por seu primeiro nome. O teste foi bem-sucedido:
+
+#### Tela com login válido
+<picture>
+<img width="370" height="710" alt="tela_login_valido" src="https://github.com/user-attachments/assets/35abe582-e7b0-40fb-94d2-0ecf5497c0cd"/>
+</picture>
+
+#### Tela de página inicial
+<picture>
+<img width="370" height="710" alt="image" src="https://github.com/user-attachments/assets/68cddc8c-8730-432b-968f-8d52cf4417aa" />
+</picture>
+
+A dinâmica de fluxo de telas respeitou a transição de estados esperada:
+
+#### Transição de estados (telas)
+
+<picture>
+<img width="720" height="950" alt="image" src="https://github.com/user-attachments/assets/c7ed5e14-3442-4320-9632-a4924f24e66a" />
+</picture>
+
 ### 2.2 Diagnósticos de acessibilidade
 
-Para realizar os diagnósticos de acessibilidade considerou-se a tela de Login. 
-
-<img width="429" height="894" alt="image" src="https://github.com/user-attachments/assets/6a8470b4-7141-4cc5-b399-4fa235a544f2" />
-
-
-Os programas criados para o React Native foram adaptados para uma versão com funções equivalente usando base em **HTML5**, estilização em **CSS** e programação com **Javascript**. A adaptação resultou em uma versão puramente visual e sem funções atreladas à interface, com o intuito único de avaliar a consistência de princípios de acessibilidade nos componentes. A interface foi então publicada no Vercel para receber o diagnóstico das plataformas através de sua URL.
+Para realizar os diagnósticos de acessibilidade considerou-se a tela de Login. Os programas criados para o React Native foram adaptados para uma versão com funções equivalente usando base em **HTML5**, estilização em **CSS** e programação com **Javascript**. A adaptação resultou em uma versão puramente visual e sem funções atreladas à interface, com o intuito único de avaliar a consistência de princípios de acessibilidade nos componentes. A interface foi então publicada no Vercel para receber o diagnóstico das plataformas através de sua URL.
 
 Os primeiros testes revelaram uma pontuação elevada conforme os parâmetros do Lighthouse, superando a expectativa de pontuação registrada no plano de testes (95):
 
