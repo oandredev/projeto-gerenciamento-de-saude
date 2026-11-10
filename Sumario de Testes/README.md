@@ -2746,7 +2746,12 @@ O [Front-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/m
 
 ### 2.2 Diagnósticos de acessibilidade
 
-Para realizar os diagnósticos de acessibilidade considerou-se a tela de Login. Os programas criados para o React Native foram adaptados para uma versão com funções equivalente usando base em **HTML5**, estilização em **CSS** e programação com **Javascript**. A adaptação resultou em uma versão puramente visual e sem funções atreladas à interface, com o intuito único de avaliar a consistência de princípios de acessibilidade nos componentes. A interface foi então publicada no Vercel para receber o diagnóstico das plataformas através de sua URL.
+Para realizar os diagnósticos de acessibilidade considerou-se a tela de Login. 
+
+<img width="429" height="894" alt="image" src="https://github.com/user-attachments/assets/6a8470b4-7141-4cc5-b399-4fa235a544f2" />
+
+
+Os programas criados para o React Native foram adaptados para uma versão com funções equivalente usando base em **HTML5**, estilização em **CSS** e programação com **Javascript**. A adaptação resultou em uma versão puramente visual e sem funções atreladas à interface, com o intuito único de avaliar a consistência de princípios de acessibilidade nos componentes. A interface foi então publicada no Vercel para receber o diagnóstico das plataformas através de sua URL.
 
 Os primeiros testes revelaram uma pontuação elevada conforme os parâmetros do Lighthouse, superando a expectativa de pontuação registrada no plano de testes (95):
 
@@ -2781,6 +2786,132 @@ Uma segunda tentativa de diagnóstico, apresentando uma versão do programa adap
 <img width="338" height="738" alt="image" src="https://github.com/user-attachments/assets/e6c419f4-3e79-4118-a2f3-fd4d5510e1cb" />
 
 Apesar de ainda serem destacados perdas de pontos no Wave, é reconhecido que os erros apontados se referem a elementos típicos de interfaces para web, e não para aplicativos *mobile*. Portanto, nem todos os pontos puderam ser aproveitados. No entanto, a presença dos `aria-label` que fizeram a pontuação de acessibilidade aumentar, foi adaptada para o React Native, criando uma versão da tela de login em que o equivalente para o React Native; o componente `acessibility`, estivesse presente:
+
+#### LoginScreen.js
+
+``` javascript
+import { useState } from 'react';
+import {
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Logo from '../components/Logo';
+import { colors } from '../styles/theme';
+import { login as loginRequest } from '../services/authService';
+
+export default function LoginScreen({ navigation }) {
+    const [login, setLogin] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    async function handleLogin() {
+        if (!login || !password) {
+            setError('Digite o e-mail e a senha.');
+            return;
+        }
+        setError('');
+        setLoading(true);
+        try {
+            await loginRequest({ email: login, password });
+            navigation.replace('ProfileSelect');
+        } catch (e) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return (
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            <View style={styles.header}>
+                <Logo size={44} />
+                <View style={styles.headerText}>
+                    <Text style={styles.brand}>
+                        A<Text style={styles.brandAmp}>&</Text>F
+                    </Text>
+                    <Text style={styles.brandSub}>Health Management</Text>
+                </View>
+            </View>
+            <View style={styles.headerLine} />
+
+            <ScrollView
+                contentContainerStyle={styles.scroll}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View style={styles.help}>
+                    <Ionicons name="help-circle-outline" size={32} color={colors.blue} />
+                    <View style={styles.helpTextBox}>
+                        <Text style={styles.helpText}>
+                            Dúvidas no acesso? Veja o passo a passo.
+                        </Text>
+                        <Text style={styles.helpLink}>Acessar manual.</Text>
+                    </View>
+                </View>
+
+                <Text style={styles.label}>E-mail</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Digite seu e-mail"
+                    placeholderTextColor={colors.placeholder}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={login}
+                    onChangeText={setLogin}
+                />
+
+                <View style={styles.passwordRow}>
+                    <Text style={styles.label}>Senha</Text>
+                    <Text style={styles.forgot}>Esqueci minha senha</Text>
+                </View>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Digite sua senha"
+                    placeholderTextColor={colors.placeholder}
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                />
+
+                {error !== '' && <Text style={styles.error}>{error}</Text>}
+
+                <Pressable style={styles.primaryButton}>
+                    <Text style={styles.primaryText}>Entrar com biometria</Text>
+                    <Ionicons name="finger-print" size={22} color={colors.orangeLight} />
+                </Pressable>
+
+                <Pressable
+                    style={styles.outlineBlue}
+                    onPress={handleLogin}
+                    disabled={loading}
+                >
+                    <Text style={styles.outlineBlueText}>
+                        {loading ? 'Entrando...' : 'Entrar'}
+                    </Text>
+                </Pressable>
+
+                <Text style={styles.register}>Ainda não é cadastrado?</Text>
+                <Pressable
+                    style={styles.outlineOrange}
+                    onPress={() => navigation.navigate('SignUp')}
+                >
+                    <Text style={styles.outlineOrangeText}>Fazer cadastro</Text>
+                </Pressable>
+            </ScrollView>
+        </KeyboardAvoidingView>
+    );
+}
+```
 
 #### Evidência de alteração do código da tela de login
 
