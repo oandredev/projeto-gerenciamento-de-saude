@@ -2740,6 +2740,183 @@ Foram 73 violações relacionadas a arquivos não terminados com quebra de linha
 
 ## 2. Teste Front-End
 
-O [Front-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/main/frontend) do projeto apresenta 13 telas com um fluxo desejado de dinâmica entre as telas e elementos recomendados de acessibilidade.
+O [Front-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/main/frontend) do projeto apresenta 13 telas com um fluxo desejado de dinâmica entre as telas e elementos recomendados de acessibilidade. Os testes do front-end utilizaram estratégias de caixa preta de variação entre estados usando os programas compilados por um *smartphone* através do **Expo** e diagnósticos de acessibilidade usando **Lighthouse** e **Wave**. 
+
+### 2.1 Testes de caixa preta
+
+### 2.2 Diagnósticos de acessibilidade
+
+Para realizar os diagnósticos de acessibilidade considerou-se a tela de Login. Os programas criados para o React Native foram adaptados para uma versão com funções equivalente usando base em **HTML5**, estilização em **CSS** e programação com **Javascript**. A adaptação resultou em uma versão puramente visual e sem funções atreladas à interface, com o intuito único de avaliar a consistência de princípios de acessibilidade nos componentes. A interface foi então publicada no Vercel para receber o diagnóstico das plataformas através de sua URL.
+
+Os primeiros testes revelaram uma pontuação elevada conforme os parâmetros do Lighthouse, superando a expectativa de pontuação registrada no plano de testes (95):
+
+#### Evidência de pontuação Lighthouse
+<img width="990" height="649" alt="image" src="https://github.com/user-attachments/assets/01a7cb34-604b-42d1-99d5-eab3a5587337" />
+
+#### Evidência de auditorias aprovadas do Lighthouse
+<img width="992" height="498" alt="image" src="https://github.com/user-attachments/assets/a213690c-acec-4051-ba9b-b295f8bf4552" />
+
+No entanto, o mesmo não pôde ser dito sobre o diagnóstico de acessibilidade do Wave, que ofereceu uma pontuação mediana no contexto geral, passando positivamente em contraste, mas com uma pontuação abaixo da planejada (7.0):
+
+#### Evidência de pontuação Wave
+<img width="337" height="890" alt="image" src="https://github.com/user-attachments/assets/d9e7f3fd-3a30-4fa3-b54a-5cd2ffb25c5b" />
+
+#### Evidência de pontuação de contraste Wave
+<img width="338" height="738" alt="image" src="https://github.com/user-attachments/assets/e6c419f4-3e79-4118-a2f3-fd4d5510e1cb" />
+
+A pontuação do Wave pode ser explicada pelo fato de que a plataforma pontua conforme a contagem de `aria-label`; recurso de acessibilidade para deficientes visuais que é nativo do **HTML5**. Como o React Native não possui o `aria-label`, não foi obtida nenhuma pontuação nesse aspecto.
+
+Uma segunda tentativa de diagnóstico, apresentando uma versão do programa adaptado contendo `aria-label`, revelou que a pontuação em ambas as plataformas foi maior, concedendo a pontuação do Wave minimamente desejada e uma pontuação ainda maior no Lighthouse destacando a presença de `aria-label`:
+
+#### Evidência de pontuação Lighthouse (segunda tentativa)
+<img width="977" height="481" alt="image" src="https://github.com/user-attachments/assets/7269b727-004b-4616-be52-9395b3b4426e" />
+
+#### Evidência de auditorias aprovadas do Lighthouse (segunda tentativa)
+<img width="975" height="676" alt="image" src="https://github.com/user-attachments/assets/7186921d-888a-4d1f-85bf-c1801137575c" />
+
+#### Evidência de pontuação Wave (segunda tentativa)
+<img width="341" height="929" alt="image" src="https://github.com/user-attachments/assets/218b0424-9ed3-499b-b5da-e37e2108e8c8" />
+
+#### Evidência de pontuação de contraste Wave (segunda tentativa)
+<img width="338" height="738" alt="image" src="https://github.com/user-attachments/assets/e6c419f4-3e79-4118-a2f3-fd4d5510e1cb" />
+
+Apesar de ainda serem destacados perdas de pontos no Wave, é reconhecido que os erros apontados se referem a elementos típicos de interfaces para web, e não para aplicativos *mobile*. Portanto, nem todos os pontos puderam ser aproveitados. No entanto, a presença dos `aria-label` que fizeram a pontuação de acessibilidade aumentar, foi adaptada para o React Native, criando uma versão da tela de login em que o equivalente para o React Native; o componente `acessibility`, estivesse presente:
+
+#### Evidência de alteração do código da tela de login
+
+``` javascript
+import { useState } from 'react';
+import {
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Logo from '../components/Logo';
+import { colors } from '../styles/theme';
+
+export default function LoginScreen({ navigation }) {
+    const [login, setLogin] = useState('');
+    const [password, setPassword] = useState('');
+
+    function handleLogin() {
+        navigation.replace('MainTabs');
+    }
+
+    return (
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            <View style={styles.header}>
+                <Logo size={44} />
+                <View style={styles.headerText}>
+                    <Text style={styles.brand}>
+                        A<Text style={styles.brandAmp}>&</Text>F
+                    </Text>
+                    <Text style={styles.brandSub}>Health Management</Text>
+                </View>
+            </View>
+            <View style={styles.headerLine} />
+
+            <ScrollView
+                contentContainerStyle={styles.scroll}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View style={styles.help}>
+                    <View
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
+                    >
+                        <Ionicons name="help-circle-outline" size={32} color={colors.blue} />
+                    </View>
+                    <View style={styles.helpTextBox}>
+                        <Text style={styles.helpText}>
+                            Dúvidas no acesso? Veja o passo a passo.
+                        </Text>
+                        <Pressable
+                            accessible
+                            accessibilityRole="link"
+                            accessibilityLabel="Abrir o manual de ajuda"
+                        >
+                            <Text style={styles.helpLink}>Acessar manual.</Text>
+                        </Pressable>
+                    </View>
+                </View>
+
+                <Text style={styles.label}>E-mail</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Digite seu e-mail"
+                    placeholderTextColor={colors.placeholder}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={login}
+                    onChangeText={setLogin}
+                    accessible
+                    accessibilityLabel="Digite seu e-mail"
+                />
+
+                <View style={styles.passwordRow}>
+                    <Text style={styles.label}>Senha</Text>
+                    <Pressable
+                        accessible
+                        accessibilityRole="link"
+                        accessibilityLabel="Recuperar minha senha"
+                    >
+                        <Text style={styles.forgot}>Esqueci minha senha</Text>
+                    </Pressable>
+                </View>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Digite sua senha"
+                    placeholderTextColor={colors.placeholder}
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    accessible
+                    accessibilityLabel="Digite sua senha"
+                />
+
+                <Pressable
+                    style={styles.primaryButton}
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel="Entrar com a sua digital"
+                >
+                    <Text style={styles.primaryText}>Entrar com biometria</Text>
+                    <Ionicons name="finger-print" size={22} color={colors.orangeLight} />
+                </Pressable>
+
+                <Pressable
+                    style={styles.outlineBlue}
+                    onPress={handleLogin}
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel="Entrar no aplicativo"
+                >
+                    <Text style={styles.outlineBlueText}>Entrar</Text>
+                </Pressable>
+
+                <Text style={styles.register}>Ainda não é cadastrado?</Text>
+                <Pressable
+                    style={styles.outlineOrange}
+                    onPress={() => navigation.navigate('SignUp')}
+                    accessible
+                    accessibilityRole="button"
+                    accessibilityLabel="Fazer o cadastro"
+                >
+                    <Text style={styles.outlineOrangeText}>Fazer cadastro</Text>
+                </Pressable>
+            </ScrollView>
+        </KeyboardAvoidingView>
+    );
+}
+```
 
 ---
