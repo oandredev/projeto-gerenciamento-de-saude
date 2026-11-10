@@ -2738,7 +2738,7 @@ Foram 73 violações relacionadas a arquivos não terminados com quebra de linha
 #### Evidência de sucesso no linting
 <img width="661" height="311" alt="image" src="https://github.com/user-attachments/assets/e481050c-f5b6-48fc-b76c-6dc76b42ba01" />
 
-## 2. Teste Front-End
+## 2. Testes Front-End
 
 O [Front-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/main/frontend) do projeto apresenta 13 telas com um fluxo desejado de dinâmica entre as telas e elementos recomendados de acessibilidade. Os testes do front-end utilizaram estratégias de caixa preta de variação entre estados usando os programas compilados por um *smartphone* através do **Expo** e diagnósticos de acessibilidade usando **Lighthouse** e **Wave**. 
 
