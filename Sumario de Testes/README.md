@@ -2746,7 +2746,7 @@ O [Front-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/m
 
 Até o momento atual do projeto os testes de caixa preta do front-end compuseram a entrada válida e inválida de um usuário cadastrado por meio da análise de transição de estados. O fluxograma abaixo determina quais os estados esperados diante de diferentes ações de cadastro e login:
 
-#### Fluxograma de variação de estados
+#### Fluxograma de transição de estados
 <picture>
 <img width="650" height="420" alt="image" src="https://github.com/user-attachments/assets/ed2d968e-6612-4cfb-aaac-4fcd68bc1862" />
 </picture>
