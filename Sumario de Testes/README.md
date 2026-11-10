@@ -1,16 +1,5 @@
 # Relatório Sumário de Testes
 
-<p>
-
-  <img src="https://skillicons.dev/icons?i=postman,java" height="50" alt="Tech stack" />
-  <img height="48" alt="image" src="https://github.com/user-attachments/assets/ac408ec2-5afd-4614-91a6-3999939a95da" hspace='1.5' />
-  <img height="48" alt="image" src="https://github.com/user-attachments/assets/9f7294d4-202c-49e0-bc7e-e3c99103ea5c" hspace='1.5' />
-  <img height="48" alt="image" src="https://github.com/user-attachments/assets/a7e42bbe-7002-41a6-a7b9-753b797b0491" hspace='1.5' />
-  <img height="48" alt="image" src="https://github.com/user-attachments/assets/eb433a28-6fb7-49d8-a338-bf0be6a3a8a0" hspace='1.5' />
-  <img height="48" alt="image" src="https://github.com/user-attachments/assets/f9a534f5-468a-4b80-9a7b-0492ed8ef1c5" hspace='1.5' />
-
-</p>
-
 ## 1. Testes Back-End
 
 O [Back-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/main/backend/health-management) do projeto consiste em 7 entidades com 4 classes principais de serviço nas quais foram baseados os casos de teste: *User*, *Profile*, *Restrictions*, *Schedule*. Os testes dos *scripts* do *back-end* foram realizados de três maneiras: caixa preta (**Postman**), caixa branca (**JUnit**), desempenho (**JMeter**) e *linting* (**Checkstyle**).
