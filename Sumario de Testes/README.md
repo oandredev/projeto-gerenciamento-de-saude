@@ -2,9 +2,9 @@
 
 ## 1. Testes Back-End
 
-O [Back-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/main/backend/health-management) do projeto consiste em 7 entidades com 4 classes principais de serviço nas quais foram baseados os casos de teste: *User*, *Profile*, *Restrictions*, *Schedule*. Os testes dos *scripts* do *back-end* foram realizados de três maneiras: caixa preta (**Postman**), caixa branca (**JUnit**), desempenho (**JMeter**) e *linting* (**Checkstyle**).
+O [Back-End](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/main/backend/health-management) do projeto consiste em 7 entidades com 4 classes principais de serviço nas quais foram baseados os casos de teste: *User*, *Profile*, *Restrictions*, *Schedule*. Os testes dos *scripts* do *back-end* foram realizados de três maneiras: caixa preta (**Postman e H2 Console**), caixa branca (**JUnit**), desempenho (**JMeter**) e *linting* (**Checkstyle**).
 
-### 1.1 Testes de caixa preta com Postman
+### 1.1 Testes de caixa preta com Postman e H2 Console
 
 Para cada classe testada foram realizados dois cenários: um inválido, com pelo menos um campo inválido, e outro válido, com todos os campos corretos. Foram anexados as evidências de cada teste, com prints da requisição (URL e body) e da resposta (JSON retornado, status HTTP, tempo de resposta em ms e consumo de memória). Os testes foram feitos com o método POST, cobrindo cadastro de usuário, login, criação de Profile, criação de Restriction e criação de Schedule.
 
