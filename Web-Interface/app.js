@@ -14,6 +14,8 @@ const P={
  loc:'<path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
  steth:'<path d="M6 3v6a4 4 0 0 0 8 0V3M10 13v2a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="2"/>',
  home:'<path d="M4 11l8-7 8 7v9H4z"/>'
+ login:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>',
+ adduser:'<circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4"/><path d="M19 8v6M16 11h6"/>'
 };
 const icon=(n,s=24)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24">${P[n]}</svg>`;
 const logo=(s=44)=>`<svg width="${s}" height="${s}" viewBox="0 0 60 60"><rect width="60" height="60" rx="18" fill="#fff"/><rect x="24" y="12" width="12" height="36" rx="3" fill="#1636A8"/><rect x="12" y="24" width="36" height="12" rx="3" fill="#1636A8"/><polyline points="8,32 20,32 25,22 32,42 37,32 52,32" fill="none" stroke="#F57C00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -92,10 +94,9 @@ login:()=>`
  <label>E-mail</label><input type="email" placeholder="Digite seu e-mail" autocapitalize="none">
  <div class="pw"><label>Senha</label><a href="#">Esqueci minha senha</a></div>
  <input type="password" placeholder="Digite sua senha">
- <button class="btn fill" style="margin-top:8px"><span>Entrar com biometria</span>${icon('finger',22)}</button>
- <button class="btn ob" data-go="home">Entrar</button>
+ <button class="btn fill" style="margin-top:8px" data-go="home"><span>Entrar</span>${icon('login',22).replace('<svg','<svg style="color:#fff"')}</button>
  <p class="reg">Ainda não é cadastrado?</p>
- <button class="btn oo" data-go="signup">Fazer cadastro</button>
+ <button class="btn oo" data-go="signup"><span>Fazer cadastro</span>${icon('adduser',22)}</button>
 </div>`,
 
 signup:()=>`${header('Cadastro',{back:true,profile:false})}<div class="scroll"></div>`,
