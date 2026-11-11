@@ -2589,57 +2589,44 @@ O linting do back-end foi planejado de forma a garantir práticas de boa escrita
 ``` xml
 <?xml version="1.0"?>
 <!DOCTYPE module PUBLIC
-  "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
-  "https://checkstyle.org/dtds/configuration_1_3.dtd">
+        "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <!-- Nenhum arquivo pode ter mais de 600 linhas -->
-<module name="Checker">
-  <module name="FileLength">
-    <property name="max" value="600"/>
-  </module>
-</module>
+
 
 <!-- Todos os blocos de código estarão entre chaves ({}) -->
-<module name="Checker">
-  <module name="TreeWalker">
-    <module name="NeedBraces"/>
-  </module>
-</module>
+
 
 <!-- Todo arquivo termina com uma quebra de linha -->
-<module name="Checker">
-  <module name="NewlineAtEndOfFile"/>
-</module>
+
 
 <!-- Todas as importações são utilizadas sem redundância -->
-<module name="Checker">
-  <module name="TreeWalker">
-    <module name="UnusedImports"/>
-  </module>
-</module>
 
-<module name="Checker">
-  <module name="TreeWalker">
-    <module name="RedundantImport"/>
-  </module>
-</module>
 
 <!-- Todas as variáveis locais são utilizadas -->
-<module name="Checker">
-  <module name="TreeWalker">
-    <module name="UnusedLocalVariable">
-    </module>
-  </module>
-</module>
+
 
 <!-- Nenhum throw responderá com mensagens padrão de erros de execução. Problemas previstos no código possuem suas próprias mensagens de erro -->
+
 <module name="Checker">
-  <module name="TreeWalker">
-    <module name="IllegalThrows">
-      <property name="illegalClassNames" value="RuntimeException"/>
+    <module name="NewlineAtEndOfFile"/>
+    <module name="FileLength">
+        <property name="max" value="600"/>
     </module>
-  </module>
+    <module name="TreeWalker">
+        <module name="NeedBraces"/>
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedLocalVariable">
+        </module>
+        <module name="IllegalThrows">
+            <property name="illegalClassNames" value="RuntimeException"/>
+        </module>
+    </module>
 </module>
+
+
 ```
 
 No primeiro momento, o checkstyle registrou 76 violações conforme o *log* abaixo:
