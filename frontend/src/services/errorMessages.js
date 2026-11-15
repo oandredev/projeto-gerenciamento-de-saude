@@ -37,6 +37,8 @@ const EXACT = {
   'Dosage amount is invalid': 'A dose informada não é válida.',
   'Dosage unit is required': 'Escolha a unidade da dose.',
   'Interval value must be greater than zero': 'O intervalo precisa ser maior que zero.',
+  'Start is required': 'Escolha a data e o horário de início.',
+  'End must be after start': 'A data de fim precisa ser depois do início.',
 
   'Type is required': 'Escolha o tipo.',
   'Severity is required': 'Escolha a gravidade.',
