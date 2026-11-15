@@ -9,11 +9,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
+import DateTimeField from '../components/DateTimeField';
 import { colors } from '../styles/theme';
 import { getActiveProfile } from '../services/profileService';
 import { createSchedule, updateSchedule } from '../services/scheduleService';
-import { STRIPE_LABELS, formatTime } from '../utils/format';
+import { STRIPE_LABELS } from '../utils/format';
 
 // Os valores (MG, ML...) são os do back-end; o texto é o que a pessoa vê.
 const DOSAGE_UNITS = [
@@ -29,12 +31,24 @@ const DOSAGE_UNITS = [
 
 const STRIPES = ['NONE', 'YELLOW', 'RED', 'BLACK'];
 
+// O back-end só confirma ocorrências dentro de uma janela de cerca de 12 horas.
+// Por isso o início pode estar no passado, mas no máximo 11 horas atrás.
+const MAX_PAST_HOURS = 11;
+const HOUR_MS = 60 * 60 * 1000;
+
 // Converte o intervalo do back-end para "a cada quantas horas".
 // O formulário só entende horas (1 a 24); outros intervalos voltam vazios.
 function toIntervalInput(s) {
   if (s.intervalUnit === 'HOUR') return String(s.intervalValue);
   if (s.intervalUnit === 'DAY' && s.intervalValue === 1) return '24';
   return '';
+}
+
+// Agora, sem segundos (o seletor só mexe em data, hora e minuto)
+function nowWithoutSeconds() {
+  const d = new Date();
+  d.setSeconds(0, 0);
+  return d;
 }
 
 function Chip({ label, selected, onPress }) {
@@ -62,7 +76,10 @@ export default function MedicationFormScreen({ navigation, route }) {
     details?.dosageAmount != null ? String(details.dosageAmount).replace('.', ',') : ''
   );
   const [unit, setUnit] = useState(details?.dosageUnit ?? 'MG');
-  const [time, setTime] = useState(schedule ? formatTime(schedule.startAt) : '');
+  const [startAt, setStartAt] = useState(
+    schedule ? new Date(schedule.startAt) : nowWithoutSeconds()
+  );
+  const [endAt, setEndAt] = useState(schedule?.endAt ? new Date(schedule.endAt) : null);
   const [interval, setInterval] = useState(schedule ? toIntervalInput(schedule) : '');
   const [stripe, setStripe] = useState(details?.stripe ?? 'NONE');
   const [error, setError] = useState('');
@@ -73,22 +90,29 @@ export default function MedicationFormScreen({ navigation, route }) {
     const cleanName = name.trim();
     const amount = Number(dose.replace(',', '.'));
     const hours = Number(interval);
-    const timeMatch = time.trim().match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
 
-    if (!cleanName || !dose || !time || !interval) {
-      setError('Preencha o nome, a dose, o horário e o intervalo.');
+    if (!cleanName || !dose || !interval) {
+      setError('Preencha o nome, a dose e o intervalo.');
       return;
     }
     if (!Number.isFinite(amount) || amount <= 0) {
       setError('A dose precisa ser um número maior que zero.');
       return;
     }
-    if (!timeMatch) {
-      setError('Digite o horário no formato 08:00.');
-      return;
-    }
     if (!Number.isInteger(hours) || hours < 1 || hours > 24) {
       setError('O intervalo deve ser de 1 a 24 horas.');
+      return;
+    }
+
+    // Ao editar, só confere o limite se a pessoa mudou o início
+    const startChanged =
+      !isEditing || startAt.getTime() !== new Date(schedule.startAt).getTime();
+    if (startChanged && startAt.getTime() < Date.now() - MAX_PAST_HOURS * HOUR_MS) {
+      setError(`O início pode ser no máximo ${MAX_PAST_HOURS} horas no passado.`);
+      return;
+    }
+    if (endAt && endAt.getTime() <= startAt.getTime()) {
+      setError('A data de fim precisa ser depois do início.');
       return;
     }
     if (!profile) {
@@ -96,19 +120,16 @@ export default function MedicationFormScreen({ navigation, route }) {
       return;
     }
 
-    // Primeiro horário no relógio do celular (o back-end recebe em UTC).
-    // Ao criar: hoje. Ao editar: mantém o dia original e troca só a hora.
-    const startAt = isEditing ? new Date(schedule.startAt) : new Date();
-    startAt.setHours(Number(timeMatch[1]), Number(timeMatch[2]), 0, 0);
-
     const unitLabel = DOSAGE_UNITS.find((u) => u.value === unit).label;
     const doseText = String(amount).replace('.', ',');
 
     // Campos que servem tanto para criar quanto para editar
+    // (o back-end recebe as datas em UTC)
     const fields = {
       type: 'MEDICATION',
       title: `${cleanName} ${doseText} ${unitLabel}`,
       startAt: startAt.toISOString(),
+      endAt: endAt ? endAt.toISOString() : undefined,
       intervalValue: hours === 24 ? 1 : hours,
       intervalUnit: hours === 24 ? 'DAY' : 'HOUR',
     };
@@ -122,7 +143,6 @@ export default function MedicationFormScreen({ navigation, route }) {
           ...fields,
           id: schedule.id,
           notes: schedule.notes ?? undefined,
-          endAt: schedule.endAt ?? undefined,
           reminderValue: schedule.reminderValue ?? undefined,
           reminderUnit: schedule.reminderUnit ?? undefined,
           details: {
@@ -173,6 +193,21 @@ export default function MedicationFormScreen({ navigation, route }) {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Aviso: só aparece ao editar */}
+        {isEditing && (
+          <View style={styles.notice}>
+            <Ionicons
+              name="information-circle-outline"
+              size={24}
+              color={colors.orangeText}
+            />
+            <Text style={styles.noticeText}>
+              Editar não altera as confirmações já realizadas. Depois de salvar,
+              elas ficam como estão e não podem ser mudadas.
+            </Text>
+          </View>
+        )}
+
         <Text style={styles.label}>Nome do remédio</Text>
         <TextInput
           style={styles.input}
@@ -211,14 +246,19 @@ export default function MedicationFormScreen({ navigation, route }) {
           ))}
         </View>
 
-        <Text style={styles.label}>Horário do primeiro</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex.: 08:00"
-          placeholderTextColor={colors.placeholder}
-          keyboardType="numbers-and-punctuation"
-          value={time}
-          onChangeText={setTime}
+        <DateTimeField
+          label="Início (data e horário do primeiro)"
+          value={startAt}
+          onChange={setStartAt}
+        />
+
+        <DateTimeField
+          label="Fim (opcional)"
+          value={endAt}
+          onChange={setEndAt}
+          optional
+          emptyText="Adicionar data de fim"
+          defaultValue={new Date(startAt.getTime() + 7 * 24 * HOUR_MS)}
         />
 
         <Text style={styles.label}>Repetir a cada quantas horas</Text>
@@ -253,6 +293,9 @@ export default function MedicationFormScreen({ navigation, route }) {
           <Text style={styles.saveText}>
             {saving ? 'Salvando...' : isEditing ? 'Salvar edição' : 'Salvar'}
           </Text>
+          {!saving && (
+            <Ionicons name="checkmark" size={24} color={colors.orangeLight} />
+          )}
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -262,6 +305,16 @@ export default function MedicationFormScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   content: { padding: 24, paddingBottom: 40 },
+  notice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    backgroundColor: colors.orangeBg,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 20,
+  },
+  noticeText: { flex: 1, color: colors.ink, fontSize: 15, lineHeight: 21 },
   label: {
     color: colors.blue,
     fontSize: 16,
@@ -306,8 +359,10 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     backgroundColor: colors.blue,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
     marginTop: 8,
   },
   saveText: { color: colors.white, fontSize: 20, fontWeight: '600' },
