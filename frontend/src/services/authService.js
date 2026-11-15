@@ -33,11 +33,24 @@ export async function login({ email, password, remember = false }) {
   return data;
 }
 
-// O PUT /user substitui tudo e exige a senha (ele regrava a senha a cada edição)
-export async function updateAccount({ name, email, password }) {
-  const { data } = await request('/user', {
+// Altera nome e e-mail (PUT /user).
+// A senha atual só é enviada quando o e-mail muda: é o que o back-end exige.
+export async function updateAccount({ name, email, currentPassword }) {
+  const body = { name, email };
+  if (currentPassword) {
+    body.currentPassword = currentPassword;
+  }
+
+  const { data } = await request('/user', { method: 'PUT', body });
+  currentUser = data;
+  return data;
+}
+
+// Troca a senha (PUT /user/password): precisa da senha atual e da nova.
+export async function changePassword({ currentPassword, newPassword }) {
+  const { data } = await request('/user/password', {
     method: 'PUT',
-    body: { name, email, password, active: true },
+    body: { currentPassword, newPassword },
   });
   currentUser = data;
   return data;
