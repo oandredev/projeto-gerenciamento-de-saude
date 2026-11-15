@@ -75,6 +75,9 @@ public class ScheduleService {
      * take none. For UNIQUE schedules, the interval value and the end are ignored (stored as 0
      * and {@code null}). {@code startAt} may be in the past; the client is expected to warn.
      *
+     * <p>A new schedule starts its own family (a new {@code rootId}); later versions created by
+     * an edit inherit it.
+     *
      * @param user the authenticated user, resolved from the JWT
      * @param req  the schedule data and its type-specific details
      * @return a {@link ScheduleResponse} with the created schedule
@@ -267,7 +270,8 @@ public class ScheduleService {
      * its confirmations can no longer be created or undone.
      *
      * <p>The active schedule is looked up by ID and owner, and its row is locked. Archiving an
-     * already archived schedule gives the same error as one that does not exist.
+     * already archived schedule gives the same error as one that does not exist. Only the active
+     * version is archived, so the family is left with no active version.
      *
      * @param user the authenticated user, resolved from the JWT
      * @param id   the schedule ID
@@ -346,15 +350,30 @@ public class ScheduleService {
     //-----------------------------------------------------
 
     // VALIDATIONS
-    private record MedicationValues(String brand, String medicineName, String activeIngredient, Double dosageAmount,
-                                    DosageUnit dosageUnit, MedicationStripe stripe, String photoUrl) {
+    private record MedicationValues(
+            String brand,
+            String medicineName,
+            String activeIngredient,
+            Double dosageAmount,
+            DosageUnit dosageUnit,
+            MedicationStripe stripe,
+            String photoUrl) {
     }
 
-    private record AppointmentValues(String doctorName, String location) {
+    private record AppointmentValues(
+            String doctorName,
+            String location) {
     }
 
-    private record RuleValues(String title, Instant startAt, int intervalValue, IntervalUnit intervalUnit,
-                              Instant endAt, String notes, MedicationValues medication, AppointmentValues appointment) {
+    private record RuleValues(
+            String title,
+            Instant startAt,
+            int intervalValue,
+            IntervalUnit intervalUnit,                
+            Instant endAt,
+            String notes,
+            MedicationValues medication,
+            AppointmentValues appointment) {
     }
 
     /**

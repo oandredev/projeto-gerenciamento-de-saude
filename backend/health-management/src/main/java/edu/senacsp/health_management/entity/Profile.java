@@ -7,6 +7,16 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
+/**
+ * A profile of a {@link User}, in the style of streaming apps: one account can have several
+ * profiles, each with its own name, avatar, {@link Schedule schedules} and
+ * {@link Restriction restrictions}.
+ *
+ * <p>The name is unique per user (different users can use the same name). The avatar is
+ * referenced by its ID only; it is not a mapped association.
+ *
+ * <p>Profiles are archived with {@code active = false} instead of being deleted.
+ */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "user_id"}))
 public class Profile {
