@@ -19,7 +19,11 @@ export default function Header({ title, onBack, showProfileSwitch = true, logoIn
             )}
             <Logo size={44} inverted={logoInverted} />
           </View>
-          <Pressable style={styles.circleButton}>
+          {/* O sininho abre a lista dos próximos avisos agendados no celular */}
+          <Pressable
+            style={styles.circleButton}
+            onPress={() => navigation.navigate('UpcomingNotifications')}
+          >
             <Ionicons
               name="notifications-outline"
               size={24}
