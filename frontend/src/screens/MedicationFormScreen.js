@@ -208,9 +208,11 @@ export default function MedicationFormScreen({ navigation, route }) {
   }
 
   return (
+    // No Android o teclado empurra a tela com "padding".
+    // No iPhone quem cuida disso é o próprio ScrollView (automaticallyAdjustKeyboardInsets).
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'android' ? 'padding' : undefined}
     >
       <Header
         title={isEditing ? 'Editar remédio' : 'Novo remédio'}
@@ -221,6 +223,8 @@ export default function MedicationFormScreen({ navigation, route }) {
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
+        keyboardDismissMode="on-drag"
       >
         {/* Aviso: só aparece ao editar */}
         {isEditing && (
