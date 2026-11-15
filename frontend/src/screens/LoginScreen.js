@@ -39,9 +39,11 @@ export default function LoginScreen({ navigation }) {
     }
 
     return (
+        // No Android o KeyboardAvoidingView empurra a tela; no iPhone quem cuida do
+        // teclado é o próprio ScrollView (automaticallyAdjustKeyboardInsets).
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'android' ? 'padding' : undefined}
         >
             <View style={styles.header}>
                 <Logo size={44} />
@@ -57,6 +59,8 @@ export default function LoginScreen({ navigation }) {
             <ScrollView
                 contentContainerStyle={styles.scroll}
                 keyboardShouldPersistTaps="handled"
+                automaticallyAdjustKeyboardInsets
+                keyboardDismissMode="on-drag"
             >
                 <View style={styles.help}>
                     <Ionicons name="help-circle-outline" size={32} color={colors.blue} />
@@ -163,7 +167,7 @@ const styles = StyleSheet.create({
         height: 3,
         backgroundColor: colors.orange
     },
-    scroll: { padding: 24 },
+    scroll: { padding: 24, paddingBottom: 40 },
     help: {
         flexDirection: 'row',
         alignItems: 'center',
