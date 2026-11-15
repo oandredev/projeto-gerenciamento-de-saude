@@ -78,9 +78,11 @@ export default function SignUpScreen({ navigation }) {
     }
 
     return (
+        // No Android o KeyboardAvoidingView empurra a tela; no iPhone quem cuida do
+        // teclado é o próprio ScrollView (automaticallyAdjustKeyboardInsets).
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'android' ? 'padding' : undefined}
         >
             <Header
                 title="Cadastro"
@@ -91,6 +93,8 @@ export default function SignUpScreen({ navigation }) {
             <ScrollView
                 contentContainerStyle={styles.content}
                 keyboardShouldPersistTaps="handled"
+                automaticallyAdjustKeyboardInsets
+                keyboardDismissMode="on-drag"
             >
                 <Text style={styles.label}>Nome</Text>
                 <TextInput
