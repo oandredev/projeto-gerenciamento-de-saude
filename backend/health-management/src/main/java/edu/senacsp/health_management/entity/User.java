@@ -9,6 +9,17 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The account of the app: who signs in with an email and a password. A user owns one or more
+ * {@link Profile profiles}, and everything else (schedules, confirmations, restrictions)
+ * belongs to a profile, never directly to the user.
+ *
+ * <p>The email is unique. The password is never stored as typed, only its BCrypt hash. The table
+ * is named {@code users} because {@code user} is a reserved word in H2.
+ *
+ * <p>Users are archived with {@code active = false} instead of being deleted. Saving a user
+ * also saves the new profiles added to its list.
+ */
 @Entity
 @Table(name = "users") // Conflict with H2 when use "user"
 public class User {
@@ -20,6 +31,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    // BCrypt hash of the password
     @Column(nullable = false)
     private String password;
 

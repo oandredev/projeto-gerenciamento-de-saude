@@ -10,6 +10,16 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
+/**
+ * Something a {@link Profile} must avoid, such as an allergy or a medication it cannot take
+ * (see {@link RestrictionType}), together with how serious it is ({@link RestrictionSeverity}).
+ *
+ * <p>It is a standalone record of the profile: it is not linked to schedules or medications
+ * in the database. The title is required (up to 50 characters) and the note is optional
+ * (up to 1000 characters).
+ *
+ * <p>Restrictions are archived with {@code active = false} instead of being deleted.
+ */
 @Entity
 public class Restriction {
 

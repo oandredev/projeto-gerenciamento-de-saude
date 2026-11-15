@@ -33,12 +33,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
-        SELECT schedule
-        FROM Schedule schedule
-        WHERE schedule.rootId = :rootId
-          AND schedule.profile.user.id = :userId
-          AND schedule.active = true
-        """)
+            SELECT schedule
+            FROM Schedule schedule
+            WHERE schedule.rootId = :rootId
+              AND schedule.profile.user.id = :userId
+              AND schedule.active = true
+            """)
     Optional<Schedule> findActiveByRootOwnedForUpdate(@Param("rootId") String rootId, @Param("userId") Long userId);
 
     /**
