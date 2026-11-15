@@ -178,9 +178,11 @@ export default function AppointmentFormScreen({ navigation, route }) {
     }
 
     return (
+        // No Android o teclado empurra a tela com "padding".
+        // No iPhone quem cuida disso é o próprio ScrollView (automaticallyAdjustKeyboardInsets).
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'android' ? 'padding' : undefined}
         >
             <Header
                 title={headerTitle}
@@ -191,6 +193,8 @@ export default function AppointmentFormScreen({ navigation, route }) {
             <ScrollView
                 contentContainerStyle={styles.content}
                 keyboardShouldPersistTaps="handled"
+                automaticallyAdjustKeyboardInsets
+                keyboardDismissMode="on-drag"
             >
                 {/* O tipo não pode ser trocado depois de criado (regra do back-end) */}
                 {!isEditing && (
