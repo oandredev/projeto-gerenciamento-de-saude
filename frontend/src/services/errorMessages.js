@@ -6,6 +6,9 @@ const EXACT = {
   'User not found': 'Usuário não encontrado.',
   'This account was archived': 'Esta conta foi arquivada.',
 
+  'Current password is required': 'Digite a senha atual.',
+  'Current password is incorrect': 'A senha atual está incorreta.',
+
   'Email is required': 'Digite o e-mail.',
   'Email format is invalid': 'O e-mail digitado não é válido.',
   'Name is required': 'Digite o nome.',
@@ -48,7 +51,6 @@ const PATTERNS = [
   [/^Title must have between (\d+) and (\d+) characters$/, (m) => `O nome deve ter entre ${m[1]} e ${m[2]} caracteres.`],
   [/^(.+) must have at most (\d+) characters$/, (m) => `Este campo aceita no máximo ${m[2]} caracteres.`],
 ];
-
 
 const FALLBACK = 'Erro inesperado. Tente novamente.';
 
