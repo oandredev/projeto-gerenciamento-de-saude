@@ -15,7 +15,11 @@ import Header from '../components/Header';
 import DateTimeField from '../components/DateTimeField';
 import { colors } from '../styles/theme';
 import { getActiveProfile } from '../services/profileService';
-import { createSchedule, updateSchedule } from '../services/scheduleService';
+import {
+    createSchedule,
+    deleteSchedule,
+    updateSchedule,
+} from '../services/scheduleService';
 
 // Os valores (CONSULTATION, EXAM) são os do back-end.
 const TYPES = [
@@ -149,6 +153,30 @@ export default function AppointmentFormScreen({ navigation, route }) {
             ? 'Novo exame'
             : 'Nova consulta';
 
+    // Deleta o item (no back-end ele só é marcado como inativo)
+    async function remove() {
+        setError('');
+        setSaving(true);
+        try {
+            await deleteSchedule(schedule.id);
+            navigation.goBack();
+        } catch (e) {
+            setError(e.message);
+            setSaving(false);
+        }
+    }
+
+    function handleDelete() {
+        Alert.alert(
+            `Deletar ${typeLabel}`,
+            'Ele deixará de aparecer na lista e na tela Hoje. As confirmações já feitas ficam guardadas no histórico. Deseja continuar?',
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Deletar', style: 'destructive', onPress: remove },
+            ]
+        );
+    }
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -228,6 +256,18 @@ export default function AppointmentFormScreen({ navigation, route }) {
                         <Ionicons name="checkmark" size={24} color={colors.orangeLight} />
                     )}
                 </Pressable>
+
+                {/* Só aparece ao editar */}
+                {isEditing && (
+                    <Pressable
+                        style={styles.deleteButton}
+                        onPress={handleDelete}
+                        disabled={saving}
+                    >
+                        <Ionicons name="trash-outline" size={20} color={colors.orangeText} />
+                        <Text style={styles.deleteText}>Deletar {typeLabel}</Text>
+                    </Pressable>
+                )}
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -287,4 +327,16 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     saveText: { color: colors.white, fontSize: 20, fontWeight: '600' },
+    deleteButton: {
+        height: 56,
+        borderRadius: 28,
+        borderWidth: 1.5,
+        borderColor: colors.orangeText,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        marginTop: 12,
+    },
+    deleteText: { color: colors.orangeText, fontSize: 18, fontWeight: '600' },
 });
