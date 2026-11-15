@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -14,7 +15,11 @@ import Header from '../components/Header';
 import DateTimeField from '../components/DateTimeField';
 import { colors } from '../styles/theme';
 import { getActiveProfile } from '../services/profileService';
-import { createSchedule, updateSchedule } from '../services/scheduleService';
+import {
+  createSchedule,
+  deleteSchedule,
+  updateSchedule,
+} from '../services/scheduleService';
 import { STRIPE_LABELS } from '../utils/format';
 
 // Os valores (MG, ML...) são os do back-end; o texto é o que a pessoa vê.
@@ -178,6 +183,30 @@ export default function MedicationFormScreen({ navigation, route }) {
     }
   }
 
+  // Deleta o remédio (no back-end ele só é marcado como inativo)
+  async function remove() {
+    setError('');
+    setSaving(true);
+    try {
+      await deleteSchedule(schedule.id);
+      navigation.goBack();
+    } catch (e) {
+      setError(e.message);
+      setSaving(false);
+    }
+  }
+
+  function handleDelete() {
+    Alert.alert(
+      'Deletar remédio',
+      'Ele deixará de aparecer na lista e na tela Hoje. As confirmações já feitas ficam guardadas no histórico. Deseja continuar?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Deletar', style: 'destructive', onPress: remove },
+      ]
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -297,6 +326,18 @@ export default function MedicationFormScreen({ navigation, route }) {
             <Ionicons name="checkmark" size={24} color={colors.orangeLight} />
           )}
         </Pressable>
+
+        {/* Só aparece ao editar */}
+        {isEditing && (
+          <Pressable
+            style={styles.deleteButton}
+            onPress={handleDelete}
+            disabled={saving}
+          >
+            <Ionicons name="trash-outline" size={20} color={colors.orangeText} />
+            <Text style={styles.deleteText}>Deletar remédio</Text>
+          </Pressable>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -366,4 +407,16 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   saveText: { color: colors.white, fontSize: 20, fontWeight: '600' },
+  deleteButton: {
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1.5,
+    borderColor: colors.orangeText,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+  },
+  deleteText: { color: colors.orangeText, fontSize: 18, fontWeight: '600' },
 });
