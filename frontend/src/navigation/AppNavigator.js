@@ -1,8 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import HomeScreen from '../screens/HomeScreen';
@@ -31,6 +32,11 @@ function TabIcon({ name, color, focused }) {
     );
 }
 function MainTabs() {
+    // No Android, a barra de navegação do celular (botões ▮▮▮ ○ ‹) fica por cima do app.
+    // Somamos o tamanho dela à barra de baixo para as abas não ficarem escondidas.
+    const insets = useSafeAreaInsets();
+    const bottomInset = Platform.OS === 'android' ? insets.bottom : 0;
+
     return (
         <Tab.Navigator
             screenOptions={{
@@ -39,7 +45,11 @@ function MainTabs() {
                 tabBarActiveTintColor: colors.blue,
                 tabBarInactiveTintColor: colors.gray,
                 tabBarLabelStyle: { fontSize: 14 },
-                tabBarStyle: { height: 76, paddingTop: 8, paddingBottom: 10 },
+                tabBarStyle: {
+                    height: 76 + bottomInset,
+                    paddingTop: 8,
+                    paddingBottom: 10 + bottomInset,
+                },
             }}
         >
             <Tab.Screen
