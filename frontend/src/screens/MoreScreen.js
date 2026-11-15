@@ -7,6 +7,7 @@ import { colors } from '../styles/theme';
 import { getActiveProfile, setActiveProfile } from '../services/profileService';
 import { listSchedules } from '../services/scheduleService';
 import { listRestrictions } from '../services/restrictionService';
+import { clearNotifications } from '../services/notificationService';
 import { setToken } from '../services/api';
 import { getCurrentUser, clearCurrentUser } from '../services/authService';
 
@@ -83,7 +84,9 @@ export default function MoreScreen({ navigation }) {
         : undefined;
 
     // O back-end não tem rota de logout: sair é apagar o token e o perfil aqui no app.
+    // Também apaga os avisos agendados no celular, para não chegarem depois de sair.
     function handleLogout() {
+        clearNotifications();
         setToken(null);
         setActiveProfile(null);
         clearCurrentUser();
