@@ -42,6 +42,19 @@ const EXACT = {
   'Severity is required': 'Escolha a gravidade.',
   'Restriction not found': 'Restrição não encontrada.',
   'Active schedule not found': 'Este item não existe mais. Volte e atualize a lista.',
+
+  'Schedule ID is invalid': 'Agendamento inválido.',
+  'Schedule At is required': 'Horário não informado. Atualize a lista.',
+  'This schedule occurrence has already been confirmed':
+    'Este item já foi confirmado. Atualize a lista.',
+  'Scheduled time is not an occurrence of this schedule':
+    'Este horário não faz parte do agendamento. Atualize a lista.',
+  'The confirmation window of this occurrence is closed or has not opened yet':
+    'O prazo para confirmar ou desfazer este item já acabou ou ainda não começou.',
+  'Confirmation ID is invalid': 'Confirmação inválida. Atualize a lista.',
+  'Confirmation not found': 'Confirmação não encontrada. Atualize a lista.',
+  'Client time does not match the server time: send instants in UTC (ISO-8601 with Z) and check the device clock':
+    'O horário do celular está diferente do horário do servidor. Confira o relógio do aparelho.',
 };
 
 const PATTERNS = [
