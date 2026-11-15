@@ -22,3 +22,10 @@ export async function confirmOccurrence({ scheduleId, scheduledAt }) {
   });
   return data;
 }
+
+// "Desfazer" (DELETE /confirmation/{id}).
+// O id da confirmação vem na própria ocorrência (confirmationId).
+// O back-end só deixa desfazer dentro da janela de tempo da ocorrência.
+export async function unconfirmOccurrence(confirmationId) {
+  await request(`/confirmation/${confirmationId}`, { method: 'DELETE' });
+}
