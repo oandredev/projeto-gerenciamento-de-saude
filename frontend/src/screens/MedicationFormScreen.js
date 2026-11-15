@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import DateTimeField from '../components/DateTimeField';
+import AlarmFields from '../components/AlarmFields';
 import { colors } from '../styles/theme';
 import { getActiveProfile } from '../services/profileService';
 import {
@@ -87,8 +88,17 @@ export default function MedicationFormScreen({ navigation, route }) {
   const [endAt, setEndAt] = useState(schedule?.endAt ? new Date(schedule.endAt) : null);
   const [interval, setInterval] = useState(schedule ? toIntervalInput(schedule) : '');
   const [stripe, setStripe] = useState(details?.stripe ?? 'NONE');
+  const [alarmEnabled, setAlarmEnabled] = useState(schedule?.alarmEnabled ?? false);
+  const [reminderValue, setReminderValue] = useState(schedule?.reminderValue ?? null);
+  const [reminderUnit, setReminderUnit] = useState(schedule?.reminderUnit ?? null);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+
+  // Escolha do "Avisar antes" (valor e unidade andam juntos)
+  function handleReminderChange(value, unitName) {
+    setReminderValue(value);
+    setReminderUnit(unitName);
+  }
 
   async function handleSave() {
     const profile = getActiveProfile();
@@ -137,6 +147,9 @@ export default function MedicationFormScreen({ navigation, route }) {
       endAt: endAt ? endAt.toISOString() : undefined,
       intervalValue: hours === 24 ? 1 : hours,
       intervalUnit: hours === 24 ? 'DAY' : 'HOUR',
+      alarmEnabled,
+      reminderValue: reminderValue ?? undefined,
+      reminderUnit: reminderUnit ?? undefined,
     };
 
     setError('');
@@ -148,8 +161,7 @@ export default function MedicationFormScreen({ navigation, route }) {
           ...fields,
           id: schedule.id,
           notes: schedule.notes ?? undefined,
-          reminderValue: schedule.reminderValue ?? undefined,
-          reminderUnit: schedule.reminderUnit ?? undefined,
+          notifyEnabled: schedule.notifyEnabled ?? true,
           details: {
             medicineName: cleanName,
             activeIngredient: ingredient.trim() || undefined,
@@ -165,7 +177,6 @@ export default function MedicationFormScreen({ navigation, route }) {
           ...fields,
           profileId: profile.id,
           notifyEnabled: true,
-          alarmEnabled: false,
           details: {
             medicineName: cleanName,
             activeIngredient: ingredient.trim() || undefined,
@@ -315,6 +326,14 @@ export default function MedicationFormScreen({ navigation, route }) {
             />
           ))}
         </View>
+
+        <AlarmFields
+          alarmEnabled={alarmEnabled}
+          onAlarmChange={setAlarmEnabled}
+          reminderValue={reminderValue}
+          reminderUnit={reminderUnit}
+          onReminderChange={handleReminderChange}
+        />
 
         {error !== '' && <Text style={styles.error}>{error}</Text>}
 
