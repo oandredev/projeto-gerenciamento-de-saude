@@ -11,6 +11,11 @@ import java.time.Instant;
  * Confirmation of one occurrence of a {@link Schedule}. If the row exists, the occurrence
  * was fulfilled. It is created on confirm and deleted on undo, only inside the 24-hour
  * window of the occurrence; after that it is locked.
+ *
+ * <p>It points to the exact version of the schedule it was made on, which may be archived
+ * later; it is never moved to another version. The unique constraint covers one version only
+ * ({@code schedule_id} + {@code scheduled_at}); uniqueness across the whole family
+ * ({@code rootId} + time) is guaranteed by the service, which locks the active version.
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"schedule_id", "scheduled_at"}))

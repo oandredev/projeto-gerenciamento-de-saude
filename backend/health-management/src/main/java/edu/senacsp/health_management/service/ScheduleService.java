@@ -99,7 +99,7 @@ public class ScheduleService {
 
         return saveNew(profile, req.type(), v, req.reminderValue(), req.reminderUnit(),
                 req.notifyEnabled() == null || req.notifyEnabled(),
-                req.alarmEnabled() != null && req.alarmEnabled());
+                req.alarmEnabled() != null && req.alarmEnabled(), null);
     }
 
     /**
@@ -171,11 +171,12 @@ public class ScheduleService {
      * <p>The active schedule is looked up by ID and owner, and its row is locked, so confirming
      * and editing cannot run at the same time. The {@code type} cannot be changed.
      *
-     * <p>If the schedule has no confirmations, it is edited in place (the schedule and its
-     * complementary row). If it has, the history must keep its meaning: the schedule is archived
-     * ({@code active = false}) and a new, independent one is created with the new data, whatever
-     * the dates sent. The returned {@code id} is then the new schedule's, so the client must replace
-     * the one it had.
+     * <p>If no version of the schedule has confirmations, it is edited in place (the schedule and
+     * its complementary row). If any has, the history must keep its meaning: the schedule is
+     * archived ({@code active = false}) and a new version is created with the new data, whatever
+     * the dates sent. The new version shares the {@code rootId} of the old one, so the existing
+     * confirmations still match its occurrences. The returned {@code id} is then the new
+     * schedule's, so the client must replace the one it had.
      *
      * @param user the authenticated user, resolved from the JWT
      * @param req  the schedule ID and its new data
@@ -207,11 +208,13 @@ public class ScheduleService {
 
         //-------------------------------------------------------------------------------------
 
-        // With history: the old rule is archived and a new, independent one is created
-        if (confirmationRepo.existsBySchedule_Id(old.getId())) {
+        // With history (any version of this schedule): the old rule is archived and a new one
+        // is created in the same family, so the confirmations keep matching by rootId
+        if (confirmationRepo.existsBySchedule_RootId(old.getRootId())) {
             old.setActive(false);
 
-            return saveNew(old.getProfile(), old.getType(), v, req.reminderValue(), req.reminderUnit(), notify, alarm);
+            return saveNew(old.getProfile(), old.getType(), v, req.reminderValue(), req.reminderUnit(),
+                    notify, alarm, old.getRootId());
         }
 
         //-------------------------------------------------------------------------------------
@@ -292,12 +295,21 @@ public class ScheduleService {
 
     /**
      * Saves a new schedule and its complementary row. Used by create and by the versioning in update.
+     *
+     * @param rootId the family of the schedule: {@code null} for a brand new schedule (it keeps
+     *               its generated one), or the {@code rootId} of the archived version when
+     *               saving a new version of it
      */
     private ScheduleResponse saveNew(Profile profile, ScheduleType type, RuleValues v,
                                      Integer reminderValue, ReminderUnit reminderUnit,
-                                     boolean notifyEnabled, boolean alarmEnabled) {
+                                     boolean notifyEnabled, boolean alarmEnabled, String rootId) {
         Schedule schedule = new Schedule(profile, type, v.title(), v.startAt(),
                 v.intervalValue(), v.intervalUnit(), v.endAt());
+
+        if (rootId != null)
+        {
+            schedule.setRootId(rootId);
+        }
 
         schedule.setNotes(v.notes());
         schedule.setReminderValue(reminderValue);

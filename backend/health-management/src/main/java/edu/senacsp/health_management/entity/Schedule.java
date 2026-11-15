@@ -12,6 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The rule of a scheduled event of a {@link Profile} (what happens and how often).
@@ -23,8 +24,9 @@ import java.util.List;
  *
  * <p>Schedules are never deleted: they are archived with {@code active = false}. The
  * {@code type} cannot be changed after creation. When a change alters the meaning of a rule
- * that already has confirmations, the service archives this schedule and creates a new,
- * independent one.
+ * that already has confirmations, the service archives this schedule and creates a new version
+ * with the same {@code rootId}. Each version keeps its own confirmations, and only one version
+ * of a family is active at a time.
  */
 @Entity
 @Table(indexes = @Index(columnList = "profile_id, active"))
@@ -70,6 +72,9 @@ public class Schedule {
 
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean alarmEnabled = false;
+
+    @Column(name = "root_id", nullable = false, updatable = false, length = 36)
+    private String rootId = UUID.randomUUID().toString();
 
     @OneToMany(mappedBy = "schedule", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Confirmation> confirmations = new ArrayList<>();
@@ -204,6 +209,10 @@ public class Schedule {
     public void setAlarmEnabled(boolean alarmEnabled) {
         this.alarmEnabled = alarmEnabled;
     }
+
+    public String getRootId() { return rootId; }
+
+    public void setRootId(String rootId) { this.rootId = rootId; }
 
     public List<Confirmation> getConfirmations() {
         return confirmations;

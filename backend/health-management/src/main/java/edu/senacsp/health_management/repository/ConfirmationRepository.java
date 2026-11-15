@@ -14,9 +14,39 @@ import java.util.Optional;
 
 public interface ConfirmationRepository extends JpaRepository<Confirmation, Long> {
 
-    boolean existsBySchedule_IdAndScheduledAt(Long scheduleId, Instant scheduledAt);
+    /**
+     * Tells whether any version of the schedule family has a confirmation. Decides between
+     * editing in place and archiving to create a new version.
+     */
+    boolean existsBySchedule_RootId(String rootId);
 
-    boolean existsBySchedule_Id(Long scheduleId);
+    /**
+     * Tells whether the occurrence at {@code scheduledAt} was already confirmed in any version
+     * of the schedule family.
+     */
+    boolean existsBySchedule_RootIdAndScheduledAt(String rootId, Instant scheduledAt);
+
+    /**
+     * Finds the confirmations whose occurrence is inside {@code [from, to)} and whose schedule
+     * belongs to one of the given families ({@code rootId}). A confirmation made on an archived
+     * version is found through the family of the active one.
+     *
+     * <p>Ownership is not checked here: the root IDs must have come from a query that already
+     * checked it. There is no {@code ORDER BY}.
+     *
+     * @param rootIds the family IDs; must not be {@code null} or empty
+     * @param from    the start of the window (inclusive)
+     * @param to      the end of the window (exclusive)
+     * @return the matching confirmations, with their schedule loaded, empty if there are none
+     */
+    @Query("""
+            SELECT c FROM Confirmation c JOIN FETCH c.schedule s
+            WHERE s.rootId IN :rootIds
+              AND c.scheduledAt >= :from AND c.scheduledAt < :to
+            """)
+    List<Confirmation> findInWindowByRoot(@Param("rootIds") Collection<String> rootIds,
+                                          @Param("from") Instant from,
+                                          @Param("to") Instant to);
 
     /**
      * Finds the ID of the schedule of a confirmation, only if that schedule's profile belongs
@@ -54,23 +84,4 @@ public interface ConfirmationRepository extends JpaRepository<Confirmation, Long
               AND confirmation.confirmedAt < :end
             """)
     List<Confirmation> findAllByProfileBetween(@Param("profileId") Long profileId, @Param("start") Instant start, @Param("end") Instant end, Sort sort);
-
-    /**
-     * Finds the confirmations of the given schedules whose occurrence is inside the window
-     * {@code [from, to]} (both inclusive). Used to cross with the calculated occurrences.
-     *
-     * <p>Ownership is not checked here: the schedules must have come from a query that already
-     * checked it. There is no {@code ORDER BY}.
-     *
-     * @param ids  the schedule IDs; must not be {@code null} or empty
-     * @param from the start of the window (inclusive)
-     * @param to   the end of the window (inclusive)
-     * @return the matching confirmations, empty if there are none
-     */
-    @Query("""
-            SELECT confirmation FROM Confirmation confirmation
-            WHERE confirmation.schedule.id IN :ids
-              AND confirmation.scheduledAt BETWEEN :from AND :to
-            """)
-    List<Confirmation> findInWindow(@Param("ids") Collection<Long> ids, @Param("from") Instant from, @Param("to") Instant to);
 }

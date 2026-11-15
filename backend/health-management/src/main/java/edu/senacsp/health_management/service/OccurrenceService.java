@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
 @Service
 public class OccurrenceService {
 
-    // OccurrenceService
+    // Shown window: 1 hour narrower than the confirmation window, so every listed occurrence
+    // can still be confirmed or undone
     private static final Duration BEFORE = ConfirmationService.WINDOW.minusHours(1);
     private static final Duration AFTER = ConfirmationService.WINDOW.minusHours(1);
 
@@ -49,11 +50,16 @@ public class OccurrenceService {
 
     /**
      * Lists the occurrences of one of the authenticated user's profiles inside the window around
-     * now (24 hours before until 24 hours after), crossed with the confirmations.
+     * now (23 hours before until 23 hours after), crossed with the confirmations.
      *
      * <p>Occurrences are not stored: they are calculated from each active schedule's rule. Each one
      * is {@code CONFIRMED} if a confirmation exists for it, otherwise {@code PENDING} if its time
      * has passed or {@code SCHEDULE} if it is still to come.
+     *
+     * <p>Confirmations are matched by the schedule's family ({@code rootId}) and the occurrence
+     * time, not by schedule ID, so a confirmation made on an archived version still counts for
+     * the active one. In each item, {@code scheduleId} is the active version's ID, while
+     * {@code confirmationId} may belong to an archived version.
      *
      * <p>The client sends its own current time in {@code reference}, which must be the same instant
      * as the server's, within {@code CLOCK_TOLERANCE}. A bigger gap means a time zone mistake (local
@@ -106,19 +112,21 @@ public class OccurrenceService {
             return List.of();
         }
 
-        List<Long> ids = schedules.stream().map(Schedule::getId).toList();
+        // Confirmations are matched by the schedule's family (rootId), not by its ID, so a
+        // confirmation made on an archived version still counts for the active copy
+        List<String> rootIds = schedules.stream().map(Schedule::getRootId).distinct().toList();
 
         Map<String, Confirmation> confirmed = confirmationRepo
-                .findInWindow(ids, from, to)
+                .findInWindowByRoot(rootIds, from, to)
                 .stream()
                 .collect(Collectors.toMap(
-                        c -> c.getSchedule().getId() + "|" + c.getScheduledAt(),
+                        c -> c.getSchedule().getRootId() + "|" + c.getScheduledAt(),
                         Function.identity()));
 
         List<OccurrenceResponse> result = new ArrayList<>();
         for (Schedule s : schedules) {
             for (Instant at : occurrenceUtil.between(s, from, to)) {
-                Confirmation c = confirmed.get(s.getId() + "|" + at);
+                Confirmation c = confirmed.get(s.getRootId() + "|" + at);
                 OccurrenceStatus status = c != null ? OccurrenceStatus.CONFIRMED
                         : at.isAfter(now) ? OccurrenceStatus.SCHEDULE
                         : OccurrenceStatus.PENDING;
