@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -9,11 +10,12 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
+import DateTimeField from '../components/DateTimeField';
 import { colors } from '../styles/theme';
 import { getActiveProfile } from '../services/profileService';
 import { createSchedule, updateSchedule } from '../services/scheduleService';
-import { pad, formatTime } from '../utils/format';
 
 // Os valores (CONSULTATION, EXAM) são os do back-end.
 const TYPES = [
@@ -27,10 +29,11 @@ const TITLE_EXAMPLES = {
     EXAM: 'Ex.: Endoscopia',
 };
 
-// Converte a data UTC do back-end para DD/MM/AAAA no relógio do celular
-function toDateInput(iso) {
-    const d = new Date(iso);
-    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+// Agora, sem segundos (o seletor só mexe em data, hora e minuto)
+function nowWithoutSeconds() {
+    const d = new Date();
+    d.setSeconds(0, 0);
+    return d;
 }
 
 function Chip({ label, selected, onPress }) {
@@ -55,27 +58,18 @@ export default function AppointmentFormScreen({ navigation, route }) {
     const [title, setTitle] = useState(schedule?.title ?? '');
     const [doctor, setDoctor] = useState(schedule?.details?.doctorName ?? '');
     const [location, setLocation] = useState(schedule?.details?.location ?? '');
-    const [date, setDate] = useState(schedule ? toDateInput(schedule.startAt) : '');
-    const [time, setTime] = useState(schedule ? formatTime(schedule.startAt) : '');
+    const [startAt, setStartAt] = useState(
+        schedule ? new Date(schedule.startAt) : nowWithoutSeconds()
+    );
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
 
-    async function handleSave() {
+    // Confere os campos e, se a data já passou, pergunta antes de salvar
+    function handleSave() {
         const profile = getActiveProfile();
-        const cleanTitle = title.trim();
-        const dateMatch = date.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-        const timeMatch = time.trim().match(/^([01]?\d|2[0-3]):([0-5]\d)$/);
 
-        if (!cleanTitle || !date || !time) {
-            setError('Preencha o nome, a data e o horário.');
-            return;
-        }
-        if (!dateMatch) {
-            setError('Digite a data no formato 20/11/2026.');
-            return;
-        }
-        if (!timeMatch) {
-            setError('Digite o horário no formato 14:30.');
+        if (!title.trim()) {
+            setError('Preencha o nome.');
             return;
         }
         if (!profile) {
@@ -83,23 +77,34 @@ export default function AppointmentFormScreen({ navigation, route }) {
             return;
         }
 
-        const day = Number(dateMatch[1]);
-        const month = Number(dateMatch[2]);
-        const year = Number(dateMatch[3]);
+        // Ao editar, só avisa se a pessoa mudou a data
+        const startChanged =
+            !isEditing || startAt.getTime() !== new Date(schedule.startAt).getTime();
 
-        // Data e horário no relógio do celular. O back-end recebe em UTC.
-        const startAt = new Date(year, month - 1, day, Number(timeMatch[1]), Number(timeMatch[2]), 0, 0);
-
-        // Se o dia ou o mês não existem (ex.: 31/02), o JavaScript "corrige" sozinho: aqui a gente barra.
-        if (startAt.getDate() !== day || startAt.getMonth() !== month - 1) {
-            setError('Essa data não existe. Confira o dia e o mês.');
+        if (startChanged && startAt.getTime() < Date.now()) {
+            Alert.alert(
+                'Data no passado',
+                'Esta data e horário já passaram. Deseja salvar mesmo assim?',
+                [
+                    { text: 'Corrigir', style: 'cancel' },
+                    { text: 'Salvar mesmo assim', onPress: save },
+                ]
+            );
             return;
         }
 
+        save();
+    }
+
+    // Envia para o back-end
+    async function save() {
+        const profile = getActiveProfile();
+
         // Campos que servem tanto para criar quanto para editar
+        // (a data e o horário vêm do seletor; o back-end recebe em UTC)
         const fields = {
             type,
-            title: cleanTitle,
+            title: title.trim(),
             startAt: startAt.toISOString(),
             intervalUnit: 'UNIQUE',
             details: {
@@ -203,24 +208,10 @@ export default function AppointmentFormScreen({ navigation, route }) {
                     onChangeText={setLocation}
                 />
 
-                <Text style={styles.label}>Data</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Ex.: 20/11/2026"
-                    placeholderTextColor={colors.placeholder}
-                    keyboardType="numbers-and-punctuation"
-                    value={date}
-                    onChangeText={setDate}
-                />
-
-                <Text style={styles.label}>Horário</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Ex.: 14:30"
-                    placeholderTextColor={colors.placeholder}
-                    keyboardType="numbers-and-punctuation"
-                    value={time}
-                    onChangeText={setTime}
+                <DateTimeField
+                    label="Data e horário"
+                    value={startAt}
+                    onChange={setStartAt}
                 />
 
                 {error !== '' && <Text style={styles.error}>{error}</Text>}
@@ -233,6 +224,9 @@ export default function AppointmentFormScreen({ navigation, route }) {
                     <Text style={styles.saveText}>
                         {saving ? 'Salvando...' : isEditing ? 'Salvar edição' : 'Salvar'}
                     </Text>
+                    {!saving && (
+                        <Ionicons name="checkmark" size={24} color={colors.orangeLight} />
+                    )}
                 </Pressable>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -286,8 +280,10 @@ const styles = StyleSheet.create({
         height: 56,
         borderRadius: 28,
         backgroundColor: colors.blue,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 8,
         marginTop: 8,
     },
     saveText: { color: colors.white, fontSize: 20, fontWeight: '600' },
