@@ -19,6 +19,7 @@ import {
     confirmOccurrence,
     unconfirmOccurrence,
 } from '../services/occurrenceService';
+import { syncNotifications } from '../services/notificationService';
 import { formatTime, getGreeting, pad } from '../utils/format';
 
 const STATUS_STYLES = {
@@ -95,6 +96,10 @@ export default function HomeScreen() {
             const list = await listOccurrences(profile.id, { order: 'DESC' });
             setOccurrences(list);
             setNow(Date.now());
+
+            // Atualiza os avisos do celular (toca/vibra nos próximos horários).
+            // Roda em segundo plano: se falhar, a tela continua funcionando.
+            syncNotifications(profile.id);
         } catch (e) {
             setError(e.message);
         } finally {
