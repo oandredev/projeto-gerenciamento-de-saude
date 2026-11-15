@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import DateTimeField from '../components/DateTimeField';
+import AlarmFields from '../components/AlarmFields';
 import { colors } from '../styles/theme';
 import { getActiveProfile } from '../services/profileService';
 import {
@@ -65,8 +66,17 @@ export default function AppointmentFormScreen({ navigation, route }) {
     const [startAt, setStartAt] = useState(
         schedule ? new Date(schedule.startAt) : nowWithoutSeconds()
     );
+    const [alarmEnabled, setAlarmEnabled] = useState(schedule?.alarmEnabled ?? false);
+    const [reminderValue, setReminderValue] = useState(schedule?.reminderValue ?? null);
+    const [reminderUnit, setReminderUnit] = useState(schedule?.reminderUnit ?? null);
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
+
+    // Escolha do "Avisar antes" (valor e unidade andam juntos)
+    function handleReminderChange(value, unitName) {
+        setReminderValue(value);
+        setReminderUnit(unitName);
+    }
 
     // Confere os campos e, se a data já passou, pergunta antes de salvar
     function handleSave() {
@@ -111,6 +121,9 @@ export default function AppointmentFormScreen({ navigation, route }) {
             title: title.trim(),
             startAt: startAt.toISOString(),
             intervalUnit: 'UNIQUE',
+            alarmEnabled,
+            reminderValue: reminderValue ?? undefined,
+            reminderUnit: reminderUnit ?? undefined,
             details: {
                 doctorName: doctor.trim() || undefined,
                 location: location.trim() || undefined,
@@ -127,15 +140,13 @@ export default function AppointmentFormScreen({ navigation, route }) {
                     id: schedule.id,
                     notes: schedule.notes ?? undefined,
                     endAt: schedule.endAt ?? undefined,
-                    reminderValue: schedule.reminderValue ?? undefined,
-                    reminderUnit: schedule.reminderUnit ?? undefined,
+                    notifyEnabled: schedule.notifyEnabled ?? true,
                 });
             } else {
                 await createSchedule({
                     ...fields,
                     profileId: profile.id,
                     notifyEnabled: true,
-                    alarmEnabled: false,
                 });
             }
             navigation.goBack();
@@ -244,6 +255,14 @@ export default function AppointmentFormScreen({ navigation, route }) {
                     label="Data e horário"
                     value={startAt}
                     onChange={setStartAt}
+                />
+
+                <AlarmFields
+                    alarmEnabled={alarmEnabled}
+                    onAlarmChange={setAlarmEnabled}
+                    reminderValue={reminderValue}
+                    reminderUnit={reminderUnit}
+                    onReminderChange={handleReminderChange}
                 />
 
                 {error !== '' && <Text style={styles.error}>{error}</Text>}
