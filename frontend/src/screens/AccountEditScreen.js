@@ -19,17 +19,20 @@ export default function AccountEditScreen({ navigation }) {
 
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
-  const [password, setPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+
+  // O back-end só pede a senha atual quando o e-mail é alterado
+  const emailChanged = email.trim() !== (user?.email ?? '');
 
   async function handleSave() {
     const cleanName = name.trim();
     const cleanEmail = email.trim();
 
-    if (!cleanName || !cleanEmail || !password) {
-      setError('Preencha o nome, o e-mail e a senha.');
+    if (!cleanName || !cleanEmail) {
+      setError('Preencha o nome e o e-mail.');
       return;
     }
     if (cleanName.length < 3) {
@@ -40,11 +43,19 @@ export default function AccountEditScreen({ navigation }) {
       setError('O e-mail digitado não é válido.');
       return;
     }
+    if (emailChanged && !currentPassword) {
+      setError('Para trocar o e-mail, digite a sua senha atual.');
+      return;
+    }
 
     setError('');
     setSaving(true);
     try {
-      await updateAccount({ name: cleanName, email: cleanEmail, password });
+      await updateAccount({
+        name: cleanName,
+        email: cleanEmail,
+        currentPassword: emailChanged ? currentPassword : undefined,
+      });
       navigation.goBack();
     } catch (e) {
       setError(e.message);
@@ -89,29 +100,37 @@ export default function AccountEditScreen({ navigation }) {
           onChangeText={setEmail}
         />
 
-        <Text style={styles.label}>Senha</Text>
-        <View style={styles.passwordBox}>
-          <TextInput
-            style={styles.passwordInput}
-            placeholder="Digite a senha"
-            placeholderTextColor={colors.placeholder}
-            secureTextEntry={!showPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={password}
-            onChangeText={setPassword}
-          />
-          <Pressable onPress={() => setShowPassword((v) => !v)} hitSlop={10}>
-            <Ionicons
-              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-              size={24}
-              color={colors.gray}
-            />
-          </Pressable>
-        </View>
-        <Text style={styles.hint}>
-          Digite sua senha atual para mantê-la, ou uma nova para trocá-la.
-        </Text>
+        {/* A senha atual só aparece quando o e-mail foi alterado */}
+        {emailChanged && (
+          <>
+            <Text style={styles.label}>Senha atual</Text>
+            <View style={styles.passwordBox}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Digite a senha atual"
+                placeholderTextColor={colors.placeholder}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={currentPassword}
+                onChangeText={setCurrentPassword}
+              />
+              <Pressable
+                onPress={() => setShowPassword((v) => !v)}
+                hitSlop={10}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={24}
+                  color={colors.gray}
+                />
+              </Pressable>
+            </View>
+            <Text style={styles.hint}>
+              Por segurança, pedimos a senha atual para trocar o e-mail.
+            </Text>
+          </>
+        )}
 
         {error !== '' && <Text style={styles.error}>{error}</Text>}
 
@@ -126,6 +145,15 @@ export default function AccountEditScreen({ navigation }) {
           {!saving && (
             <Ionicons name="checkmark" size={24} color={colors.orangeLight} />
           )}
+        </Pressable>
+
+        <Pressable
+          style={styles.passwordButton}
+          onPress={() => navigation.navigate('ChangePassword')}
+          disabled={saving}
+        >
+          <Ionicons name="lock-closed-outline" size={20} color={colors.blue} />
+          <Text style={styles.passwordButtonText}>Trocar senha</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -182,4 +210,16 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   saveText: { color: colors.white, fontSize: 20, fontWeight: '600' },
+  passwordButton: {
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1.5,
+    borderColor: colors.blue,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+  },
+  passwordButtonText: { color: colors.blue, fontSize: 18, fontWeight: '600' },
 });
