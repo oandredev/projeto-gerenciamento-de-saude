@@ -19,6 +19,7 @@ import RestrictionFormScreen from '../screens/RestrictionFormScreen';
 import ProfileEditScreen from '../screens/ProfileEditScreen';
 import AccountEditScreen from '../screens/AccountEditScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import UpcomingNotificationsScreen from '../screens/UpcomingNotificationsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -111,6 +112,10 @@ export default function AppNavigator() {
                 <Stack.Screen name="ProfileEdit" component={ProfileEditScreen} />
                 <Stack.Screen name="AccountEdit" component={AccountEditScreen} />
                 <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+                <Stack.Screen
+                    name="UpcomingNotifications"
+                    component={UpcomingNotificationsScreen}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );
