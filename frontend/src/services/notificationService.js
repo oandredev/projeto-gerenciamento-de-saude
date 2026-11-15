@@ -135,7 +135,8 @@ function occurrenceTimes(schedule, from, until) {
   return times;
 }
 
-// Monta o texto do aviso
+// Monta o texto do aviso.
+// Em "data" guardamos o horário em que ele chega (triggerAt), para a tela "Próximos avisos".
 function buildContent(schedule, time) {
   const lead = leadMs(schedule);
   const kind = KIND_LABELS[schedule.type] ?? 'Compromisso';
@@ -147,7 +148,12 @@ function buildContent(schedule, time) {
       : 'Está na hora',
     body: `${kind}: ${schedule.title} (${clock})`,
     sound: schedule.alarmEnabled ? 'default' : false,
-    data: { alarm: !!schedule.alarmEnabled, scheduleId: schedule.id },
+    data: {
+      alarm: !!schedule.alarmEnabled,
+      scheduleId: schedule.id,
+      time,
+      triggerAt: time - lead,
+    },
   };
 }
 
@@ -221,6 +227,26 @@ export function syncNotifications(profileId) {
     .then(() => runSync(profileId ?? getActiveProfile()?.id))
     .catch(() => 0);
   return queue;
+}
+
+// Lista o que está agendado no celular, do mais próximo para o mais distante.
+// granted = false quando a pessoa não deu permissão para avisar.
+export async function listUpcomingNotifications() {
+  const permission = await Notifications.getPermissionsAsync();
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+
+  const items = scheduled
+    .map((n) => ({
+      id: n.identifier,
+      title: n.content.title,
+      body: n.content.body,
+      alarm: !!n.content.data?.alarm,
+      triggerAt: n.content.data?.triggerAt ?? null,
+    }))
+    .filter((item) => item.triggerAt)
+    .sort((a, b) => a.triggerAt - b.triggerAt);
+
+  return { granted: permission.granted, items };
 }
 
 // Apaga todos os avisos agendados (usar ao sair da conta)
