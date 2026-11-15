@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { listSchedules } from './scheduleService';
+import { request } from './api';
+import { getActiveProfile } from './profileService';
 import { listOccurrences } from './occurrenceService';
 import { formatTime } from '../utils/format';
 
@@ -66,6 +67,13 @@ async function ensurePermission() {
 
   const asked = await Notifications.requestPermissionsAsync();
   return asked.granted;
+}
+
+// Busca os agendamentos do perfil (GET /schedule).
+// Fica aqui, e não no scheduleService, para os dois arquivos não se importarem um ao outro.
+async function fetchSchedules(profileId) {
+  const { data } = await request(`/schedule?profileId=${profileId}&order=ASC`);
+  return data;
 }
 
 // "10 minutos", "1 hora", "2 dias"...
@@ -151,7 +159,7 @@ async function runSync(profileId) {
 
   const now = Date.now();
   const [schedules, occurrences] = await Promise.all([
-    listSchedules(profileId),
+    fetchSchedules(profileId),
     listOccurrences(profileId),
   ]);
 
@@ -206,9 +214,12 @@ async function runSync(profileId) {
 let queue = Promise.resolve(0);
 
 // Atualiza os avisos do celular com o que existe no back-end.
+// Sem profileId, usa o perfil ativo.
 // Nunca "quebra" a tela: se algo falhar, devolve 0 e segue.
 export function syncNotifications(profileId) {
-  queue = queue.then(() => runSync(profileId)).catch(() => 0);
+  queue = queue
+    .then(() => runSync(profileId ?? getActiveProfile()?.id))
+    .catch(() => 0);
   return queue;
 }
 
