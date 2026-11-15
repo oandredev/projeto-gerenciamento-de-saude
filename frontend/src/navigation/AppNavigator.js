@@ -21,7 +21,7 @@ import AccountEditScreen from '../screens/AccountEditScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function TabIcon({ name, color, focused }) { // eu quase esqueci da barra laranja em cima do ícone selecionado 
+function TabIcon({ name, color, focused }) { 
     return (
         <View style={styles.tabIconWrap}>
             {focused && <View style={styles.tabIndicator} />}

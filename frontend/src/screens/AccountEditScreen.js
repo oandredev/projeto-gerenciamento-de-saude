@@ -123,6 +123,9 @@ export default function AccountEditScreen({ navigation }) {
           <Text style={styles.saveText}>
             {saving ? 'Salvando...' : 'Salvar edição'}
           </Text>
+          {!saving && (
+            <Ionicons name="checkmark" size={24} color={colors.orangeLight} />
+          )}
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -172,8 +175,10 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     backgroundColor: colors.blue,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
     marginTop: 8,
   },
   saveText: { color: colors.white, fontSize: 20, fontWeight: '600' },
