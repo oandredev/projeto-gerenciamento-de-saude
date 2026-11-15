@@ -22,3 +22,10 @@ export async function updateSchedule(body) {
   const { data } = await request('/schedule', { method: 'PUT', body });
   return data;
 }
+
+// Deleta o agendamento (DELETE /schedule/{id}).
+// No back-end é uma exclusão lógica: ele só marca como inativo,
+// e as confirmações já feitas continuam guardadas como histórico.
+export async function deleteSchedule(id) {
+  await request(`/schedule/${id}`, { method: 'DELETE' });
+}
