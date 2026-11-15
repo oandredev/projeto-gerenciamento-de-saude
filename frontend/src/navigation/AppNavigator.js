@@ -17,11 +17,12 @@ import RestrictionsScreen from '../screens/RestrictionsScreen';
 import RestrictionFormScreen from '../screens/RestrictionFormScreen';
 import ProfileEditScreen from '../screens/ProfileEditScreen';
 import AccountEditScreen from '../screens/AccountEditScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function TabIcon({ name, color, focused }) { 
+function TabIcon({ name, color, focused }) {
     return (
         <View style={styles.tabIconWrap}>
             {focused && <View style={styles.tabIndicator} />}
@@ -99,6 +100,7 @@ export default function AppNavigator() {
                 <Stack.Screen name="RestrictionForm" component={RestrictionFormScreen} />
                 <Stack.Screen name="ProfileEdit" component={ProfileEditScreen} />
                 <Stack.Screen name="AccountEdit" component={AccountEditScreen} />
+                <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );
