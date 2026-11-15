@@ -23,6 +23,25 @@ import java.util.Collection;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     /**
+     * Finds the active version of a schedule family, only if its profile belongs to the given
+     * user, and locks the row. A family has at most one active version, so the result is unique.
+     * Used to undo a confirmation made on an archived version.
+     *
+     * @param rootId the family ID
+     * @param userId the ID of the user who must own the schedule's profile
+     * @return the active version of the family, or empty if the schedule was deleted or is not the user's
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT schedule
+        FROM Schedule schedule
+        WHERE schedule.rootId = :rootId
+          AND schedule.profile.user.id = :userId
+          AND schedule.active = true
+        """)
+    Optional<Schedule> findActiveByRootOwnedForUpdate(@Param("rootId") String rootId, @Param("userId") Long userId);
+
+    /**
      * Finds an active schedule by ID, only if its profile belongs to the given user, and
      * locks the row.
      *

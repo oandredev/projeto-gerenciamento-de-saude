@@ -53,8 +53,12 @@ public class ConfirmationService {
      * <p>The schedule must be active and belong to the user (through its profile); an archived
      * schedule counts as deleted. Its row is locked, so editing the rule (PUT) and confirming
      * cannot run at the same time. The time must be a real occurrence of the rule and must be
-     * inside its window (24 hours before until 24 hours after, both ends exclusive). An
-     * occurrence can be confirmed only once.
+     * inside its window (24 hours before until 24 hours after, both ends exclusive).
+     *
+     * <p>An occurrence can be confirmed only once. The check covers every version of the
+     * schedule (all schedules sharing the same {@code rootId}), so an occurrence confirmed on an
+     * archived version cannot be confirmed again on its active copy. The confirmation itself is
+     * saved against the exact version that is active now.
      *
      * @param user the authenticated user, resolved from the JWT
      * @param req  the schedule and the occurrence to confirm
@@ -63,7 +67,7 @@ public class ConfirmationService {
      *                                 occurrence of the schedule (CODE 400)
      *                                 or the active schedule is not found for this user (CODE 404)
      *                                 or the occurrence is outside its window, or it was already
-     *                                 confirmed (CODE 409)
+     *                                 confirmed in any version of the schedule (CODE 409)
      */
     @Transactional
     public ConfirmationResponse create(User user, CreateConfirmationRequest req) {
@@ -76,15 +80,13 @@ public class ConfirmationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule At is required");
         }
 
-        // Seconds precision, so the same instant always compares equal
         Instant scheduledAt = req.scheduleAt().truncatedTo(ChronoUnit.SECONDS);
 
-        // Database: active schedule + owner in one query (single 404), row locked
         Schedule schedule = scheduleRepo
                 .findActiveOwnedForUpdate(req.scheduleId(), user.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active schedule not found"));
 
-        if (repo.existsBySchedule_IdAndScheduledAt(schedule.getId(), scheduledAt)) {
+        if (repo.existsBySchedule_RootIdAndScheduledAt(schedule.getRootId(), scheduledAt)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This schedule occurrence has already been confirmed");
         }
 
@@ -161,9 +163,15 @@ public class ConfirmationService {
     /**
      * Removes a confirmation (undo). Only allowed inside the occurrence window, like creating.
      *
+     * <p>The confirmation may belong to an archived version of the schedule (the schedule was
+     * edited after confirming). That is allowed as long as the schedule still has an active
+     * version, which is found through the shared {@code rootId} and locked, so the undo cannot
+     * run at the same time as an edit. If the schedule was deleted (archived with no active
+     * copy), the undo is refused.
+     *
      * @throws ResponseStatusException if the ID is invalid (CODE 400)
-     *                                 or the confirmation is not found for this user, or its
-     *                                 schedule is archived (CODE 404)
+     *                                 or the confirmation is not found for this user, or none of
+     *                                 the versions of its schedule is active (CODE 404)
      *                                 or the occurrence window is closed (CODE 409)
      */
     @Transactional
@@ -174,14 +182,14 @@ public class ConfirmationService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Confirmation ID is invalid");
         }
 
-        Long scheduleId = repo.findScheduleIdOwnedBy(id, user.getId())
+        repo.findScheduleIdOwnedBy(id, user.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Confirmation not found"));
-
-        scheduleRepo.findActiveOwnedForUpdate(scheduleId, user.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active schedule not found"));
 
         Confirmation confirmation = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Confirmation not found"));
+
+        scheduleRepo.findActiveByRootOwnedForUpdate(confirmation.getSchedule().getRootId(), user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active schedule not found"));
 
         validateConfirmationWindow(confirmation.getScheduledAt(), Instant.now());
 

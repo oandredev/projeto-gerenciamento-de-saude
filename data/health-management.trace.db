@@ -1,0 +1,40 @@
+2026-11-15 16:47:25.536443-03:00 database: wrong user or password; user: "USER"
+org.h2.message.DbException: Wrong user name or password [28000-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.engine.Engine.openSession(Engine.java:154)
+	at org.h2.engine.Engine.openSession(Engine.java:222)
+	at org.h2.engine.Engine.createSession(Engine.java:201)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:350)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:124)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:291)
+	at org.h2.server.web.WebServer.getConnection(WebServer.java:811)
+	at org.h2.server.web.WebApp.test(WebApp.java:977)
+	at org.h2.server.web.WebApp.process(WebApp.java:241)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.WebThread.process(WebThread.java:154)
+	at org.h2.server.web.WebThread.run(WebThread.java:103)
+	at java.base/java.lang.Thread.run(Thread.java:1447)
+Caused by: org.h2.jdbc.JdbcSQLInvalidAuthorizationSpecException: Wrong user name or password [28000-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:522)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 16 more
+2026-11-15 16:48:15.703880-03:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SCHEDULE" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM schedule [42104-240]
+2026-11-15 16:48:17.944215-03:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SCHEDULE" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM schedule [42104-240]
+2026-11-15 16:48:18.305215-03:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SCHEDULE" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM schedule [42104-240]
+2026-11-15 16:48:21.025981-03:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SCHEDULE" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM schedule [42104-240]
+2026-11-15 16:48:24.071558-03:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SCHEDULE" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM schedule [42104-240]
+2026-11-15 16:48:28.089037-03:00 jdbc[5]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SCHEDULE" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM schedule [42104-240]
