@@ -17,6 +17,7 @@ import {
     createProfile,
     setActiveProfile,
 } from '../services/profileService';
+import { clearNotifications } from '../services/notificationService';
 import { setToken } from '../services/api';
 import { clearCurrentUser } from '../services/authService';
 import { AVATARS, getAvatar } from '../utils/avatars';
@@ -58,7 +59,9 @@ export default function ProfileSelectScreen({ navigation }) {
     }
 
     // O back-end não tem rota de logout: sair é apagar o token e os dados aqui no app.
+    // Também apaga os avisos agendados no celular, para não chegarem depois de sair.
     function handleLogout() {
+        clearNotifications();
         setToken(null);
         setActiveProfile(null);
         clearCurrentUser();
