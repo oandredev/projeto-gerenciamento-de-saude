@@ -19,7 +19,7 @@
 
 ### 1.1 Descrição do Projeto
 
-O **A&F Health Management** é um aplicativo mobile voltado para pessoas idosas, seus cuidadores e/ou familiares. Sua proposta central é organizar e simplificar o gerenciamento de medicamentos e agendamentos de consulta médica. Muitas pessoas idosas precisam lidar com um volume alto de informações críticas, como horários de remédios, consultas marcadas, exames pendentes e restrições médicas. Quando essas informações ficam dispersas em papéis, mensagens, lembretes informais ou na memória, aumenta o risco de esquecimentos, atrasos e prejuízos à saúde.
+O **A&F Health Management** é um aplicativo mobile voltado para pessoas idosas, seus cuidadores e/ou familiares. Sua proposta central é organizar e simplificar o gerenciamento de medicamentos e agendamentos de consultas médicas e exames. Muitas pessoas idosas precisam lidar com um volume alto de informações críticas, como horários de remédios, consultas marcadas, exames pendentes e restrições médicas. Quando essas informações ficam dispersas em papéis, mensagens, lembretes informais ou na memória, aumenta o risco de esquecimentos, atrasos e prejuízos à saúde.
 
 Diante desse cenário, o aplicativo busca reunir essas informações em um ambiente claro, direto e de fácil leitura, ajudando o usuário a lembrar quais medicamentos deve tomar, quando deve tomá-los, quais consultas e exames estão agendados. A proposta não é substituir o acompanhamento médico, mas servir como uma ferramenta de apoio à rotina de cuidado, reduzindo a sobrecarga cognitiva e favorecendo a adesão às recomendações de saúde.
 
@@ -37,7 +37,7 @@ Diante desse cenário, o aplicativo busca reunir essas informações em um ambie
 
 O objetivo principal do projeto é oferecer uma ferramenta mobile simples e confiável para o gerenciamento de informações essenciais de saúde. O aplicativo deve permitir que a pessoa idosa, seu cuidador ou seu familiar, mantenha um registro claro das atividades críticas relacionadas à sua saúde, como uso de medicamentos, consultas, exames e restrições médicas.
 
-O público-alvo é composto por pessoas idosas que utilizam smartphones Android, seus familiares e por cuidadores que auxiliam essas pessoas na organização da rotina médica. Por isso, o projeto deve considerar características como facilidade de leitura, baixa complexidade visual, comandos intuitivos e tolerância a limitações motoras ou cognitivas leves. A experiência de uso precisa ser acolhedora e objetiva, evitando termos técnicos desnecessários e reduzindo ao máximo a quantidade de passos para realizar tarefas importantes.
+O público-alvo é composto por pessoas idosas que utilizam smartphones Android e/ou iOS, seus familiares e por cuidadores que auxiliam essas pessoas na organização da rotina médica. Por isso, o projeto deve considerar características como facilidade de leitura, baixa complexidade visual, comandos intuitivos e tolerância a limitações motoras ou cognitivas leves. A experiência de uso precisa ser acolhedora e objetiva, evitando termos técnicos desnecessários e reduzindo ao máximo a quantidade de passos para realizar tarefas importantes.
 
 ---
 
@@ -45,7 +45,8 @@ O público-alvo é composto por pessoas idosas que utilizam smartphones Android,
 
 As funcionalidades básicas definidas para o aplicativo durante a realização do projeto integrador são:
 
-- **Criação de perfis:** todas as funções do aplicativo são dispostas entre diferentes perfis cadastrados no mesmo usuário, permitindo que uma mesma conta ajude no gerenciamento da saúde de mais de uma pessoa.
+- **Cadastro de usuários:** a realização de todas as funções do aplicativo depende de um usuário cadastrado e registrado no banco de dados.
+- **Criação de perfis:** todas as funções do aplicativo são dispostas entre diferentes perfis cadastrados no mesmo usuário, permitindo que uma mesma conta ajude no gerenciamento da saúde de mais de uma pessoa de forma customizada.
 - **Notificações e lembretes de uso de medicamentos:** o sistema deve alertar o usuário sobre horários e doses de medicamentos, ajudando a evitar esquecimentos e atrasos.
 - **Notificações e lembretes de consultas e exames:** o aplicativo deve registrar e avisar sobre compromissos médicos agendados, permitindo melhor organização da rotina.
 - **Agendamento de consultas e exames:** o usuário deve poder cadastrar e visualizar consultas e exames, mantendo um histórico organizado desses compromissos.
@@ -57,15 +58,15 @@ Essas funcionalidades formam o núcleo do projeto e devem estar presentes de man
 
 ## 4. Escopo
 
-O escopo do projeto é delimitado para atender ao melhor interesse da pessoa idosa. As funcionalidades básicas devem ajudar o público a manter um registro claro e intuitivo das atividades críticas necessárias para a estabilidade de sua saúde. O aplicativo não deve oferecer mais informações do que o necessário para esse objetivo central, evitando complexidades visuais e excesso de informação na interface.
+O escopo do projeto é delimitado para atender ao melhor interesse da pessoa idosa. As funcionalidades básicas devem ajudar o público a manter um registro claro e intuitivo das atividades críticas necessárias para a melhor organização de seus compromissos com sua saúde. O aplicativo não deve oferecer mais informações do que o necessário para esse objetivo central, evitando complexidades visuais e excesso de informação na interface.
 
-O aplicativo não deve se propor a realizar ações exclusivamente médicas, como prescrição e documentação de receitas, sendo a realização dessas ações sem a portação de CRM cabível de punição severa pelo STF, CFM e ANVISA. As funções do aplicativo devem, em seu limite, se aproximar em equivalência das ações realizadas pela própria pessoa idosa, seus cuidadores e familiares, assistindo na organização de orientações e prescrições já realizadas pelos médicos.
+O aplicativo não deve se propor a realizar ações exclusivamente médicas, como prescrição e documentação de receitas e intermediação entre o aplicativo e o hospital; sendo que a realização dessas ações sem a portação de CRM é cabível de punição severa pelo STF, CFM e ANVISA. As funções do aplicativo devem, em seu limite, se aproximar em equivalência das ações realizadas pela própria pessoa idosa, seus cuidadores e familiares sem o uso de um aplicativo, assistindo na organização de orientações e prescrições já realizadas pelos médicos de forma autônoma e centrada em uma única interface.
 
-O projeto será iniciado com sua primeira versão entregável funcional até o dia **16/11/2026**, contendo Back-end e Front-end minimamente viáveis e integração totalmente funcional. Essa versão deve priorizar estabilidade, usabilidade e organização das informações essenciais, servindo como base para evoluções futuras.
+O projeto será iniciado com sua primeira versão entregável funcional até o dia **23/11/2026**, contendo Back-end e Front-end minimamente viáveis e integração totalmente funcional. Essa versão deve priorizar estabilidade, usabilidade e organização das informações essenciais, servindo como base para evoluções futuras.
 
 ---
 
-## 5. Requisitos Qualitativos
+## 5. Requisitos
 
 A qualidade do aplicativo está diretamente relacionada à sua capacidade de ser compreendido e utilizado por pessoas idosas ou por cuidadores, muitas vezes em situações de rotina corrida ou de atenção limitada. Por isso, a interface deve priorizar textos legíveis, contraste adequado, botões grandes, linguagem simples e uma organização visual que reduza a necessidade de interpretação. A troca de telas deve ser mínima, e as ações principais devem estar sempre a poucos toques de distância.
 
@@ -77,15 +78,15 @@ Além disso, o sistema deve transmitir confiabilidade. Notificações precisam s
 
 ### 6.1 Front-end Mobile
 
-A versão do aplicativo desenvolvida até o dia **16/11/2026** será feita usando o framework [React Native](https://reactnative.dev/), compondo elementos visuais interativos com a interface nativa de telefones celulares móveis do sistema Android. Todos os programas são escritos na linguagem [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript).
+A versão do aplicativo desenvolvida até o dia **23/11/2026** foi feita usando o framework [React Native](https://reactnative.dev/), compondo elementos visuais interativos com a interface nativa de telefones celulares móveis do sistema Android e iOS. Todos os programas são escritos na linguagem [Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript).
 
 ### 6.2 Back-end e Banco de Dados
 
-O banco de dados do aplicativo será mantido remotamente por meio do ecossistema [Spring](https://docs.spring.io/spring-framework/reference/index.html), modelando e condicionando interações em linguagem [Java](https://docs.oracle.com/en/java/). Essa estrutura será responsável por receber, processar e armazenar as informações enviadas pelo aplicativo, garantindo a comunicação entre o Front-end e a persistência dos dados.
+O banco de dados do aplicativo tem suas funções programadas e intermediadas em base [Spring](https://docs.spring.io/spring-framework/reference/index.html) e mantido por meio do sistema [H2 Database](https://h2database.com/html/main.html), modelando e condicionando interações em linguagem [Java](https://docs.oracle.com/en/java/). Essa estrutura é responsável por receber, processar e armazenar as informações enviadas pelo aplicativo, garantindo a comunicação entre o Front-end e a persistência dos dados.
 
 ### 6.3 Garantia de Qualidade (QA)
 
-As práticas de QA do projeto acompanham uma documentação detalhada, organização de tarefas e realização de testes de qualidade para os requisitos funcionais e não funcionais. Os diagnósticos envolvem testes de acessibilidade, desempenho, qualidade de escrita de código, testes de caixa branca para o back-end e testes de caixa preta para o front-end.
+As práticas de QA do projeto acompanham uma documentação detalhada, organização de tarefas e realização de testes de qualidade para os requisitos funcionais e não funcionais. Os diagnósticos envolvem testes de acessibilidade, desempenho, qualidade de escrita de código, testes de caixa branca e testes de caixa preta para o back-end e para o front-end.
 
 ---
 
@@ -100,7 +101,7 @@ Cada integrante se encontra responsável pela apresentação de componentes da c
   
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/77230027-e972-40ba-a4e2-5f4fda1e1ed3" hspace='1.5' />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/b2eb8145-1533-4900-b3a9-fbd396eae22f" hspace='1.5' />
-  <img src="https://skillicons.dev/icons?i=java" height="50" alt="Tech stack" />
+  <img src="https://skillicons.dev/icons?i=java,html,css,javascript" height="50" alt="Tech stack" />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/ac408ec2-5afd-4614-91a6-3999939a95da" hspace='1.5' />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/9f7294d4-202c-49e0-bc7e-e3c99103ea5c" hspace='1.5' />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/eb433a28-6fb7-49d8-a338-bf0be6a3a8a0" hspace='1.5' />
@@ -110,7 +111,7 @@ Cada integrante se encontra responsável pela apresentação de componentes da c
 </p>
 
 
-É o responsável pelas práticas de engenharia de software, conduzindo o projeto para uma documentação adequada, pesquisa de normas, testes de qualidade e adequação com o modelo de negócios. 
+É o responsável pelas práticas de engenharia de software, conduzindo o projeto para uma documentação adequada, definição de requisitos funcionais e não funcionais, pesquisa de normas legais, testes e documentação de qualidade e adequação com o modelo de negócios e conformidade legal. 
 
 As principais ferramentas utilizadas por este membro são:
 
@@ -118,27 +119,32 @@ As principais ferramentas utilizadas por este membro são:
 * **Google Planilhas:** Para a organização de requisitos funcionais, requisitos não funcionais e planos de teste;
 * **JUnit:** Para a programação e geração de diagnósticos para testes unitários em Java;
 * **JMeter:** Para a realização de testes de desempenho de requisições HTTP;
-* **Lighthouse e WAVE:** Para a realização de testes de acessibilidade;
-* **Checkstyle:** Para checar a compatibilidade dos códigos com boas práticas de escrita.
+* **HTML, CSS e Javascript:** Para a adaptação da interface mobile a um modelo legível pelos testes de acessibilidade;
+* **Lighthouse e WAVE:** Para a realização de diagnósticos de acessibilidade;
+* **Checkstyle:** Para checar a compatibilidade dos códigos com boas práticas de escrita e garantia de compatibilidade de versionamento.
 
 ### 7.2 [André Rodrigues](https://github.com/oandredev)
 
-<img src="https://skillicons.dev/icons?i=git,github,java,idea,spring,postman" height="48" width="100%" alt="Tech stack" />
+<img src="https://skillicons.dev/icons?i=git,github,java,idea,spring,postman,vscode" height="48" width="100%" alt="Tech stack" />
 
-É o responsável pela composição do Back-end e controle de versão do projeto, conduzindo as atividades de modelagem de classes e estrutura dos dados trabalhados no projeto, garantindo fluidez e boas práticas de segurança no tratamento de informações dos usuários. 
+É o responsável pela composição do Back-end, gerenciamento do banco de dados e controle de versão do projeto, conduzindo as atividades de modelagem de classes e estrutura dos dados trabalhados no projeto, garantindo fluidez e boas práticas de segurança no tratamento de informações dos usuários. 
 
 As principais ferramentas utilizadas por este membro são:
 
 * **Git/GitHub:** Para o controle e compartilhamento de versionamento do projeto;
 * **IntelliJ:** Para a ambientação de todos os códigos, bancos de dados e configurações;
-* **Spring:** Para a elaboração de camadas da API e visualização dos bancos de dados;
+* **VS Code:** Para a realização de testes rápidos de integração com Front-End;
+* **Spring:** Para a elaboração de camadas da API;
+* **H2 Database:** Para o mantimento e visualização de atividades nos bancos de dados;
+* **Swagger:** Para a realização de documentação automatizada da API;
 * **Postman:** Para a visualização e verificação de chamadas HTTP e estruturação de dados em JSON.
+* * **Expo:** Para a realização de testes em interface mobile (sistema Android).
 
 ### 7.3 [Fernanda Souza](https://github.com/souzafe13)
 
 <p align="center">
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/c2e46d22-2563-4815-9274-0bf774e7c93d" />
-  <img src="https://skillicons.dev/icons?i=figma,vscode,js,react" height="48" alt="Tech stack" />
+  <img src="https://skillicons.dev/icons?i=figma,vscode,js,react,apple" height="48" alt="Tech stack" />
 </p>
 
 É a responsável pela aplicação do Front-end, conduzindo a apresentação e estilização de recursos visuais do projeto e orquestrando as possibilidades de interação entre o sistema e os usuários.
@@ -148,7 +154,8 @@ As principais ferramentas utilizadas por este membro são:
 * **PowerPoint:** Para a apresentação e organização da identidade visual do projeto;
 * **Figma:** Para a arquitetura de fluxo de telas do aplicativo;
 * **Visual Studio Code:** Para a ambientação de todos os códigos, marcadores e estilizadores;
-* **React Native:** Para a elaboração de componentes mobile visuais, interativos e integrados com o back-end.
+* **React Native:** Para a elaboração de componentes mobile visuais, interativos e integrados com o back-end;
+* **Expo:** Para a realização de testes em interface mobile (sistema iOS).
 
 ---
 
