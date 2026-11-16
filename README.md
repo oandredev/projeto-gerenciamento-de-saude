@@ -162,6 +162,7 @@ As principais ferramentas utilizadas por este membro são:
   <img src="https://skillicons.dev/icons?i=git,github,java,idea,vscode,spring" height="48" alt="Tech stack" />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/ecaa5d92-ec49-4467-b172-8dcdb7e7acaa" hspace='4.5' />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/af0f3d3b-5319-4b7c-9e93-7190a0204713" hspace='1.5' />
+  <img height="48" alt="image" src="https://github.com/user-attachments/assets/eaac7b13-0190-4f4b-bf7c-c6394a39ab74" hspace='4.5' />
   <img src="https://skillicons.dev/icons?i=postman" height="48" alt="Tech stack" />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/893b4983-b6cb-4c37-ad74-3c89f709f698" hspace='1.5' />
   <img height="48" alt="image" src="https://github.com/user-attachments/assets/ec97ecdb-a018-45f2-a26c-614fb125609c" hspace='1.5' />
@@ -180,7 +181,8 @@ As principais ferramentas utilizadas por este membro são:
 * **Spring:** Para a elaboração de [camadas da API](https://github.com/oandredev/projeto-gerenciamento-de-saude/tree/main/backend/health-management/src/main/java/edu/senacsp/health_management);
 * **H2 Database:** Para o mantimento e visualização de atividades no banco de dados;
 * **Swagger:** Para a realização de documentação automatizada da API;
-* **Postman:** Para a visualização e verificação de chamadas HTTP e estruturação de dados em JSON.
+* **UniModeler:** Para planejamento e modelagem de classes;
+* **Postman:** Para a visualização e verificação de chamadas HTTP e estruturação de dados em JSON;
 * **Expo:** Para a realização de testes em interface mobile (sistema Android).
 
 ### 7.3 [Fernanda Souza](https://github.com/souzafe13)
